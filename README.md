@@ -246,6 +246,10 @@ The checks cover:
 - `fixtures/wegert-fullscreen.vert` — matching Wegert fullscreen vertex stage
 - `src/Test/Backend/` — accepted and rejected compiler fixtures
 
+## Related compiler implementation research
+
+[`docs/compiler-implementation-comparisons.md`](docs/compiler-implementation-comparisons.md) points to the ICK `inspiration` comparison of GCC, Clang/LLVM, small C compilers, libFirm, CompCert, and PCC. Revisit it when the shader IR, lowering boundary, or target set changes; it is research context rather than backend acceptance evidence.
+
 ## Current boundary
 
 The backend now reaches validated GLSL for all three relevant numerical
