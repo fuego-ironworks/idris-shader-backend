@@ -63,7 +63,10 @@ def main() -> int:
                 f"polynomial coefficient {index} was not used",
             )
 
-        require(shader.count(" ? ") >= 20, "bounded bracket/bisection decisions were not emitted")
+        require(
+            shader.count("if (") + shader.count(" ? ") >= 20,
+            "bounded bracket/bisection decisions were not emitted as branches or operand selects",
+        )
         require("16.0" in shader, "16-interval bracket search bound was lost")
         require("0.5" in shader, "bisection midpoint was not emitted")
 

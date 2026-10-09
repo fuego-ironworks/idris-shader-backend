@@ -108,6 +108,9 @@ fragment-mock-test: fragment-mocks
 			--source-dir src --output-dir /tmp/idris-fragment-mocks \
 			src/Example/GivensFragmentMocks.idr -o givens || exit $$?; \
 	done
+	$(IDRIS2_FRAGMENT_MOCKS) --cg mali-g57-valhall-mock \
+		--source-dir src --output-dir /tmp/idris-fragment-mocks \
+		src/Example/BoundedLoopProbe.idr -o bounded-loop
 	python3 tools/check_fragment_mocks.py /tmp/idris-fragment-mocks
 
 check: generate test backend-test mali-mock-test fragment-mock-test powervr-primitives-frag

@@ -14,6 +14,8 @@ runner:
 	test -f "$(ICK_BUILTIN_INCLUDE)/stddef.h"
 	test -x "$(RUNNER_NDK_CC)"
 	mkdir -p "$(dir $(RUNNER))"
-	"$(ICK_COMPILER)" $(ICK_EXTRA_FLAGS) $(ICK_NDK_BASE_FLAGS) -D__ANDROID_API__=$(ANDROID_API) -D__ANDROID_MIN_SDK_VERSION__=$(ANDROID_API) -std=c11 -O2 -Wall -Wextra -fPIE -S "$(ROOT)/tools/powervr_primitives.c" -o "$(RUNNER).s"
+	"$(ICK_COMPILER)" $(ICK_EXTRA_FLAGS) $(ICK_NDK_BASE_FLAGS) -D__ANDROID_API__=$(ANDROID_API) -D__ANDROID_MIN_SDK_VERSION__=$(ANDROID_API) -std=c11 -O2 -Wall -Wextra -fPIC -S "$(ROOT)/tools/powervr_primitives.c" -o "$(RUNNER).s"
 	"$(RUNNER_NDK_CC)" $(TARGET_FLAGS) -fPIE -c "$(RUNNER).s" -o "$(RUNNER).o"
 	"$(RUNNER_NDK_CC)" -pie "$(RUNNER).o" -o "$(RUNNER)" -lEGL -lGLESv3 -lm
+	"$(NDK_READELF)" -r "$(RUNNER)" > "$(RUNNER).relocations.txt"
+	! grep -E 'R_[A-Z0-9_]*_COPY([[:space:]]|$$)' "$(RUNNER).relocations.txt"

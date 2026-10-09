@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import shutil
+import re
 import subprocess
 import sys
 import tempfile
@@ -152,7 +153,15 @@ def check_shader_shape(shader: str, precision: str) -> None:
         require("log(" in block, f"{label} factor loop lost log-modulus evaluation")
     require(shader.count("atan(") == 2, "factor phase computation was copied outside the two loops")
     require(shader.count("log(") == 2, "factor log-modulus computation was copied outside the two loops")
-    require(" ? " not in shader, "analytic continuation regressed to eager GLSL selects")
+    # Empty structured arms can select already-computed operands. Calls and
+    # arithmetic in an arm still require structured control flow.
+    operand = r"(?:[A-Za-z_][A-Za-z_0-9]*|-?(?:[0-9]+(?:\.[0-9]*)?)(?:e[+-]?[0-9]+)?)"
+    for line in shader.splitlines():
+        if " ? " in line:
+            require(
+                re.search(r"= \(" + operand + r" \? " + operand + r" : " + operand + r"\);$", line) is not None,
+                "analytic continuation evaluated branch work in a GLSL select",
+            )
 
     for operation in ["floor(", "pow(", "smoothstep(", "cos("]:
         require(operation in shader, "analytic continuation shader lost " + operation)
