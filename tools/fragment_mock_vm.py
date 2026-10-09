@@ -21,7 +21,7 @@ Value = float | int | bool | tuple[float, ...] | tuple[bool, ...]
 @dataclass(frozen=True)
 class Program:
     interfaces: tuple[str, ...]
-    bindings: tuple[tuple[str, str, tuple[str, ...]], ...]
+    bindings: tuple[tuple[str, str, tuple[Any, ...]], ...]
     result: str
 
 
@@ -31,7 +31,7 @@ _INTERFACE = re.compile(r"^\.interface\s+(?:in|uniform)\s+%([^ ]+)\s*:\s*(.+)$")
 
 def parse_program(path: str | Path) -> Program:
     interfaces: list[str] = []
-    bindings: list[tuple[str, str, tuple[str, ...]]] = []
+    body: list[str] = []
     result: str | None = None
 
     for raw in Path(path).read_text().splitlines():
@@ -48,18 +48,58 @@ def parse_program(path: str | Path) -> Program:
             result = line.removeprefix("store.frag_color ").strip()
             continue
 
-        if line.startswith("%"):
-            match = _BINDING.match(line)
-            if not match:
-                raise ValueError(f"cannot parse mock binding: {line}")
-            name, _ty, op, arg_text = match.groups()
-            args = tuple(part.strip() for part in (arg_text or "").split(",") if part.strip())
-            bindings.append((name, op, args))
+        if line not in {".stage fragment", ".begin", ".end"}:
+            body.append(line)
 
     if result is None:
         raise ValueError("mock program has no store.frag_color")
 
-    return Program(tuple(interfaces), tuple(bindings), result)
+    def block(start: int):
+        bindings = []
+        cursor = start
+        while cursor < len(body):
+            line = body[cursor]
+            if line.startswith("yield "):
+                return tuple(bindings), line.removeprefix("yield "), cursor + 1
+            if line.startswith("if "):
+                condition = re.fullmatch(r"if (\S+) \{", line)
+                if condition is None:
+                    raise ValueError(f"invalid mock branch: {line}")
+                when_true, true_result, end = block(cursor + 1)
+                if end >= len(body) or body[end] != "} else {":
+                    raise ValueError("mock branch has no else arm")
+                when_false, false_result, end = block(end + 1)
+                closing = re.fullmatch(r"\} -> %([^ ]+) : .+", body[end]) if end < len(body) else None
+                if closing is None:
+                    raise ValueError("mock branch has no typed result")
+                bindings.append((closing.group(1), "if", (condition.group(1), when_true, true_result, when_false, false_result)))
+                cursor = end + 1
+                continue
+            if line.startswith("bounded-loop "):
+                header = re.fullmatch(r"bounded-loop %(\S+) < ([0-9]+)(?: active < (\S+))? state %(\S+) = (\S+) \{", line)
+                if header is None:
+                    raise ValueError(f"invalid mock bounded loop: {line}")
+                nested, yielded, end = block(cursor + 1)
+                closing = re.fullmatch(r"\} -> %([^ ]+) : .+", body[end]) if end < len(body) else None
+                if closing is None:
+                    raise ValueError("mock bounded loop has no typed result")
+                index, maximum, active, state, initial = header.groups()
+                bindings.append((closing.group(1), "bounded-loop", (index, int(maximum), active, state, initial, nested, yielded)))
+                cursor = end + 1
+                continue
+            match = _BINDING.fullmatch(line)
+            if match is None:
+                raise ValueError(f"cannot parse mock statement: {line}")
+            name, _ty, op, arg_text = match.groups()
+            args = tuple(part.strip() for part in (arg_text or "").split(",") if part.strip())
+            bindings.append((name, op, args))
+            cursor += 1
+        return tuple(bindings), None, cursor
+
+    bindings, yielded, end = block(0)
+    if yielded is not None or end != len(body):
+        raise ValueError("unexpected mock top-level yield")
+    return Program(tuple(interfaces), bindings, result)
 
 
 def _vector(value: Value) -> tuple[float, ...]:
@@ -172,8 +212,10 @@ def _execute_op(op: str, args: Sequence[Value]) -> Value:
         return float(_scalar(args[0]))
 
     if op == "load.index":
-        vector = _vector(args[0])
-        return vector[int(_scalar(args[1]))]
+        array, index = args[0], int(_scalar(args[1]))
+        if not isinstance(array, tuple) or not 0 <= index < len(array):
+            raise ValueError("mock array access is outside its capacity")
+        return array[index]
     if op in {"pack2", "pack3", "pack4"}:
         return tuple(_scalar(value) for value in args)
     if op == "vadd":
@@ -208,10 +250,30 @@ def execute(program: Program, inputs: Mapping[str, Value]) -> tuple[float, ...]:
     if missing:
         raise ValueError(f"missing mock inputs: {', '.join(missing)}")
 
+    def run(bindings, env):
+        for name, op, args in bindings:
+            if op == "if":
+                condition, when_true, true_result, when_false, false_result = args
+                selected, yielded = (when_true, true_result) if _bool(_operand(condition, env)) else (when_false, false_result)
+                nested = dict(env)
+                run(selected, nested)
+                env[name] = _operand(yielded, nested)
+            elif op == "bounded-loop":
+                index, maximum, active, state, initial, body, yielded = args
+                value = _operand(initial, env)
+                for iteration in range(maximum):
+                    if active is not None and not iteration < _scalar(_operand(active, env)):
+                        break
+                    nested = dict(env)
+                    nested[index], nested[state] = float(iteration), value
+                    run(body, nested)
+                    value = _operand(yielded, nested)
+                env[name] = value
+            else:
+                env[name] = _execute_op(op, [_operand(token, env) for token in args])
+
     env: dict[str, Value] = dict(inputs)
-    for name, op, arg_tokens in program.bindings:
-        values = [_operand(token, env) for token in arg_tokens]
-        env[name] = _execute_op(op, values)
+    run(program.bindings, env)
 
     result = _operand(program.result, env)
     return _vector(result)

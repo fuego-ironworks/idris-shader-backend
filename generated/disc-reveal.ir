@@ -23,41 +23,95 @@ _idris_t20 : F32 = (_idris_t17 / _idris_t19)
 _idris_t21 : F32 = (2.0 * _idris_t20)
 _idris_t22 : F32 = max(1e-5, _idris_t21)
 _idris_t23 : Bool = (u_disc_radius < 0.0)
-_idris_t24 : Bool = (1e-5 > u_disc_radius)
-_idris_t25 : F32 = (_idris_t24 ? 1e-5 : u_disc_radius)
-_idris_t26 : Bool = (1e-5 > _idris_t22)
-_idris_t27 : F32 = (_idris_t26 ? 1e-5 : _idris_t22)
-_idris_t28 : Bool = (_idris_t25 < _idris_t27)
-_idris_t29 : F32 = (_idris_t28 ? _idris_t25 : _idris_t27)
-_idris_t30 : F32 = (u_disc_radius - _idris_t29)
-_idris_t31 : F32 = (_idris_t16 - _idris_t30)
-_idris_t32 : F32 = (_idris_t31 / _idris_t29)
-_idris_t33 : Bool = (_idris_t32 < 0.0)
-_idris_t34 : Bool = (_idris_t32 > 1.0)
-_idris_t35 : F32 = (_idris_t34 ? 1.0 : _idris_t32)
-_idris_t36 : F32 = (_idris_t33 ? 0.0 : _idris_t35)
-_idris_t37 : F32 = (_idris_t23 ? 0.0 : _idris_t36)
-_idris_t38 : F32 = v_ndc.x
-_idris_t39 : F32 = (_idris_t38 + 1.0)
-_idris_t40 : F32 = (0.5 * _idris_t39)
-_idris_t41 : F32 = u_resolution.x
-_idris_t42 : F32 = (_idris_t40 * _idris_t41)
-_idris_t43 : F32 = v_ndc.y
-_idris_t44 : F32 = (_idris_t43 + 1.0)
-_idris_t45 : F32 = (0.5 * _idris_t44)
-_idris_t46 : F32 = u_resolution.y
-_idris_t47 : F32 = (_idris_t45 * _idris_t46)
-_idris_t48 : F32 = (0.173 * _idris_t42)
-_idris_t49 : F32 = sin(_idris_t48)
-_idris_t50 : F32 = (0.137 * _idris_t47)
-_idris_t51 : F32 = sin(_idris_t50)
-_idris_t52 : F32 = (_idris_t49 * _idris_t51)
-_idris_t53 : F32 = (0.5 * _idris_t52)
-_idris_t54 : F32 = (0.5 + _idris_t53)
-_idris_t55 : F32 = (1.0 - _idris_t54)
-_idris_t56 : F32 = (0.035 * _idris_t55)
-_idris_t57 : F32 = (0.055 * _idris_t54)
-_idris_t58 : F32 = (_idris_t56 + _idris_t57)
-_idris_t59 : F32x4 = vec4(_idris_t58, _idris_t58, _idris_t58, _idris_t37)
-return _idris_t59
+_idris_t24 : Bool = if _idris_t23 {
+  yield true
+} else {
+  yield false
+}
+_idris_t25 : F32 = if _idris_t24 {
+  yield 0.0
+} else {
+  _idris_t26 : Bool = (1e-5 > u_disc_radius)
+  _idris_t27 : Bool = if _idris_t26 {
+    yield true
+  } else {
+    yield false
+  }
+  _idris_t28 : F32 = if _idris_t27 {
+    yield 1e-5
+  } else {
+    yield u_disc_radius
+  }
+  _idris_t29 : Bool = (1e-5 > _idris_t22)
+  _idris_t30 : Bool = if _idris_t29 {
+    yield true
+  } else {
+    yield false
+  }
+  _idris_t31 : F32 = if _idris_t30 {
+    yield 1e-5
+  } else {
+    yield _idris_t22
+  }
+  _idris_t32 : Bool = (_idris_t28 < _idris_t31)
+  _idris_t33 : Bool = if _idris_t32 {
+    yield true
+  } else {
+    yield false
+  }
+  _idris_t34 : F32 = if _idris_t33 {
+    yield _idris_t28
+  } else {
+    yield _idris_t31
+  }
+  _idris_t35 : F32 = (u_disc_radius - _idris_t34)
+  _idris_t36 : F32 = (_idris_t16 - _idris_t35)
+  _idris_t37 : F32 = (_idris_t36 / _idris_t34)
+  _idris_t38 : Bool = (_idris_t37 < 0.0)
+  _idris_t39 : Bool = if _idris_t38 {
+    yield true
+  } else {
+    yield false
+  }
+  _idris_t40 : F32 = if _idris_t39 {
+    yield 0.0
+  } else {
+    _idris_t41 : Bool = (_idris_t37 > 1.0)
+    _idris_t42 : Bool = if _idris_t41 {
+      yield true
+    } else {
+      yield false
+    }
+    _idris_t43 : F32 = if _idris_t42 {
+      yield 1.0
+    } else {
+      yield _idris_t37
+    }
+    yield _idris_t43
+  }
+  yield _idris_t40
+}
+_idris_t44 : F32 = v_ndc.x
+_idris_t45 : F32 = (_idris_t44 + 1.0)
+_idris_t46 : F32 = (0.5 * _idris_t45)
+_idris_t47 : F32 = u_resolution.x
+_idris_t48 : F32 = (_idris_t46 * _idris_t47)
+_idris_t49 : F32 = v_ndc.y
+_idris_t50 : F32 = (_idris_t49 + 1.0)
+_idris_t51 : F32 = (0.5 * _idris_t50)
+_idris_t52 : F32 = u_resolution.y
+_idris_t53 : F32 = (_idris_t51 * _idris_t52)
+_idris_t54 : F32 = (0.173 * _idris_t48)
+_idris_t55 : F32 = sin(_idris_t54)
+_idris_t56 : F32 = (0.137 * _idris_t53)
+_idris_t57 : F32 = sin(_idris_t56)
+_idris_t58 : F32 = (_idris_t55 * _idris_t57)
+_idris_t59 : F32 = (0.5 * _idris_t58)
+_idris_t60 : F32 = (0.5 + _idris_t59)
+_idris_t61 : F32 = (1.0 - _idris_t60)
+_idris_t62 : F32 = (0.035 * _idris_t61)
+_idris_t63 : F32 = (0.055 * _idris_t60)
+_idris_t64 : F32 = (_idris_t62 + _idris_t63)
+_idris_t65 : F32x4 = vec4(_idris_t64, _idris_t64, _idris_t64, _idris_t25)
+return _idris_t65
 

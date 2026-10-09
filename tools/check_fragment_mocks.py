@@ -199,9 +199,15 @@ def main() -> None:
         check_wegert(output_dir, codegen, target_name)
         check_givens(output_dir, codegen, target_name)
 
+    loop = parse_program(output_dir / "bounded-loop.mali-g57-valhall-mock.frag.mock")
+    for active, total in [(-1.0, 0.0), (0.0, 0.0), (2.0, 1.0), (2.5, 3.0), (4.0, 6.0), (8.0, 6.0)]:
+        actual = execute(loop, {"u_active": active})
+        if actual != (total, total, total, 1.0):
+            fail(f"bounded loop ignored its active/capacity bound at {active}: {actual}")
+
     print(
         f"fragment mock execution OK: {len(TARGETS)} targets, "
-        "5 Wegert samples and 4 genuine Givens cases each"
+        "5 Wegert samples and 4 genuine Givens cases each, six bounded-loop edge cases"
     )
 
 

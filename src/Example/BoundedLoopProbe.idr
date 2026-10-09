@@ -16,5 +16,9 @@ bounded_loop_probe active =
   let accumulated = sum_until active 0.0 0.0
    in vec4 accumulated accumulated accumulated 1.0
 
+%export "mali-g57-valhall-mock:fragment|u_active=uniform"
+bounded_loop_mock : Double -> SVec 4
+bounded_loop_mock = bounded_loop_probe
+
 main : IO ()
 main = pure ()
