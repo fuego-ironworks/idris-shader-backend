@@ -58,12 +58,28 @@ jobs:
       - name: Record compiler version
         run: idris2 --version
 
+      - name: Build the C runner frontend
+        id: ick
+        uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+      - name: Check out the C stage contract
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+          path: .aici-host
+          sparse-checkout: |
+            src/aici.c
+            contracts/build-toolchain-v0.contract.tsv
+          persist-credentials: false
+      - name: Verify the C runner stages
+        run: make -f ci/Makefile verify ICK="${{ steps.ick.outputs.compiler }}"
+
       - name: Run complete backend checks
         run: make check
 
       - name: Execute Android GLES framebuffer probes under Mesa
         run: |
-          make powervr-primitives GLES_LIBS=-lGLESv2
+          make powervr-primitives ICK="${{ steps.ick.outputs.compiler }}" GLES_LIBS=-lGLESv2
           EGL_PLATFORM=surfaceless ./build/powervr-primitives
 
       - name: Reject uncommitted generated output

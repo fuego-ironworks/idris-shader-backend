@@ -2,7 +2,8 @@ IDRIS2 ?= idris2
 IDRIS2_GLSLES ?= ./build/exec/idris2-glsles
 IDRIS2_MALI_MOCK ?= ./build/exec/idris2-mali-mock
 IDRIS2_FRAGMENT_MOCKS ?= ./build/exec/idris2-fragment-mocks
-CC ?= cc
+ICK ?=
+ICK_FLAGS ?= -fno-link-libatomic
 EGL_LIBS ?= -lEGL
 GLES_LIBS ?= -lGLESv3
 
@@ -62,8 +63,9 @@ powervr-primitives-frag: backend
 		src/Example/RotateDifference8ToE1.idr -o rotate-difference8-to-e1
 
 powervr-primitives-host:
+	test -x "$(ICK)"
 	mkdir -p build
-	$(CC) -std=c11 -O2 -Wall -Wextra tools/powervr_primitives.c \
+	"$(ICK)" $(ICK_FLAGS) -std=c11 -O2 -Wall -Wextra tools/powervr_primitives.c \
 		-o build/powervr-primitives $(EGL_LIBS) $(GLES_LIBS) -lm
 
 powervr-primitives: powervr-primitives-frag powervr-primitives-host

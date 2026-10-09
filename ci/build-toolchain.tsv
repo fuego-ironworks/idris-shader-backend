@@ -1,0 +1,3 @@
+build_id	target	toolchain	ick_revision	ick_status	ick_evidence
+shader-runner-c	host-and-android-api21-armv7-aarch64	ick	c61e448251744a2f40ad743ebef1a027bdcd2f9d	qualified	tools/division-migration.md
+shader-runner-android-link	android-api21-armv7-aarch64	ndk	c61e448251744a2f40ad743ebef1a027bdcd2f9d	gap:standalone Android assembler linker and EGL GLES Bionic runtime	tools/division-migration.md

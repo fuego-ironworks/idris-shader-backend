@@ -1,0 +1,41 @@
+name: Shader runner ICK Android compilers
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  compiler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [armeabi-v7a, arm64-v8a]
+    steps:
+      - name: Check out the qualified stage interface
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+          path: .ai-ci-ick
+          persist-credentials: false
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407
+        with:
+          packages: platform-tools
+      - name: Install the declared Android NDK
+        run: sdkmanager "ndk;27.2.12479018"
+      - name: Build and qualify the ICK frontend
+        uses: isomorphisms/ai-ci/ick-android@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+        with:
+          abi: ${{ matrix.abi }}
+          ndk: ${{ env.ANDROID_HOME }}/ndk/27.2.12479018
+      - name: Retain the installed compiler and qualification receipt
+        run: make -f .ai-ci-ick/ick-android/Makefile archive-stage ABI="${{ matrix.abi }}" ICK_STAGE="${{ runner.temp }}/ick-android-${{ matrix.abi }}-stage" ICK_ARCHIVE="${{ runner.temp }}/shader-ick-${{ matrix.abi }}.tar.gz"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: shader-ick-${{ matrix.abi }}
+          path: ${{ runner.temp }}/shader-ick-${{ matrix.abi }}.tar.gz
+          if-no-files-found: error
