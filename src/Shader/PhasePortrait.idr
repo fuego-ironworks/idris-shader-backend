@@ -65,6 +65,7 @@ factor_sum_64 point count factors =
   factor_sum_from point count factors 0.0 (vec2 0.0 0.0)
 
 covering
+public export
 rational_measure :
   SVec 2 -> Double -> SArray 64 (SVec 2) ->
   Double -> SArray 64 (SVec 2) -> SVec 2
