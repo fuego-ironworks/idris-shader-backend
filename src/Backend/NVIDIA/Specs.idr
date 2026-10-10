@@ -145,17 +145,20 @@ tensorOperandName TensorE2M1 = "fp4.e2m1"
 tensorOperandName TensorINT8 = "int8"
 tensorOperandName TensorINT4 = "int4"
 
-||| CUDA Programming Guide table 33: architecture-specific Tensor Core types.
+||| CUDA Programming Guide online table 33 (2026-09-10): supported tensor
+||| inputs at CC 9.0, 10.0 and 10.3. The current online table omits INT4 for
+||| these three CCs, despite a divergent older 13.2 PDF extraction and legacy
+||| warp-level PTX .s4/.u4 MMA instructions. Do not infer tcgen05 INT4 support.
 public export
 tensorOperands : NVIDIAArch -> List TensorOperand
 tensorOperands HopperSM90 =
   [TensorFP64, TensorTF32, TensorBF16, TensorFP16, TensorE4M3, TensorE5M2, TensorINT8]
 tensorOperands BlackwellSM100 =
   [TensorFP64, TensorTF32, TensorBF16, TensorFP16, TensorE4M3, TensorE5M2,
-   TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8, TensorINT4]
+   TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8]
 tensorOperands BlackwellUltraSM103 =
   [TensorTF32, TensorBF16, TensorFP16, TensorE4M3, TensorE5M2,
-   TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8, TensorINT4]
+   TensorE2M3, TensorE2M1, TensorINT8]
 
 ||| Feature guards for eventual instruction selection; this module emits no PTX.
 public export
@@ -191,9 +194,11 @@ supports _ DistributedSharedMemory = True
 supports _ TensorMemoryAccelerator = True
 supports HopperSM90 HopperWGMMA = True
 supports _ HopperWGMMA = False
-||| Hopper and Blackwell implement DPX; Blackwell's newer instruction forms
-||| may require newer PTX/toolkits. This is not a guarantee about every form.
-supports _ NativeDPX = True
+||| CUDA Table 29 (2026-09-10) records native DPX on SM90, but multi-
+||| instruction implementations for the SM100/SM103 family. Available
+||| DPX-like operations are not synonymous with one native DPX instruction.
+supports HopperSM90 NativeDPX = True
+supports _ NativeDPX = False
 supports HopperSM90 BlackwellTCGen05 = False
 supports _ BlackwellTCGen05 = True
 supports HopperSM90 BlackwellTensorMemory = False
