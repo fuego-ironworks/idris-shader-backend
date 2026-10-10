@@ -24,6 +24,7 @@ floatUnaryOp FCos = "fcos"
 floatUnaryOp FFloor = "ffloor"
 floatUnaryOp FFract = "ffract"
 floatUnaryOp FLog = "flog"
+floatUnaryOp FExp = "fexp"
 
 floatBinaryOp : FloatBinary -> String
 floatBinaryOp FAdd = "fadd"

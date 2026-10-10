@@ -67,7 +67,7 @@ The accepted numerical operations now include:
 - vector construction, components, addition, subtraction, scaling, dot,
   length, and normalization
 - `abs`, `sqrt`, `sin`, `cos`, `min`, `max`, `clamp`, and `mix`
-- `floor`, `fract`, `log`, two-argument `atan`, `pow`, and `smoothstep`
+- `floor`, `fract`, `log`, `exp`, two-argument `atan`, `pow`, and `smoothstep`
 - fixed uniform arrays with typed indexing
 - `let` bindings and pure conditionals
 - saturated calls to first-order helper functions; their bodies are
