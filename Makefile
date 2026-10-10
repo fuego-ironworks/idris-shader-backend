@@ -15,7 +15,6 @@ FRAGMENT_MOCK_TARGETS = \
 	apple-metal-mock \
 	nvidia-hopper-sm90-mock \
 	nvidia-blackwell-sm100-mock \
-	nvidia-blackwell-ultra-sm103-mock \
 	adreno-tile-mock
 
 .PHONY: build backend mali-mock fragment-mocks generate generate-compiler test backend-test mali-mock-test fragment-mock-test check clean \
