@@ -245,3 +245,25 @@ nvidiaMockHeader "nvidia-hopper-sm90-mock" = mockArchitectureHeader HopperSM90
 nvidiaMockHeader "nvidia-blackwell-sm100-mock" = mockArchitectureHeader BlackwellSM100
 nvidiaMockHeader "nvidia-blackwell-ultra-sm103-mock" = mockArchitectureHeader BlackwellUltraSM103
 nvidiaMockHeader _ = []
+
+||| A hardware feature does not imply the baseline PTX target exposes its
+||| architecture-specific instruction. Require the right PTX feature set.
+||| The eventual PTX emitter must also check its actual toolchain version.
+public export
+instructionEligible : NVIDIAArch -> PTXScope -> NVIDIAFeature -> Bool
+instructionEligible arch scope feature =
+  if not (supports arch feature) then False
+  else case feature of
+    HopperWGMMA => case scope of
+      ArchitectureSpecific => True
+      _ => False
+    BlackwellTCGen05 => case scope of
+      Baseline => False
+      _ => True
+    BlackwellTensorMemory => case scope of
+      Baseline => False
+      _ => True
+    TCGen05LoadReduction => case scope of
+      Baseline => False
+      _ => True
+    _ => True
