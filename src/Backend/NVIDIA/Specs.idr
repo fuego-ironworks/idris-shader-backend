@@ -191,8 +191,9 @@ supports _ DistributedSharedMemory = True
 supports _ TensorMemoryAccelerator = True
 supports HopperSM90 HopperWGMMA = True
 supports _ HopperWGMMA = False
-supports HopperSM90 NativeDPX = True
-supports _ NativeDPX = False
+||| Hopper and Blackwell implement DPX; Blackwell's newer instruction forms
+||| may require newer PTX/toolkits. This is not a guarantee about every form.
+supports _ NativeDPX = True
 supports HopperSM90 BlackwellTCGen05 = False
 supports _ BlackwellTCGen05 = True
 supports HopperSM90 BlackwellTensorMemory = False
