@@ -3,8 +3,9 @@
 Status: **architecture catalogue with Idris-checked guards, not a PTX backend**.
 Recorded 2026-10-10 against current NVIDIA published programming, PTX and SKU
 documentation. Source-of-truth implementation: `src/Backend/NVIDIA/Specs.idr`.
-The `FragmentMock` compiler emits shared pseudo-assembly plus architecture
-metadata, never PTX, cubins, SPIR-V, CUDA kernels or executable shaders.
+The catalogue is independently typechecked via
+`idris2 --build nvidia-target-specifications.ipkg`. It is not connected to
+a CUDA/PTX emitter or the inherited NVIDIA fragment mocks.
 
 This catalogue concerns commercially published NVIDIA hardware families, **not
 which GPU served a particular OpenAI request**. Cloud partitioning, clock
@@ -262,24 +263,25 @@ mock pseudo assembly or comparing a CPU oracle does not establish those gates.
 
 ## Guardrails and acceptance
 
-1. Idris `Test.NVIDIA.Specs` checks architectural and suffix-dependent facts
-   at type-check time; these are *static model* tests only.
-2. `make fragment-mock-test` must generate the three NVIDIA mock dialects,
-   including `nvidia-blackwell-ultra-sm103-mock`, from checked shader source;
-   its existing legacy Python mock oracle remains migration debt.
-3. A mock artifact identifies the compute capability, PTX suffix availability,
-   32-thread warps, 65,536 32-bit SM registers, 228 KiB shared memory,
-   Tensor FP64 and TCGen05 presence and signed E5M3 tensor-input absence,
-   along with the absence of the newer UE5M3 scale on these three GPUs. It states plainly that
-   it is **NOT EXECUTABLE**.
-4. Never extrapolate actual server SKU, enabled SM count, memory, MIG settings,
-   compiler availability or clock policy from an architecture class.
-5. The registered compiler still emits GLSL ES 3.00 for its genuine working
-   shader path; adding target facts does **not** extend the accepted
-   source-language subset or implement CUDA, PTX or Idriç integration.
-6. Real compiler output, PTX validation, host launch, framebuffer/readback,
-   and physical hardware measurement remain separate **PENDING** stages.
+1. `idris2 --build nvidia-target-specifications.ipkg` typechecks
+   `Backend.NVIDIA.Specs` and 31 definitional properties in
+   `Test.NVIDIA.Specs`. The properties constrain a *static catalogue*;
+   they are not hardware tests or PTX output checks.
+2. This PR **does not alter or claim acceptance of** the existing
+   `FragmentMock` targets. Their inherited emitter refers to the obsolete
+   `bindings` representation rather than the current `statements` IR;
+   an SM103 mock and its missing fixture exports are deliberately not
+   introduced as a supposedly working GPU target.
+3. Do not extrapolate actual enabled SMs, device memory, MIG settings,
+   compiler support or clock policy from the architecture class.
+4. The registered GLSL ES 3.00 compiler remains separate from the new
+   NVIDIA catalogue. This is not CUDA/PTX lowering, GPU execution,
+   a completed shader target, or Idriç compiler integration.
+5. Full PTX generation, `ptxas` validation, host/device ABI, buffer readback,
+   and physical named-GPU measurements remain independent **PENDING** stages.
+6. The unrelated legacy GLSL intermediate-representation golden check already
+   fails on the current default branch; its mismatch must be fixed in its
+   own scope, not hidden or weakened to make this catalogue look green.
 
 Related: `docs/float-semantics.md`, `docs/holomorphic-explorer-follower.md`,
-`src/Backend/FragmentMock/Targets.idr`,
 `src/Backend/GLSLES/IR.idr`, and `AGENTS.md`.
