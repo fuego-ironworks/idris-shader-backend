@@ -58,6 +58,9 @@ jobs:
       - name: Record compiler version
         run: idris2 --version
 
+      - name: Compile NVIDIA specification proofs and exercise mock outputs
+        run: make fragment-mock-test
+
       - name: Run complete backend checks
         run: make check
 
