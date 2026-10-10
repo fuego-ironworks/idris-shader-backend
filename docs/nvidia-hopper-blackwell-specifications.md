@@ -142,7 +142,7 @@ https://docs.nvidia.com/cuda/parallel-thread-execution/
 | Tensor FP6 E2M3 / E3M2 | No | Yes | Yes |
 | Tensor FP4 E2M1 | No | Yes | Yes |
 | Tensor INT8 | Yes | Yes | Yes |
-| Tensor INT4 | **Not a supported tensor input for 9.0** | Not supported | Not supported |
+| Tensor INT4 | No | Yes | Yes |
 | Signed E5M3 FP8 **tensor input** | No | No | No |
 | PTX 9.4 unsigned UE5M3 **scale** | Not available | Not available | Not available |
 
@@ -178,7 +178,10 @@ be substituted for an accurately specified oracle without precision evidence.
 Precision and layout proofs belong to the shader IR, not SKU marketing data.
 
 Source for allowed matrix operands and throughput ratios: CUDA technical
-capability tables 30 and 33; PTX instruction reference.
+capability tables 30 and 33; PTX instruction reference. The CUDA table lists
+INT4 for SM100 and SM103, but this is an architecture-level datatype claim,
+not a promise that every particular fifth-generation MMA instruction variant
+or CUDA library provides an INT4 implementation.
 
 ## Async memory, warp collaboration and Tensor Cores
 
@@ -192,8 +195,9 @@ capability tables 30 and 33; PTX instruction reference.
   global/shared transfers, including bulk copies, coordinated with barriers.
 - Asynchronous barriers and shared-memory synchronization are semantic
   requirements; do not reorder producer/consumer activity across them.
-- Native DPX (dynamic programming instructions) is a Hopper advantage but is
-  not assumed native on the Blackwell architecture.
+- Native DPX (dynamic-programming instructions) is supported on Hopper and
+  Blackwell. Blackwell adds improved instruction variants; using those forms
+  requires matching PTX/toolkit versions rather than equating all DPX modes.
 
 ### Blackwell SM100 / B200 / GB200
 
@@ -225,6 +229,7 @@ Sources:
 https://docs.nvidia.com/cuda/hopper-tuning-guide/
 https://docs.nvidia.com/cuda/blackwell-tuning-guide/
 https://docs.nvidia.com/cuda/parallel-thread-execution/
+https://developer.nvidia.com/blog/accelerating-end-to-end-co-folding-performance-with-nvidia-bionemo-agent-toolkit/
 
 ## Memory tiers and shader construction
 
@@ -264,7 +269,7 @@ mock pseudo assembly or comparing a CPU oracle does not establish those gates.
 ## Guardrails and acceptance
 
 1. `idris2 --build nvidia-target-specifications.ipkg` typechecks
-   `Backend.NVIDIA.Specs` and 31 definitional properties in
+   `Backend.NVIDIA.Specs` and 34 definitional properties in
    `Test.NVIDIA.Specs`. The properties constrain a *static catalogue*;
    they are not hardware tests or PTX output checks.
 2. This PR **does not alter or claim acceptance of** the existing
