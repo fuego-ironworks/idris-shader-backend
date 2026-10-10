@@ -72,6 +72,30 @@ sm90To103Limits = MkSMLimits
   32 1024 2048 64 32 65536 65536 255
   228 227 256 32 64 512 48
 
+||| CUDA grid/block dimensions are distinct from their total thread budget.
+||| Constraints of a particular launched kernel may be much stricter.
+public export
+record GridLimits where
+  constructor MkGridLimits
+  gridDimensionsMax : Nat
+  gridXMax : Nat
+  gridYMax : Nat
+  gridZMax : Nat
+  blockDimensionsMax : Nat
+  blockXMax : Nat
+  blockYMax : Nat
+  blockZMax : Nat
+  residentGridsPerDeviceMax : Nat
+  portableClusterBlocksMax : Nat
+
+public export
+cudaGridLimits : GridLimits
+cudaGridLimits = MkGridLimits
+  3 2147483647 65535 65535
+  3 1024 1024 64 128 8
+
+||| B200's nonportable cluster limit requires opt-in; 8 is portable.
+||| Never apply 16 automatically to every SM100/SM103 SKU.
 public export
 record SMProfile where
   constructor MkSMProfile
@@ -178,6 +202,12 @@ data NVIDIASku = H100SXM | H200SXM | B200SXM | GB200NVL72 | GB300NVL72
 ||| GB here means manufacturer-reported decimal gigabytes, TB/s decimal.
 ||| smCountCeiling is a published SKU count or full-chip upper bound, never
 ||| an assumed number of enabled SMs on an arbitrary cloud instance.
+||| B200's larger cluster size needs an explicit nonportable opt-in.
+public export
+nonportableClusterBlocks : NVIDIASku -> Maybe Nat
+nonportableClusterBlocks B200SXM = Just 16
+nonportableClusterBlocks _ = Nothing
+
 public export
 record SKUSpec where
   constructor MkSKUSpec
@@ -195,8 +225,8 @@ sku H100SXM = MkSKUSpec
   "H100 SXM" HopperSM90 80 3350 900 (Just 132)
   "H100 SXM implementation, not every H100 variant"
 sku H200SXM = MkSKUSpec
-  "H200 SXM" HopperSM90 141 4800 900 Nothing
-  "exact enabled SM count not asserted by this inventory"
+  "H200 SXM" HopperSM90 141 4800 900 (Just 132)
+  "published H200 SXM configuration; a cloud slice may expose fewer"
 sku B200SXM = MkSKUSpec
   "B200 SXM" BlackwellSM100 180 8000 1800 (Just 148)
   "published B200 configuration; installed SKU must be queried"
@@ -267,3 +297,11 @@ instructionEligible arch scope feature =
       Baseline => False
       _ => True
     _ => True
+
+||| Compiler/ISA minimum is separate from the GPU architecture.
+||| Only mark a floor when NVIDIA's ISA explicitly states one.
+public export
+minimumPTXISA : NVIDIAFeature -> Maybe (Nat, Nat)
+minimumPTXISA BlackwellTCGen05 = Just (8, 6)
+minimumPTXISA TCGen05LoadReduction = Just (8, 8)
+minimumPTXISA _ = Nothing
