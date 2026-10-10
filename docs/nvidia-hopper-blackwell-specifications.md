@@ -142,7 +142,8 @@ https://docs.nvidia.com/cuda/parallel-thread-execution/
 | Tensor FP4 E2M1 | No | Yes | Yes |
 | Tensor INT8 | Yes | Yes | Yes |
 | Tensor INT4 | **Not a supported tensor input for 9.0** | Not supported | Not supported |
-| Native project's proposed **E5M3** | **No** | **No** | **No** |
+| Signed E5M3 FP8 **tensor input** | No | No | No |
+| PTX 9.4 unsigned UE5M3 **scale** | Not available | Not available | Not available |
 
 In particular, GB300's **much faster low-precision tensor matrix paths**
 must not cause the compiler to assume strong FP64 acceleration. Scalar FP64
@@ -154,9 +155,17 @@ These packed Tensor Core operand formats are not ordinary scalar numeric types
 whose arithmetic automatically maps to one Tensor Core instruction. Record
 type widths, layout, rounding, accumulation format, signedness, scale
 metadata, packing, and allowed matrix shapes in a **separate operation
-contract**. Proposed E5M3 requires an explicit **software representation and
-defined conversion/rounding**, never a hidden alias to E4M3 or E5M2.
-Do not silently demote a numeric request to tensor FP8.
+contract**. The intended standard signed FP8 formats are **E4M3 and E5M2**.
+Do not silently demote a numeric request to tensor FP8 or map signed formats
+to an unsigned scale format.
+
+**PTX ISA 9.4 nuance:** NVIDIA also documents an 8-bit unsigned `ue5m3`
+format used as a *scale* for `tcgen05` and in `cvt` conversions. These
+operations require `sm_107f` or later within the same Blackwell family,
+not `sm_90`, `sm_100`, or `sm_103`. Therefore the catalogue denies
+UE5M3 scale availability **only for its three modeled architectures**;
+it does not claim that NVIDIA has no UE5M3 format anywhere. It is also
+not a signed 8-bit E5M3 matrix input.
 
 FP64/FP32 special-function semantics and `--use_fast_math` are not
 interchangeable. In particular: explicit FMA/contraction controls, rounding
@@ -260,7 +269,8 @@ mock pseudo assembly or comparing a CPU oracle does not establish those gates.
    its existing legacy Python mock oracle remains migration debt.
 3. A mock artifact identifies the compute capability, PTX suffix availability,
    32-thread warps, 65,536 32-bit SM registers, 228 KiB shared memory,
-   Tensor FP64 and TCGen05 presence and E5M3 absence. It states plainly that
+   Tensor FP64 and TCGen05 presence and signed E5M3 tensor-input absence,
+   along with the absence of the newer UE5M3 scale on these three GPUs. It states plainly that
    it is **NOT EXECUTABLE**.
 4. Never extrapolate actual server SKU, enabled SM count, memory, MIG settings,
    compiler availability or clock policy from an architecture class.
