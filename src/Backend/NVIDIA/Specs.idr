@@ -122,7 +122,9 @@ profile BlackwellUltraSM103 = MkSMProfile
   [0, 8, 16, 32, 64, 100, 132, 164, 196, 228] 64 5
 
 ||| These are Tensor Core operand types, not scalar ALU instruction types.
-||| FP8 is E4M3/E5M2, never the project's experimental E5M3.
+||| Signed FP8 Tensor Core operands are E4M3/E5M2, not E5M3.
+||| PTX 9.4 also defines unsigned UE5M3 *scales* for sm_107f+, which are
+||| distinct from these three architectures and from signed FP8 operands.
 public export
 data TensorOperand =
     TensorFP64 | TensorTF32 | TensorBF16 | TensorFP16
@@ -159,7 +161,8 @@ tensorOperands BlackwellUltraSM103 =
 public export
 data NVIDIAFeature =
     ScalarFP64 | TensorFP64Capability | TensorFP8Capability
-  | TensorFP6Capability | TensorFP4Capability | NativeE5M3
+  | TensorFP6Capability | TensorFP4Capability
+  | NativeSignedE5M3TensorInput | NativeUE5M3Scale
   | WarpShuffle | WarpVote | WarpReduce | AsyncBarrier
   | Atomic128 | ThreadBlockClusters | DistributedSharedMemory
   | TensorMemoryAccelerator | HopperWGMMA | NativeDPX
@@ -176,7 +179,8 @@ supports HopperSM90 TensorFP6Capability = False
 supports _ TensorFP6Capability = True
 supports HopperSM90 TensorFP4Capability = False
 supports _ TensorFP4Capability = True
-supports _ NativeE5M3 = False
+supports _ NativeSignedE5M3TensorInput = False
+supports _ NativeUE5M3Scale = False
 supports _ WarpShuffle = True
 supports _ WarpVote = True
 supports _ WarpReduce = True
@@ -271,7 +275,8 @@ mockArchitectureHeader arch =
       , "; NVIDIA-SM-SHARED-KIB: " ++ show (sharedKiBPerSMMax r)
       , "; NVIDIA-TENSOR-FP64: " ++ show (supports arch TensorFP64Capability)
       , "; NVIDIA-TCGEN05: " ++ show (supports arch BlackwellTCGen05)
-      , "; NVIDIA-NATIVE-E5M3: false"
+      , "; NVIDIA-SIGNED-E5M3-TENSOR-INPUT: false"
+      , "; NVIDIA-UE5M3-SCALE: unsupported on sm_90/sm_100/sm_103"
       , "; NVIDIA-ARCHITECTURE-FACTS-ONLY: not PTX or executable GPU code"
       ]
 
@@ -313,4 +318,5 @@ public export
 minimumPTXISA : NVIDIAFeature -> Maybe (Nat, Nat)
 minimumPTXISA BlackwellTCGen05 = Just (8, 6)
 minimumPTXISA TCGen05LoadReduction = Just (8, 8)
+minimumPTXISA NativeUE5M3Scale = Just (9, 4)
 minimumPTXISA _ = Nothing
