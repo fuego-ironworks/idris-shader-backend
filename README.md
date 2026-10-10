@@ -246,6 +246,22 @@ The checks cover:
 - `fixtures/wegert-fullscreen.vert` — matching Wegert fullscreen vertex stage
 - `src/Test/Backend/` — accepted and rejected compiler fixtures
 
+## NVIDIA compute target catalogue (architecture facts, not PTX)
+
+The [Hopper / Blackwell / Blackwell Ultra specifications](docs/nvidia-hopper-blackwell-specifications.md)
+record the hardware limits, memory, scalar/tensor numeric formats, PTX
+architecture suffixes, instruction capability guards and product-specific
+figures for H100, H200, B200, GB200 and GB300. The typed catalogue lives in
+`src/Backend/NVIDIA/Specs.idr`, with compile-time proofs in
+`src/Test/NVIDIA/Specs.idr`.
+
+The fragment-mock runner can now label `sm_90`, `sm_100`, and the distinct
+`sm_103` family (including the **absence** of FP64 Tensor Cores on GB300).
+These outputs remain **non-executable pseudo-assembly**. This does not add
+PTX code generation, a CUDA host, access to NVIDIA GPUs, or Idriç compiler
+integration. Actual shader emission continues through the existing GLSL ES
+backend for that target.
+
 ## Current boundary
 
 The backend now reaches validated GLSL for all three relevant numerical
