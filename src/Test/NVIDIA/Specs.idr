@@ -39,8 +39,16 @@ gb300HasFP4Tensor : supports BlackwellUltraSM103 TensorFP4Capability = True
 gb300HasFP4Tensor = Refl
 
 public export
-noNativeE5M3 : supports BlackwellUltraSM103 NativeE5M3 = False
-noNativeE5M3 = Refl
+noSignedE5M3TensorInput : supports BlackwellUltraSM103 NativeSignedE5M3TensorInput = False
+noSignedE5M3TensorInput = Refl
+
+public export
+noUE5M3ScaleOnGB300 : supports BlackwellUltraSM103 NativeUE5M3Scale = False
+noUE5M3ScaleOnGB300 = Refl
+
+public export
+ue5m3ScaleMinPTX : minimumPTXISA NativeUE5M3Scale = Just (9, 4)
+ue5m3ScaleMinPTX = Refl
 
 public export
 h100WgmmaNeedsExact : instructionEligible HopperSM90 Baseline HopperWGMMA = False
