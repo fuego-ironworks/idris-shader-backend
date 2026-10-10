@@ -131,15 +131,15 @@ hopperFamilyCannotCompile : instructionEligible HopperSM90 FamilySpecific Scalar
 hopperFamilyCannotCompile = Refl
 
 public export
-b200HasNativeDPX : supports BlackwellSM100 NativeDPX = True
-b200HasNativeDPX = Refl
+b200DPXNotSingleNative : supports BlackwellSM100 NativeDPX = False
+b200DPXNotSingleNative = Refl
 
 public export
-gb300HasNativeDPX : supports BlackwellUltraSM103 NativeDPX = True
-gb300HasNativeDPX = Refl
+gb300DPXNotSingleNative : supports BlackwellUltraSM103 NativeDPX = False
+gb300DPXNotSingleNative = Refl
 
 public export
-b200HasTensorINT4 : tensorOperands BlackwellSM100 =
+b200Table33TensorInputList : tensorOperands BlackwellSM100 =
   [TensorFP64, TensorTF32, TensorBF16, TensorFP16, TensorE4M3, TensorE5M2,
-   TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8, TensorINT4]
-b200HasTensorINT4 = Refl
+   TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8]
+b200Table33TensorInputList = Refl
