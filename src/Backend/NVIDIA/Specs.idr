@@ -254,39 +254,6 @@ specificationReferences =
   , "https://resources.nvidia.com/en-us-gpu-resources/blackwell-ultra-datasheet"
   ]
 
-public export
-renderPTXTarget : Maybe String -> String
-renderPTXTarget Nothing = "unavailable"
-renderPTXTarget (Just target) = target
-
-||| Machine-readable comments in mock output help verify that selecting sm_103
-||| did not silently inherit sm_100's FP64 Tensor Core capability.
-public export
-mockArchitectureHeader : NVIDIAArch -> List String
-mockArchitectureHeader arch =
-  let p = profile arch
-      r = resourceLimits p
-   in [ "; NVIDIA-COMPUTE-CAPABILITY: " ++ show (computeMajor p) ++ "." ++ show (computeMinor p)
-      , "; NVIDIA-PTX-BASELINE: " ++ renderPTXTarget (ptxTarget arch Baseline)
-      , "; NVIDIA-PTX-FAMILY: " ++ renderPTXTarget (ptxTarget arch FamilySpecific)
-      , "; NVIDIA-PTX-EXACT: " ++ renderPTXTarget (ptxTarget arch ArchitectureSpecific)
-      , "; NVIDIA-WARP-THREADS: " ++ show (warpThreads r)
-      , "; NVIDIA-SM-REGISTER32: " ++ show (registers32PerSM r)
-      , "; NVIDIA-SM-SHARED-KIB: " ++ show (sharedKiBPerSMMax r)
-      , "; NVIDIA-TENSOR-FP64: " ++ show (supports arch TensorFP64Capability)
-      , "; NVIDIA-TCGEN05: " ++ show (supports arch BlackwellTCGen05)
-      , "; NVIDIA-SIGNED-E5M3-TENSOR-INPUT: false"
-      , "; NVIDIA-UE5M3-SCALE: unsupported on sm_90/sm_100/sm_103"
-      , "; NVIDIA-ARCHITECTURE-FACTS-ONLY: not PTX or executable GPU code"
-      ]
-
-public export
-nvidiaMockHeader : String -> List String
-nvidiaMockHeader "nvidia-hopper-sm90-mock" = mockArchitectureHeader HopperSM90
-nvidiaMockHeader "nvidia-blackwell-sm100-mock" = mockArchitectureHeader BlackwellSM100
-nvidiaMockHeader "nvidia-blackwell-ultra-sm103-mock" = mockArchitectureHeader BlackwellUltraSM103
-nvidiaMockHeader _ = []
-
 ||| A hardware feature does not imply the baseline PTX target exposes its
 ||| architecture-specific instruction. Require the right PTX feature set.
 ||| The eventual PTX emitter must also check its actual toolchain version.
