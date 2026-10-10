@@ -1,6 +1,7 @@
 module Backend.FragmentMock.Emit
 
 import Backend.FragmentMock.Targets
+import Backend.NVIDIA.Specs
 import Backend.GLSLES.IR
 import Data.Fin
 import Data.String
@@ -118,7 +119,7 @@ emitFragmentMock target program =
         , "; NOT EXECUTABLE"
         , "; SHARED PSEUDO-ISA -- architecture-specific optimization deferred"
         , ".stage fragment"
-        ]
+        ] ++ nvidiaMockHeader (codegenName target)
       interfaceLines = map interfaceLine (entryInterface (spec program))
       body = map bindingLine (bindings program)
       output = "  store.frag_color " ++ operandText (result program)
