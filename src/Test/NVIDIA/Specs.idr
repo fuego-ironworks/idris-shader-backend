@@ -143,3 +143,9 @@ b200Table33TensorInputList : tensorOperands BlackwellSM100 =
   [TensorFP64, TensorTF32, TensorBF16, TensorFP16, TensorE4M3, TensorE5M2,
    TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8]
 b200Table33TensorInputList = Refl
+
+public export
+gb300Table33FP6InputList : tensorOperands BlackwellUltraSM103 =
+  [TensorTF32, TensorBF16, TensorFP16, TensorE4M3, TensorE5M2,
+   TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8]
+gb300Table33FP6InputList = Refl
