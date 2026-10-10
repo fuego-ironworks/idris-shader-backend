@@ -94,8 +94,6 @@ cudaGridLimits = MkGridLimits
   3 2147483647 65535 65535
   3 1024 1024 64 128 8
 
-||| B200's nonportable cluster limit requires opt-in; 8 is portable.
-||| Never apply 16 automatically to every SM100/SM103 SKU.
 public export
 record SMProfile where
   constructor MkSMProfile
@@ -158,9 +156,12 @@ tensorOperands BlackwellSM100 =
    TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8]
 tensorOperands BlackwellUltraSM103 =
   [TensorTF32, TensorBF16, TensorFP16, TensorE4M3, TensorE5M2,
-   TensorE2M3, TensorE2M1, TensorINT8]
+   TensorE2M3, TensorE3M2, TensorE2M1, TensorINT8]
 
 ||| Feature guards for eventual instruction selection; this module emits no PTX.
+||| CUDA Table 29 (2026-09-10) records native DPX on SM90, but multi-
+||| instruction implementations for the SM100/SM103 family. Available
+||| DPX-like operations are not synonymous with one native DPX instruction.
 public export
 data NVIDIAFeature =
     ScalarFP64 | TensorFP64Capability | TensorFP8Capability
@@ -194,9 +195,6 @@ supports _ DistributedSharedMemory = True
 supports _ TensorMemoryAccelerator = True
 supports HopperSM90 HopperWGMMA = True
 supports _ HopperWGMMA = False
-||| CUDA Table 29 (2026-09-10) records native DPX on SM90, but multi-
-||| instruction implementations for the SM100/SM103 family. Available
-||| DPX-like operations are not synonymous with one native DPX instruction.
 supports HopperSM90 NativeDPX = True
 supports _ NativeDPX = False
 supports HopperSM90 BlackwellTCGen05 = False
@@ -209,15 +207,16 @@ supports _ TCGen05LoadReduction = False
 public export
 data NVIDIASku = H100SXM | H200SXM | B200SXM | GB200NVL72 | GB300NVL72
 
-||| GB here means manufacturer-reported decimal gigabytes, TB/s decimal.
-||| smCountCeiling is a published SKU count or full-chip upper bound, never
-||| an assumed number of enabled SMs on an arbitrary cloud instance.
 ||| B200's larger cluster size needs an explicit nonportable opt-in.
+||| Do not apply 16 automatically to every SM100/SM103 SKU; 8 is portable.
 public export
 nonportableClusterBlocks : NVIDIASku -> Maybe Nat
 nonportableClusterBlocks B200SXM = Just 16
 nonportableClusterBlocks _ = Nothing
 
+||| GB here means manufacturer-reported decimal gigabytes, TB/s decimal.
+||| smCountCeiling is a published SKU count or full-chip upper bound, never
+||| an assumed number of enabled SMs on an arbitrary cloud instance.
 public export
 record SKUSpec where
   constructor MkSKUSpec
