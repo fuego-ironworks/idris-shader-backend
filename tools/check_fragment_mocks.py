@@ -14,7 +14,6 @@ TARGETS = {
     "apple-metal-mock": "Apple GPU",
     "nvidia-hopper-sm90-mock": "NVIDIA Hopper",
     "nvidia-blackwell-sm100-mock": "NVIDIA Blackwell",
-    "nvidia-blackwell-ultra-sm103-mock": "NVIDIA Blackwell Ultra",
     "adreno-tile-mock": "Qualcomm Adreno",
 }
 
