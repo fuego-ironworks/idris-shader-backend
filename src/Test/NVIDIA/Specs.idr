@@ -85,3 +85,31 @@ smSharedMemoryMax = Refl
 public export
 smWarpSize : warpThreads (resourceLimits (profile HopperSM90)) = 32
 smWarpSize = Refl
+
+public export
+h200Has132SM : smCountCeiling (sku H200SXM) = Just 132
+h200Has132SM = Refl
+
+public export
+b200NonportableCluster : nonportableClusterBlocks B200SXM = Just 16
+b200NonportableCluster = Refl
+
+public export
+gb300NoB200ClusterAssumption : nonportableClusterBlocks GB300NVL72 = Nothing
+gb300NoB200ClusterAssumption = Refl
+
+public export
+portableClusterIsEight : portableClusterBlocksMax cudaGridLimits = 8
+portableClusterIsEight = Refl
+
+public export
+gridXIsWide : gridXMax cudaGridLimits = 2147483647
+gridXIsWide = Refl
+
+public export
+tcgen05MinISA : minimumPTXISA BlackwellTCGen05 = Just (8, 6)
+tcgen05MinISA = Refl
+
+public export
+gb300LoadReduceMinISA : minimumPTXISA TCGen05LoadReduction = Just (8, 8)
+gb300LoadReduceMinISA = Refl
