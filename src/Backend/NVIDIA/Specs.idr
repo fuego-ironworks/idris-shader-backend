@@ -250,6 +250,11 @@ specificationReferences =
   , "https://resources.nvidia.com/en-us-gpu-resources/blackwell-ultra-datasheet"
   ]
 
+public export
+renderPTXTarget : Maybe String -> String
+renderPTXTarget Nothing = "unavailable"
+renderPTXTarget (Just target) = target
+
 ||| Machine-readable comments in mock output help verify that selecting sm_103
 ||| did not silently inherit sm_100's FP64 Tensor Core capability.
 public export
@@ -276,11 +281,6 @@ nvidiaMockHeader "nvidia-hopper-sm90-mock" = mockArchitectureHeader HopperSM90
 nvidiaMockHeader "nvidia-blackwell-sm100-mock" = mockArchitectureHeader BlackwellSM100
 nvidiaMockHeader "nvidia-blackwell-ultra-sm103-mock" = mockArchitectureHeader BlackwellUltraSM103
 nvidiaMockHeader _ = []
-
-public export
-renderPTXTarget : Maybe String -> String
-renderPTXTarget Nothing = "unavailable"
-renderPTXTarget (Just target) = target
 
 ||| A hardware feature does not imply the baseline PTX target exposes its
 ||| architecture-specific instruction. Require the right PTX feature set.
