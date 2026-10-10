@@ -65,6 +65,7 @@ factor_sum_64 point count factors =
   factor_sum_from point count factors 0.0 (vec2 0.0 0.0)
 
 covering
+public export
 rational_measure :
   SVec 2 -> Double -> SArray 64 (SVec 2) ->
   Double -> SArray 64 (SVec 2) -> SVec 2
@@ -73,14 +74,13 @@ rational_measure point zero_count zeros pole_count poles =
       pole_measure = factor_sum_64 point pole_count poles
    in vsub zero_measure pole_measure
 
-covering
+||| Convert a mathematically accumulated (phase, log modulus) to the
+||| canonical Wegert colour. The caller owns R(z), exp(q(z)), and any
+||| additional meromorphic factors; this function owns only colouring.
 public export
-wegert_rgb :
-  SVec 2 -> Double -> SArray 64 (SVec 2) ->
-  Double -> SArray 64 (SVec 2) -> SVec 3
-wegert_rgb point zero_count zeros pole_count poles =
-  let measure = rational_measure point zero_count zeros pole_count poles
-      phase = x measure
+wegert_rgb_from_measure : SVec 2 -> SVec 3
+wegert_rgb_from_measure measure =
+  let phase = x measure
       log_modulus = y measure
       hue_degrees = 360.0 * positive_fract (phase / 6.28318530717958647692)
       log_modulus_band = positive_fract (log_modulus / 2.30258509299404568402)
@@ -88,3 +88,11 @@ wegert_rgb point zero_count zeros pole_count poles =
                 + 4.0 * log_modulus_band
                 + 3.0 * positive_fract (hue_degrees / 100.0)
    in hcl_to_srgb hue_degrees 45.0 lightness
+
+covering
+public export
+wegert_rgb :
+  SVec 2 -> Double -> SArray 64 (SVec 2) ->
+  Double -> SArray 64 (SVec 2) -> SVec 3
+wegert_rgb point zero_count zeros pole_count poles =
+  wegert_rgb_from_measure (rational_measure point zero_count zeros pole_count poles)
