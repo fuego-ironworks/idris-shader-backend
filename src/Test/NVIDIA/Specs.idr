@@ -113,3 +113,11 @@ tcgen05MinISA = Refl
 public export
 gb300LoadReduceMinISA : minimumPTXISA TCGen05LoadReduction = Just (8, 8)
 gb300LoadReduceMinISA = Refl
+
+public export
+hopperFamilyTargetUnavailable : ptxTarget HopperSM90 FamilySpecific = Nothing
+hopperFamilyTargetUnavailable = Refl
+
+public export
+hopperFamilyCannotCompile : instructionEligible HopperSM90 FamilySpecific ScalarFP64 = False
+hopperFamilyCannotCompile = Refl
