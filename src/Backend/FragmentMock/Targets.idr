@@ -75,14 +75,6 @@ nvidiaBlackwellSM100 = MkMockTarget
   "covers the B200/GB200 target notes at architecture level"
 
 public export
-nvidiaBlackwellUltraSM103 : MockTarget
-nvidiaBlackwellUltraSM103 = MkMockTarget
-  "nvidia-blackwell-ultra-sm103-mock"
-  "NVIDIA Blackwell Ultra"
-  "SM103"
-  "GB300 target facts only; no PTX emitter or GPU execution"
-
-public export
 adrenoTile : MockTarget
 adrenoTile = MkMockTarget
   "adreno-tile-mock"
@@ -92,8 +84,8 @@ adrenoTile = MkMockTarget
 
 ||| Current fragment-shader architecture/dialect targets for which this
 ||| repository has either a dedicated target branch or explicit architecture
-||| notes. H100/H200 share SM90; B200/GB200 share SM100. GB300 uses
-||| distinct SM103 rather than silently inheriting SM100 capabilities.
+||| notes.  Product aliases that share an architecture (H100/H200, B200/GB200)
+||| intentionally share one mock.
 public export
 fragmentMockTargets : List MockTarget
 fragmentMockTargets =
@@ -105,6 +97,5 @@ fragmentMockTargets =
   , appleMetal
   , nvidiaHopperSM90
   , nvidiaBlackwellSM100
-  , nvidiaBlackwellUltraSM103
   , adrenoTile
   ]
