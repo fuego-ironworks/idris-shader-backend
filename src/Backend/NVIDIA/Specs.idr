@@ -247,6 +247,7 @@ specificationReferences =
   , "https://docs.nvidia.com/cuda/blackwell-tuning-guide/"
   , "https://www.nvidia.com/en-us/data-center/gb200-nvl72/"
   , "https://www.nvidia.com/en-us/data-center/gb300-nvl72/"
+  , "https://resources.nvidia.com/en-us-gpu-resources/blackwell-ultra-datasheet"
   ]
 
 ||| Machine-readable comments in mock output help verify that selecting sm_103
@@ -257,9 +258,9 @@ mockArchitectureHeader arch =
   let p = profile arch
       r = resourceLimits p
    in [ "; NVIDIA-COMPUTE-CAPABILITY: " ++ show (computeMajor p) ++ "." ++ show (computeMinor p)
-      , "; NVIDIA-PTX-BASELINE: " ++ show (ptxTarget arch Baseline)
-      , "; NVIDIA-PTX-FAMILY: " ++ show (ptxTarget arch FamilySpecific)
-      , "; NVIDIA-PTX-EXACT: " ++ show (ptxTarget arch ArchitectureSpecific)
+      , "; NVIDIA-PTX-BASELINE: " ++ renderPTXTarget (ptxTarget arch Baseline)
+      , "; NVIDIA-PTX-FAMILY: " ++ renderPTXTarget (ptxTarget arch FamilySpecific)
+      , "; NVIDIA-PTX-EXACT: " ++ renderPTXTarget (ptxTarget arch ArchitectureSpecific)
       , "; NVIDIA-WARP-THREADS: " ++ show (warpThreads r)
       , "; NVIDIA-SM-REGISTER32: " ++ show (registers32PerSM r)
       , "; NVIDIA-SM-SHARED-KIB: " ++ show (sharedKiBPerSMMax r)
@@ -276,27 +277,35 @@ nvidiaMockHeader "nvidia-blackwell-sm100-mock" = mockArchitectureHeader Blackwel
 nvidiaMockHeader "nvidia-blackwell-ultra-sm103-mock" = mockArchitectureHeader BlackwellUltraSM103
 nvidiaMockHeader _ = []
 
+public export
+renderPTXTarget : Maybe String -> String
+renderPTXTarget Nothing = "unavailable"
+renderPTXTarget (Just target) = target
+
 ||| A hardware feature does not imply the baseline PTX target exposes its
 ||| architecture-specific instruction. Require the right PTX feature set.
 ||| The eventual PTX emitter must also check its actual toolchain version.
 public export
 instructionEligible : NVIDIAArch -> PTXScope -> NVIDIAFeature -> Bool
 instructionEligible arch scope feature =
-  if not (supports arch feature) then False
-  else case feature of
-    HopperWGMMA => case scope of
-      ArchitectureSpecific => True
-      _ => False
-    BlackwellTCGen05 => case scope of
-      Baseline => False
-      _ => True
-    BlackwellTensorMemory => case scope of
-      Baseline => False
-      _ => True
-    TCGen05LoadReduction => case scope of
-      Baseline => False
-      _ => True
-    _ => True
+  case ptxTarget arch scope of
+    Nothing => False
+    Just _ =>
+      if not (supports arch feature) then False
+      else case feature of
+        HopperWGMMA => case scope of
+          ArchitectureSpecific => True
+          _ => False
+        BlackwellTCGen05 => case scope of
+          Baseline => False
+          _ => True
+        BlackwellTensorMemory => case scope of
+          Baseline => False
+          _ => True
+        TCGen05LoadReduction => case scope of
+          Baseline => False
+          _ => True
+        _ => True
 
 ||| Compiler/ISA minimum is separate from the GPU architecture.
 ||| Only mark a floor when NVIDIA's ISA explicitly states one.
