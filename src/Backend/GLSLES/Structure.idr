@@ -132,6 +132,7 @@ rhsCost (RFloatUnary FSin _) = 4
 rhsCost (RFloatUnary FCos _) = 4
 rhsCost (RFloatUnary FSqrt _) = 4
 rhsCost (RFloatUnary FLog _) = 5
+rhsCost (RFloatUnary FExp _) = 5
 rhsCost (RFloatBinary FAtan2 _ _) = 5
 rhsCost (RFloatBinary FPow _ _) = 6
 rhsCost (RLength _) = 3

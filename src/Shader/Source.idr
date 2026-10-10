@@ -81,6 +81,9 @@ public export %extern
 logF : Double -> Double
 
 public export %extern
+expF : Double -> Double
+
+public export %extern
 minF : Double -> Double -> Double
 
 public export %extern
