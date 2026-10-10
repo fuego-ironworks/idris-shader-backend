@@ -142,7 +142,7 @@ https://docs.nvidia.com/cuda/parallel-thread-execution/
 | Tensor FP6 E2M3 / E3M2 | No | Yes | Yes |
 | Tensor FP4 E2M1 | No | Yes | Yes |
 | Tensor INT8 | Yes | Yes | Yes |
-| Tensor INT4 | No | Yes | Yes |
+| Tensor INT4 in current CUDA Table 33 | Not listed | Not listed | Not listed |
 | Signed E5M3 FP8 **tensor input** | No | No | No |
 | PTX 9.4 unsigned UE5M3 **scale** | Not available | Not available | Not available |
 
@@ -179,9 +179,12 @@ Precision and layout proofs belong to the shader IR, not SKU marketing data.
 
 Source for allowed matrix operands and throughput ratios: CUDA technical
 capability tables 30 and 33; PTX instruction reference. The CUDA table lists
-INT4 for SM100 and SM103, but this is an architecture-level datatype claim,
-not a promise that every particular fifth-generation MMA instruction variant
-or CUDA library provides an INT4 implementation.
+no INT4 for SM90, SM100 or SM103. An older CUDA 13.2 PDF search
+extraction lists INT4 on 10.0/10.3, and PTX documents legacy warp-level
+`.s4`/`.u4` MMA operations; the current online September 10, 2026
+table is the conservative source for this list. Do not mistake either
+a legacy warp MMA form or a packed INT4 representation for available
+fifth-generation `tcgen05` INT4 acceleration.
 
 ## Async memory, warp collaboration and Tensor Cores
 
@@ -195,9 +198,10 @@ or CUDA library provides an INT4 implementation.
   global/shared transfers, including bulk copies, coordinated with barriers.
 - Asynchronous barriers and shared-memory synchronization are semantic
   requirements; do not reorder producer/consumer activity across them.
-- Native DPX (dynamic-programming instructions) is supported on Hopper and
-  Blackwell. Blackwell adds improved instruction variants; using those forms
-  requires matching PTX/toolkit versions rather than equating all DPX modes.
+- CUDA Table 29 explicitly describes **native DPX on Hopper** and
+  a **multiple-instruction implementation on Blackwell**. Blackwell GPU
+  DPX algorithms may still benefit from newer CUDA 13.2/PTX optimizations,
+  but a library using DPX is not proof of a single native DPX instruction.
 
 ### Blackwell SM100 / B200 / GB200
 
