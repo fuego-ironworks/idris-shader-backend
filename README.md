@@ -246,21 +246,24 @@ The checks cover:
 - `fixtures/wegert-fullscreen.vert` — matching Wegert fullscreen vertex stage
 - `src/Test/Backend/` — accepted and rejected compiler fixtures
 
-## NVIDIA compute target catalogue (architecture facts, not PTX)
+## NVIDIA GPU architecture specification (not a PTX backend)
 
-The [Hopper / Blackwell / Blackwell Ultra specifications](docs/nvidia-hopper-blackwell-specifications.md)
-record the hardware limits, memory, scalar/tensor numeric formats, PTX
-architecture suffixes, instruction capability guards and product-specific
-figures for H100, H200, B200, GB200 and GB300. The typed catalogue lives in
-`src/Backend/NVIDIA/Specs.idr`, with compile-time proofs in
-`src/Test/NVIDIA/Specs.idr`.
+The [NVIDIA Hopper, Blackwell and Blackwell Ultra specifications](docs/nvidia-hopper-blackwell-specifications.md)
+record hardware resource and numerical features for H100, H200, B200, GB200
+and GB300, including PTX target suffix guards and product-specific limits.
 
-The fragment-mock runner can now label `sm_90`, `sm_100`, and the distinct
-`sm_103` family (including the **absence** of FP64 Tensor Cores on GB300).
-These outputs remain **non-executable pseudo-assembly**. This does not add
-PTX code generation, a CUDA host, access to NVIDIA GPUs, or Idriç compiler
-integration. Actual shader emission continues through the existing GLSL ES
-backend for that target.
+The typed data model is `src/Backend/NVIDIA/Specs.idr`, with definitional
+proofs in `src/Test/NVIDIA/Specs.idr`. Typecheck the self-contained catalogue:
+
+```sh
+idris2 --build nvidia-target-specifications.ipkg
+```
+
+These specifications are not connected to an NVIDIA machine-code emitter.
+The pre-existing NVIDIA fragment mocks remain unchanged; their older
+pseudo-assembly implementation has unqualified compatibility with the current
+structured shader IR. This change does not claim a functioning NVIDIA shader,
+GPU execution, CUDA support, or Idriç compiler integration.
 
 ## Current boundary
 
