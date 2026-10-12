@@ -3,6 +3,7 @@ module Test.NVIDIA.Specs
 import Backend.NVIDIA.Specs
 
 %default total
+%auto_implicit off
 
 ||| These are compile-time checks of exact architecture, instruction and SKU
 ||| distinctions. They are not compiler-output or physical-GPU acceptance.
@@ -107,15 +108,15 @@ gb300NoB200ClusterAssumption : nonportableClusterBlocks GB300NVL72 = Nothing
 gb300NoB200ClusterAssumption = Refl
 
 public export
-portableClusterIsEight : portableClusterBlocksMax cudaGridLimits = 8
+portableClusterIsEight : portableClusterBlocksMax Backend.NVIDIA.Specs.cudaGridLimits = 8
 portableClusterIsEight = Refl
 
 public export
-gridXIsWide : gridXMax cudaGridLimits = 2147483647
+gridXIsWide : gridXMax Backend.NVIDIA.Specs.cudaGridLimits = 2147483647
 gridXIsWide = Refl
 
 public export
-gridXIsPositive : (gridXMax cudaGridLimits > 0) = True
+gridXIsPositive : (gridXMax Backend.NVIDIA.Specs.cudaGridLimits > 0) = True
 gridXIsPositive = Refl
 
 public export

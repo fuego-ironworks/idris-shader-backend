@@ -273,7 +273,7 @@ mock pseudo assembly or comparing a CPU oracle does not establish those gates.
 ## Guardrails and acceptance
 
 1. `idris2 --build nvidia-target-specifications.ipkg` typechecks
-   `Backend.NVIDIA.Specs` and 35 definitional properties in
+   `Backend.NVIDIA.Specs` and 36 definitional properties in
    `Test.NVIDIA.Specs`. The properties constrain a *static catalogue*;
    they are not hardware tests or PTX output checks.
 2. This PR **does not alter or claim acceptance of** the existing
