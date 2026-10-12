@@ -3,7 +3,7 @@ module Test.NVIDIA.Specs
 import Backend.NVIDIA.Specs
 
 %default total
-%autoImplicit off
+%unbound_implicits off
 
 ||| These are compile-time checks of exact architecture, instruction and SKU
 ||| distinctions. They are not compiler-output or physical-GPU acceptance.
