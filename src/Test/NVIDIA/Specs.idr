@@ -115,6 +115,10 @@ gridXIsWide : gridXMax cudaGridLimits = 2147483647
 gridXIsWide = Refl
 
 public export
+gridXIsPositive : (gridXMax cudaGridLimits > 0) = True
+gridXIsPositive = Refl
+
+public export
 tcgen05MinISA : minimumPTXISA BlackwellTCGen05 = Just (8, 6)
 tcgen05MinISA = Refl
 

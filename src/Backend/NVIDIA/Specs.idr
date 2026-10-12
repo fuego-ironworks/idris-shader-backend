@@ -78,7 +78,10 @@ public export
 record GridLimits where
   constructor MkGridLimits
   gridDimensionsMax : Nat
-  gridXMax : Nat
+  -- Keep the 2^31-1 hardware bound as an exact integer. Expanding this
+  -- bound as a unary Nat obstructs normalization of the whole record,
+  -- including the independent portable-cluster projection.
+  gridXMax : Integer
   gridYMax : Nat
   gridZMax : Nat
   blockDimensionsMax : Nat
