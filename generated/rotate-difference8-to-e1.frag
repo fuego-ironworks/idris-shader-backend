@@ -33,30 +33,30 @@ void main() {
   vec4 _idris_t22 = (_idris_t19 * _idris_t15);
   vec4 _idris_t23 = (_idris_t1 - _idris_t22);
   bool _idris_t24 = (_idris_t11 > 1e-6);
-  vec4 _idris_t31;
+  vec4 _idris_t26;
   if (_idris_t24) {
-    float _idris_t25 = _idris_t21.x;
-    float _idris_t26 = _idris_t21.y;
-    float _idris_t27 = (0.0 - _idris_t26);
-    float _idris_t28 = _idris_t21.z;
-    float _idris_t29 = _idris_t21.w;
-    vec4 _idris_t30 = vec4(_idris_t25, _idris_t27, _idris_t28, _idris_t29);
-    _idris_t31 = _idris_t30;
+    float _idris_t27 = _idris_t21.x;
+    float _idris_t28 = _idris_t21.y;
+    float _idris_t29 = (0.0 - _idris_t28);
+    float _idris_t30 = _idris_t21.z;
+    float _idris_t31 = _idris_t21.w;
+    vec4 _idris_t32 = vec4(_idris_t27, _idris_t29, _idris_t30, _idris_t31);
+    _idris_t26 = _idris_t32;
   } else {
-    _idris_t31 = _idris_t21;
+    _idris_t26 = _idris_t21;
   }
-  float _idris_t32 = _idris_t31.y;
-  float _idris_t33 = _idris_t31.z;
-  float _idris_t34 = _idris_t31.w;
-  vec3 _idris_t35 = vec3(_idris_t32, _idris_t33, _idris_t34);
-  float _idris_t36 = dot(_idris_t35, _idris_t35);
-  float _idris_t37 = dot(_idris_t23, _idris_t23);
-  float _idris_t38 = (_idris_t36 + _idris_t37);
-  float _idris_t39 = sqrt(_idris_t38);
-  float _idris_t40 = _idris_t31.x;
-  float _idris_t41 = max(1e-6, _idris_t5);
-  float _idris_t42 = (_idris_t40 / _idris_t41);
-  vec4 _idris_t43 = vec4(_idris_t42, _idris_t39, _idris_t39, 1.0);
-  _idris_fragColor = _idris_t43;
+  float _idris_t33 = _idris_t26.y;
+  float _idris_t34 = _idris_t26.z;
+  float _idris_t35 = _idris_t26.w;
+  vec3 _idris_t36 = vec3(_idris_t33, _idris_t34, _idris_t35);
+  float _idris_t37 = dot(_idris_t36, _idris_t36);
+  float _idris_t38 = dot(_idris_t23, _idris_t23);
+  float _idris_t39 = (_idris_t37 + _idris_t38);
+  float _idris_t40 = sqrt(_idris_t39);
+  float _idris_t41 = _idris_t26.x;
+  float _idris_t42 = max(1e-6, _idris_t5);
+  float _idris_t43 = (_idris_t41 / _idris_t42);
+  vec4 _idris_t44 = vec4(_idris_t43, _idris_t40, _idris_t40, 1.0);
+  _idris_fragColor = _idris_t44;
 }
 

@@ -43,6 +43,7 @@ entryType name = do
     Nothing => backendError ("could not recover the type of exported entry " ++ show name)
     Just global => toFullNames (type global)
 
+public export
 writeShader : String -> String -> Core ()
 writeShader path source = do
   result <- coreLift $ writeFile path source
@@ -50,6 +51,7 @@ writeShader path source = do
     Left error => backendError ("could not write " ++ path ++ ": " ++ show error)
     Right () => pure ()
 
+public export
 directiveValue : String -> List String -> Maybe String
 directiveValue _ [] = Nothing
 directiveValue needle (value :: rest) =
@@ -79,19 +81,22 @@ requireSingleShaderExport [entry] = pure entry
 requireSingleShaderExport entries =
   backendError ("expected one glsles export, received " ++ show (length entries))
 
+public export
 record ExportedShader where
   constructor MkExportedShader
   shaderEntryName : Name
   shaderExportAnnotation : String
   shaderDefinitions : ShaderDefs
 
-prepareExportedShader : Ref Ctxt Defs -> ClosedTerm -> Core ExportedShader
-prepareExportedShader defs term = do
-  compilation <- getCompileDataWith {c = defs} ["glsles"] False ANF term
+public export
+prepareExportedShader : String -> Ref Ctxt Defs -> ClosedTerm -> Core ExportedShader
+prepareExportedShader group defs term = do
+  compilation <- getCompileDataWith {c = defs} [group] False ANF term
   (resolvedName, annotation) <- requireSingleShaderExport (exported compilation)
   entryName <- toFullNames resolvedName
   pure (MkExportedShader entryName annotation (anf compilation))
 
+public export
 checkShaderInterface : Ref Ctxt Defs -> ExportedShader -> Core EntrySpec
 checkShaderInterface defs shader = do
   raw <- fromEither (parseRawEntry (shaderExportAnnotation shader))
@@ -99,6 +104,7 @@ checkShaderInterface defs shader = do
   (argumentTypes, resultType) <- fromEither (shaderSignature signature)
   fromEither (makeEntrySpec raw argumentTypes resultType)
 
+public export
 lowerExportedShader : EntrySpec -> ExportedShader -> Core FragmentProgram
 lowerExportedShader spec shader = do
   let entryName = shaderEntryName shader
@@ -107,6 +113,7 @@ lowerExportedShader spec shader = do
     | Nothing => backendError ("could not find ANF for exported entry " ++ show entryName)
   fromEither (lowerFragment spec entryName definitions definition)
 
+public export
 writeRequestedIR : List String -> FloatWidth -> FragmentProgram -> Core ()
 writeRequestedIR requestedDirectives width program =
   case directiveValue "dump-ir=" requestedDirectives of
@@ -137,7 +144,7 @@ compileGLSLES :
   (tmpDir : String) -> (outputDir : String) ->
   ClosedTerm -> (outfile : String) -> Core (Maybe String)
 compileGLSLES defs syn tmpDir outputDir term outfile = do
-  shader <- prepareExportedShader defs term
+  shader <- prepareExportedShader "glsles" defs term
   spec <- checkShaderInterface defs shader
   session <- getSession {c = defs}
   let requestedDirectives = directives session

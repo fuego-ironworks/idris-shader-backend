@@ -1,0 +1,11 @@
+#!/usr/bin/env grease
+set -o errexit
+var IDRIS2 = ENV.IDRIS2
+var IDRIS2_SOURCE = ENV.IDRIS2_SOURCE
+test -x "$IDRIS2"
+test "$(git -C "$IDRIS2_SOURCE" rev-parse HEAD)" = 15a3e4e70843f7a34100f6470c04b791330788df
+printf '\033[36mCHECK primary GLSL compiler\033[0m\n'
+# This is the retained Make boundary, invoked by the required outer Ike graph.
+# It is migration debt, not a second default shared orchestrator.
+make check IDRIS2="$IDRIS2"
+printf '\033[32mPASS primary GLSL suite\033[0m\n'

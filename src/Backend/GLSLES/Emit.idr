@@ -265,11 +265,16 @@ mutual
              in emitStatementsAt indent rest ((name, name) :: aliases)
                                   ((key, name) :: cache) (line :: reversedLines)
 
-  emitStructuredIfAt : String -> ValueTy -> String -> Operand TBool ->
+  emitStructuredIfAt : String -> (ty : ValueTy) -> String -> Operand TBool ->
                        List Statement -> Operand ty ->
                        List Statement -> Operand ty ->
                        List Statement -> Aliases -> Cache -> List String ->
                        Either String (Aliases, List String)
+  emitStructuredIfAt indent ty name condition [] thenResult [] elseResult
+                     rest aliases cache reversedLines =
+    emitStatementBindingAt indent
+      (MkBinding ty name (RSelect condition thenResult elseResult))
+      rest aliases cache reversedLines
   emitStructuredIfAt indent ty name condition
                      thenStatements thenResult elseStatements elseResult
                      rest aliases cache reversedLines = do

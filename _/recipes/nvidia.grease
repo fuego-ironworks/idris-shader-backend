@@ -1,0 +1,39 @@
+#!/usr/bin/env grease
+set -o errexit
+var PTXAS = ENV.PTXAS
+test -x "$PTXAS"
+printf '%s  %s\n' 983b0e9283855979f42cebfd80d43f9b6e786eb84f03f7570bf941c4d3a3c461 "$PTXAS" | sha256sum -c -
+"$PTXAS" --version
+mkdir -p build/gpu-follower/nvidia
+var stem = ''
+for target in sm_80 sm_90 sm_100 sm_103 {
+  for kernel in Givens Pixel {
+    setvar stem = "build/gpu-follower/nvidia/${kernel}-${target}"
+    rm -f "$stem.ptx" "$stem.cubin"
+    ./build/exec/idris2-ptx --cg ptx --directive "ptx-target=$target" --directive "dump-ir=$stem.ir" --source-dir src --output-dir build/gpu-follower/nvidia "src/Example/${kernel}PTX.idr" -o "${kernel}-${target}" > "$stem.compiler.log" 2>&1
+    test -s "$stem.ptx"
+    test -s "$stem.ir"
+    "$PTXAS" "--gpu-name=$target" "$stem.ptx" -o "$stem.cubin" > "$stem.assembler.log" 2>&1
+    test -s "$stem.cubin"
+    sha256sum "$stem.ptx" "$stem.ir" "$stem.cubin"
+  }
+}
+# The real compiler must refuse unsupported targets and widths. Its inherited
+# driver can print an error with exit 0, so absence of output is mandatory.
+for target in sm_90a sm_100a sm_107 sm_110 {
+  rm -f "build/gpu-follower/nvidia/refused-${target}.ptx"
+  ./build/exec/idris2-ptx --cg ptx --directive "ptx-target=$target" --source-dir src --output-dir build/gpu-follower/nvidia src/Example/PixelPTX.idr -o "refused-${target}" > "build/gpu-follower/nvidia/refused-${target}.log" 2>&1
+  test ! -e "build/gpu-follower/nvidia/refused-${target}.ptx"
+  rg -q 'unsupported PTX target' "build/gpu-follower/nvidia/refused-${target}.log"
+}
+rm -f build/gpu-follower/nvidia/refused-f16.ptx
+./build/exec/idris2-ptx --cg ptx --directive float-width=f16 --source-dir src --output-dir build/gpu-follower/nvidia src/Example/PixelPTX.idr -o refused-f16 > build/gpu-follower/nvidia/refused-f16.log 2>&1
+test ! -e build/gpu-follower/nvidia/refused-f16.ptx
+rg -q 'requires explicit F32' build/gpu-follower/nvidia/refused-f16.log
+# A damaged actual emitted artifact must be rejected by the actual assembler.
+sed 's/add.rn.f32/invalid.operation.f32/' build/gpu-follower/nvidia/Givens-sm_90.ptx > build/gpu-follower/nvidia/damaged.ptx
+if "$PTXAS" --gpu-name=sm_90 build/gpu-follower/nvidia/damaged.ptx -o build/gpu-follower/nvidia/damaged.cubin > build/gpu-follower/nvidia/damaged.log 2>&1 {
+  printf '\033[31mFAIL damaged PTX was accepted\033[0m\n'
+  exit 1
+}
+printf '\033[32mPASS real PTX emission and pinned vendor assembly; physical execution UNVERIFIED\033[0m\n'

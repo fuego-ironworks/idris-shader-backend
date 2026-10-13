@@ -218,8 +218,13 @@ def main() -> int:
         for declaration in required_interface:
             require(declaration in reveal_source, "disc reveal interface lost " + declaration)
         require("sin(" in reveal_source, "dark-gray reveal texture was not emitted")
-        sentinel_if = reveal_source.find("  if (_idris_t23) {")
-        safe_radius = reveal_source.find("bool _idris_t24")
+        sentinel_condition = next(
+            (line.split()[1] for line in reveal_source.splitlines()
+             if " = (u_disc_radius < 0.0);" in line),
+            "",
+        )
+        sentinel_if = reveal_source.find("  if (" + sentinel_condition + ") {")
+        safe_radius = reveal_source.find(" = (1e-5 > u_disc_radius);")
         require(sentinel_if >= 0, "negative-radius no-mask sentinel did not become real control flow")
         require(
             safe_radius > sentinel_if,

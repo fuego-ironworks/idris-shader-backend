@@ -37,13 +37,14 @@ jobs:
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.idris2
-          key: idris2-${{ runner.os }}-${{ runner.arch }}-${{ env.IDRIS2_VERSION }}-ubuntu-api-v1
+          key: idris2-${{ runner.os }}-${{ runner.arch }}-15a3e4e70843f7a34100f6470c04b791330788df-api-v2
 
       - name: Build Idris 2 and compiler API
         if: steps.idris-cache.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 --branch "v${IDRIS2_VERSION}" \
             https://github.com/idris-lang/Idris2.git /tmp/Idris2
+          test "$(git -C /tmp/Idris2 rev-parse HEAD)" = 15a3e4e70843f7a34100f6470c04b791330788df
           make -C /tmp/Idris2 bootstrap SCHEME=chezscheme
           make -C /tmp/Idris2 install
           export PATH="$HOME/.idris2/bin:$PATH"
@@ -52,18 +53,94 @@ jobs:
           make -C /tmp/Idris2 install
           make -C /tmp/Idris2 install-api
 
+      - name: Save compiler cache independently of downstream test failures
+        if: steps.idris-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: ~/.idris2
+          key: idris2-${{ runner.os }}-${{ runner.arch }}-15a3e4e70843f7a34100f6470c04b791330788df-api-v2
+
       - name: Put Idris 2 on PATH
         run: echo "$HOME/.idris2/bin" >> "$GITHUB_PATH"
 
       - name: Record compiler version
         run: idris2 --version
 
+      - name: Typecheck NVIDIA target specifications and proofs
+        run: idris2 --build nvidia-target-specifications.ipkg
+
+      - name: Build the C runner frontend
+        id: ick
+        uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+      - name: Check out the C stage contract
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: 903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+          path: .aici-host
+          sparse-checkout: |
+            src/aici.c
+            contracts/build-toolchain-v0.contract.tsv
+          persist-credentials: false
+      - name: Verify the C runner stages
+        run: make -f ci/Makefile verify ICK="${{ steps.ick.outputs.compiler }}"
+
+      - name: Check out pinned Ike
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ike
+          ref: 71178c348dd4621bd999ebdb6b0b60bac03fc85d
+          path: .ike-host
+          persist-credentials: false
+
+      - name: Compile pinned Ike with the qualified C frontend
+        run: |
+          "${{ steps.ick.outputs.compiler }}" -fno-link-libatomic \
+            -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 \
+            .ike-host/ike.c -o "$RUNNER_TEMP/ike"
+
       - name: Run complete backend checks
-        run: make check
+        # Ike owns the required outer graph; retained Make is its legacy leaf.
+        run: |
+          IKE_RECEIPT="$RUNNER_TEMP/primary.ike.tsv" \
+          IKE_IKEFILE_IDENTITY="sha256:$(sha256sum Ikefile | cut -d ' ' -f 1)" \
+            "$RUNNER_TEMP/ike" check
+
+      - name: Check out the independent Ike gate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: ab5786fcab8cd179342ac9f8f2858083d0373b04
+          path: .aici-gpu
+          sparse-checkout: gpu-follower
+          persist-credentials: false
+
+      - name: Check out pinned Ithon frontend
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ithon
+          ref: 396d8b7af1417a0a61245db940fdb22ef9fbac51
+          path: .ithon-host
+          persist-credentials: false
+
+      - name: Independently verify primary Ike execution
+        run: |
+          ITHON_PYTHON=python3 .ithon-host/ithon \
+            .aici-gpu/gpu-follower/verify_ike.pi \
+            "$RUNNER_TEMP/primary.ike.tsv" Ikefile check \
+            'POSIX-system()' ci/gpu-plans/primary.tsv
+          sha256sum "$RUNNER_TEMP/ike" "$RUNNER_TEMP/primary.ike.tsv"
+
+      - name: Retain the primary execution receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: primary-ike-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/primary.ike.tsv
+          if-no-files-found: error
 
       - name: Execute Android GLES framebuffer probes under Mesa
         run: |
-          make powervr-primitives GLES_LIBS=-lGLESv2
+          make powervr-primitives ICK="${{ steps.ick.outputs.compiler }}" GLES_LIBS=-lGLESv2
           EGL_PLATFORM=surfaceless ./build/powervr-primitives
 
       - name: Reject uncommitted generated output

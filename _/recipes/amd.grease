@@ -1,0 +1,45 @@
+#!/usr/bin/env grease
+set -o errexit
+var LLVM_LLC = ENV.LLVM_LLC
+var LLVM_MC = ENV.LLVM_MC
+var LLVM_LLD = ENV.LLVM_LLD
+test -x "$LLVM_LLC"
+test -x "$LLVM_MC"
+test -x "$LLVM_LLD"
+printf '%s  %s\n' eef2ea9381eb509222b7d7334b8fc24dd0c10ffd40bdf5896159cc8d06d6d88e "$LLVM_LLC" | sha256sum -c -
+printf '%s  %s\n' 6cdaebe34b2baa811ec098dfd566c39c088d1492ce162e68ecf76f23d8ca4771 "$LLVM_MC" | sha256sum -c -
+printf '%s  %s\n' 3a4db0f90a45844be78a068b47f886b7ba6000a75a88876d9999cb0bb46fb5f3 "$LLVM_LLD" | sha256sum -c -
+"$LLVM_LLC" --version
+mkdir -p build/gpu-follower/amd
+"$LLVM_LLC" -march=amdgcn -mcpu=help > build/gpu-follower/amd/supported-cpus.log 2>&1
+var stem = ''
+for target in gfx942 gfx950 gfx1250 {
+  rg -q "^[[:space:]]+$target[[:space:]]+-" build/gpu-follower/amd/supported-cpus.log
+  setvar stem = "build/gpu-follower/amd/pixel-${target}"
+  rm -f "$stem.ll" "$stem.s" "$stem.o" "$stem.hsaco"
+  ./build/exec/idris2-amdgpu --cg amdgcn --directive "amd-target=$target" --directive "dump-ir=$stem.ir" --source-dir src --output-dir build/gpu-follower/amd src/Example/PixelAMD.idr -o "pixel-${target}" > "$stem.compiler.log" 2>&1
+  test -s "$stem.ll"
+  "$LLVM_LLC" -march=amdgcn "-mcpu=$target" "$stem.ll" -o "$stem.s" > "$stem.lower.log" 2>&1
+  "$LLVM_MC" -triple=amdgcn-amd-amdhsa "-mcpu=$target" -filetype=obj "$stem.s" -o "$stem.o" > "$stem.assembler.log" 2>&1
+  "$LLVM_LLD" -flavor gnu -shared "$stem.o" -o "$stem.hsaco" > "$stem.link.log" 2>&1
+  test -s "$stem.hsaco"
+  rg -q "amdgcn-amd-amdhsa--$target" "$stem.s"
+  sha256sum "$stem.ll" "$stem.ir" "$stem.s" "$stem.o" "$stem.hsaco"
+}
+rm -f build/gpu-follower/amd/refused-generic.ll
+./build/exec/idris2-amdgpu --cg amdgcn --directive amd-target=generic --source-dir src --output-dir build/gpu-follower/amd src/Example/PixelAMD.idr -o refused-generic > build/gpu-follower/amd/refused-generic.log 2>&1
+test ! -e build/gpu-follower/amd/refused-generic.ll
+rg -q 'unsupported AMD target' build/gpu-follower/amd/refused-generic.log
+rm -f build/gpu-follower/amd/refused-f16.ll build/gpu-follower/amd/refused-literal.ll
+./build/exec/idris2-amdgpu --cg amdgcn --directive float-width=f16 --source-dir src --output-dir build/gpu-follower/amd src/Example/PixelAMD.idr -o refused-f16 > build/gpu-follower/amd/refused-f16.log 2>&1
+test ! -e build/gpu-follower/amd/refused-f16.ll
+rg -q 'requires F32' build/gpu-follower/amd/refused-f16.log
+./build/exec/idris2-amdgpu --cg amdgcn --source-dir src --output-dir build/gpu-follower/amd src/Test/AMD/UnsupportedLiteral.idr -o refused-literal > build/gpu-follower/amd/refused-literal.log 2>&1
+test ! -e build/gpu-follower/amd/refused-literal.ll
+rg -q 'requires an exactly representable literal' build/gpu-follower/amd/refused-literal.log
+sed 's/v_add_f32/invalid_amd_operation/' build/gpu-follower/amd/pixel-gfx942.s > build/gpu-follower/amd/damaged.s
+if "$LLVM_MC" -triple=amdgcn-amd-amdhsa -mcpu=gfx942 -filetype=obj build/gpu-follower/amd/damaged.s -o build/gpu-follower/amd/damaged.o > build/gpu-follower/amd/damaged.log 2>&1 {
+  printf '\033[31mFAIL damaged AMD assembly accepted\033[0m\n'
+  exit 1
+}
+printf '\033[32mPASS gfx942/gfx950/gfx1250 generation, native assembly and code-object link; physical UNVERIFIED\033[0m\n'
