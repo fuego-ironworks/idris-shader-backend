@@ -1,0 +1,6 @@
+package gpu-numeric-formats
+version = 0.1.0
+sourcedir = "src"
+modules = Backend.Numeric.Formats, Test.Numeric.Proofs, Test.Numeric.Formats
+main = Test.Numeric.Formats
+executable = gpu-numeric-formats

@@ -28,6 +28,13 @@ The compiler integration currently uses ordinary Idris 2. Moving the same
 backend behind Idriç/`edric` is a separate integration step once that compiler's
 surface language is settled.
 
+The required outer build graph is the pinned root `Ikefile`. Its primary
+`check` target retains the existing Make leaf. Optional `qualify-nvidia` and
+`qualify-amd` targets emit real PTX and AMDGPU LLVM output and validate it with
+pinned vendor programs. Neither target is an Android/ARM32 dependency. Read
+[qualification](docs/gpu-follower-qualification.md) and the
+[hardware matrix](docs/gpu-hardware-matrix.md) for exact slices and gaps.
+
 ## What already works
 
 The backend reads shader argument and result types from the checked Idris
@@ -154,10 +161,9 @@ Finite renderer work is written as explicit bounded shader computation instead
 of using general recursion. This keeps the GPU execution bound visible in the
 source and in the generated shader.
 
-One current lowering detail matters when writing shader source: both sides of
-an Idris conditional can be lowered into temporaries before the final GLSL
-ternary is emitted. Code therefore must not rely on a dead branch to protect an
-out-of-bounds array access or a division by zero.
+Structured branch work remains inside its chosen branch. Empty branch bodies
+may use a select, but guarded work is not moved before the condition. Bounded
+loops retain their capacity and active-count checks in the shared IR.
 
 ## Build
 
@@ -259,7 +265,9 @@ proofs in `src/Test/NVIDIA/Specs.idr`. Typecheck the self-contained catalogue:
 idris2 --build nvidia-target-specifications.ipkg
 ```
 
-These specifications are not connected to an NVIDIA machine-code emitter.
+The catalogue remains separate from numerical instruction lowering. The new
+optional PTX compiler exercises a bounded F32 Givens/pixel subset; vendor output
+and physical gaps are recorded in the qualification.
 The pre-existing NVIDIA fragment mocks remain unchanged; their older
 pseudo-assembly implementation has unqualified compatibility with the current
 structured shader IR. This change does not claim a functioning NVIDIA shader,

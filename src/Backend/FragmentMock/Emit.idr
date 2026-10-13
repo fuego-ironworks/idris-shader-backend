@@ -65,7 +65,7 @@ rhsText (RBoolBinary BAnd left right) =
 rhsText (RBoolBinary BOr left right) =
   "bor " ++ operandText left ++ ", " ++ operandText right
 rhsText (RIntToFloat value) = "itof " ++ operandText value
-rhsText (RArrayIndex array index) =
+rhsText (RArrayIndex _ array index) =
   "load.index " ++ operandText array ++ ", " ++ operandText index
 rhsText (RVec2 x y) =
   "pack2 " ++ operandText x ++ ", " ++ operandText y
@@ -100,6 +100,31 @@ bindingLine : Binding -> String
 bindingLine (MkBinding ty name rhs) =
   "  %" ++ name ++ " : " ++ show ty ++ " = " ++ rhsText rhs
 
+mutual
+  statementLines : String -> Statement -> List String
+  statementLines indent (SBinding binding) = [indent ++ bindingLine binding]
+  statementLines indent (SIf ty name condition [] whenTrue [] whenFalse) =
+    [indent ++ bindingLine (MkBinding ty name (RSelect condition whenTrue whenFalse))]
+  statementLines indent (SIf ty name condition thenBody whenTrue elseBody whenFalse) =
+    [indent ++ "  if " ++ operandText condition ++ " {"] ++
+    statementsLines (indent ++ "  ") thenBody ++
+    [indent ++ "    yield " ++ operandText whenTrue, indent ++ "  } else {"] ++
+    statementsLines (indent ++ "  ") elseBody ++
+    [indent ++ "    yield " ++ operandText whenFalse,
+     indent ++ "  } -> %" ++ name ++ " : " ++ show ty]
+  statementLines indent (SBoundedLoop ty name index state maximum active initial body result) =
+    let activeText = maybe "" (\value => " active < " ++ operandText value) active in
+    [indent ++ "  bounded-loop %" ++ index ++ " < " ++ show maximum ++ activeText ++
+     " state %" ++ state ++ " = " ++ operandText initial ++ " {"] ++
+    statementsLines (indent ++ "  ") body ++
+    [indent ++ "    yield " ++ operandText result,
+     indent ++ "  } -> %" ++ name ++ " : " ++ show ty]
+
+  statementsLines : String -> List Statement -> List String
+  statementsLines indent [] = []
+  statementsLines indent (statement :: rest) =
+    statementLines indent statement ++ statementsLines indent rest
+
 ||| Deliberately architecture-inaccurate pseudo assembly.
 |||
 ||| The target name is metadata, not a claim that the instruction spellings
@@ -120,6 +145,6 @@ emitFragmentMock target program =
         , ".stage fragment"
         ]
       interfaceLines = map interfaceLine (entryInterface (spec program))
-      body = map bindingLine (bindings program)
+      body = statementsLines "" (statements program)
       output = "  store.frag_color " ++ operandText (result program)
    in unlines (header ++ interfaceLines ++ [".begin"] ++ body ++ [output, ".end", ""])

@@ -1,0 +1,35 @@
+grease _/recipes/compile-amd.grease
+ 6/11: Building Backend.GLSLES.Bounded (src/Backend/GLSLES/Bounded.idr)
+Warning: No incremental compile data for Compiler.ANF
+
+Now compiling the executable: idris2-amdgpu
+grease _/recipes/amd.grease
+/workspace/scratch/169ff1ff37de/vendor/rocm/opt/rocm-7.2.3/lib/llvm/bin/llc: OK
+/workspace/scratch/169ff1ff37de/vendor/rocm/opt/rocm-7.2.3/lib/llvm/bin/llvm-mc: OK
+/workspace/scratch/169ff1ff37de/vendor/rocm/opt/rocm-7.2.3/lib/llvm/bin/lld: OK
+AMD LLVM version 22.0.0git
+  Optimized build.
+  Default target: x86_64-unknown-linux-gnu
+  Host CPU: emeraldrapids
+
+  Registered Targets:
+    amdgcn - AMD GCN GPUs
+    r600   - AMD GPUs HD2XXX-HD6XXX
+    x86    - 32-bit X86: Pentium-Pro and above
+    x86-64 - 64-bit X86: EM64T and AMD64
+0a9df54db98b6d5ac703eba78243f813e9007173269ae7864e5e14b7a477677b  build/gpu-follower/amd/pixel-gfx942.ll
+b137971685edf5efe65032316cbced62f9d087e29481dd7780854961f90c8384  build/gpu-follower/amd/pixel-gfx942.ir
+72178a1f13633938903a295577842038315ce1008028eeda513ed59007fef633  build/gpu-follower/amd/pixel-gfx942.s
+3213dd95a82cb597e2e336646a4a326d5a784c061326644ecc7a8d9d8c516454  build/gpu-follower/amd/pixel-gfx942.o
+36048236a6afb68380e00ae5827abfdc685fcb82c7ae7fb4ff55756a7a7d953a  build/gpu-follower/amd/pixel-gfx942.hsaco
+6b8699181225bce9404b77d4cfc7429afc6a9fca093cc8b363f6bd6fcc265215  build/gpu-follower/amd/pixel-gfx950.ll
+b137971685edf5efe65032316cbced62f9d087e29481dd7780854961f90c8384  build/gpu-follower/amd/pixel-gfx950.ir
+b8ca0b13c4a3553b0429a63f09a79bae2a75d1a07b9097d4d7d0b5404bd1cc82  build/gpu-follower/amd/pixel-gfx950.s
+db8673e77f5b85d87c114adf72d3e7b12c7737dee3ae27b791ff29618d4598fe  build/gpu-follower/amd/pixel-gfx950.o
+0765ac1d489e102988233828ee8763e5e28acbd7244a0f0b95e2f5c8c0587405  build/gpu-follower/amd/pixel-gfx950.hsaco
+c9514b232db97a54a7a81fc3e4e4fb07bf7492e3272b6ee2bc4417f03b2adc89  build/gpu-follower/amd/pixel-gfx1250.ll
+b137971685edf5efe65032316cbced62f9d087e29481dd7780854961f90c8384  build/gpu-follower/amd/pixel-gfx1250.ir
+7ed0a488f7960b5ad7511ecf8c658824ac34f8863222d6a8985fa7cecf746baf  build/gpu-follower/amd/pixel-gfx1250.s
+89fe053688f8746b226b2c55766c08f928e9d13b2d55f9783ad673dcadee4fde  build/gpu-follower/amd/pixel-gfx1250.o
+f028892491e9d957386a40665f512833ef6e838ae8a21a58e429439031c549d6  build/gpu-follower/amd/pixel-gfx1250.hsaco
+[32mPASS gfx942/gfx950/gfx1250 generation, native assembly and code-object link; physical UNVERIFIED[0m

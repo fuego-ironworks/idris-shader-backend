@@ -1,0 +1,6 @@
+grease _/recipes/compile-numeric.grease
+3/3: Building Test.Numeric.Formats (src/Test/Numeric/Formats.idr)
+Now compiling the executable: gpu-numeric-formats
+grease _/recipes/numeric.grease
+45a691455ef9e1b4a7aad995c6ba69a97afa4bfafa08d15844bcc5f79a95177d  build/gpu-follower/numeric.tsv
+[32mPASS exact numerical producer; independent oracle is separate[0m

@@ -9,6 +9,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+from check_analytic_continuation import loop_blocks
+
 
 ROOT = Path(__file__).resolve().parents[1]
 BACKEND = ROOT / "build" / "exec" / "idris2-glsles"
@@ -60,14 +62,23 @@ def main() -> int:
         for operation in ["atan(", "log(", "floor(", "pow(", "sin(", "cos("]:
             require(operation in shader, "shared portrait lost " + operation)
 
-        require(
-            shader.count("u_zeros[int(") >= 64,
-            "64 bounded zero slots were not compiled into the portrait",
-        )
-        require(
-            shader.count("u_poles[int(") >= 64,
-            "64 bounded pole slots were not compiled into the portrait",
-        )
+        loops = loop_blocks(shader)
+        require(len(loops) == 2, "portrait must emit exactly two bounded factor loops")
+        for array, active in (("u_zeros", "u_zero_count"), ("u_poles", "u_pole_count")):
+            matching = [block for block in loops if array + "[int(" in block]
+            require(len(matching) == 1, array + " must be read by exactly one bounded loop")
+            block = matching[0]
+            active_name = next(
+                (line.split()[1] for line in shader.splitlines()
+                 if " = float(" + active + ");" in line),
+                "",
+            )
+            require(active_name != "", active + " was not converted for the runtime bound")
+            require(" < 64 && " in block, array + " lost its compile-time 64-element maximum")
+            require(" < " + active_name + ";" in block, array + " lost its runtime active bound")
+            require("atan(" in block and "log(" in block, array + " lost phase or modulus work")
+        require(shader.count("atan(") == 2, "factor phase work escaped the two bounded loops")
+        require(shader.count("log(") == 2, "factor modulus work escaped the two bounded loops")
         require("66.0" in shader and "45.0" in shader, "Wegert HCL constants were lost")
 
         validator = shutil.which("glslangValidator")

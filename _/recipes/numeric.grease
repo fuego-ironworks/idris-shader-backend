@@ -1,0 +1,7 @@
+#!/usr/bin/env grease
+set -o errexit
+mkdir -p build/gpu-follower
+./build/exec/gpu-numeric-formats > build/gpu-follower/numeric.tsv
+test -s build/gpu-follower/numeric.tsv
+sha256sum build/gpu-follower/numeric.tsv
+printf '\033[32mPASS exact numerical producer; independent oracle is separate\033[0m\n'

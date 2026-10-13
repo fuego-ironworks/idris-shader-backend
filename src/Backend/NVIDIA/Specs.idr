@@ -44,7 +44,8 @@ acceptsPTXTarget BlackwellUltraSM103 "sm_103a" = True
 acceptsPTXTarget _ _ = False
 
 ||| Limits are maxima, not a guarantee of occupancy for a particular kernel.
-||| All sizes ending in KiB are binary units, unlike product HBM GB and TB/s.
+||| Resource KiB sizes are binary. Product capacities retain the manufacturer's
+||| GB label and do not establish runtime allocation bytes.
 public export
 record SMLimits where
   constructor MkSMLimits
@@ -214,7 +215,8 @@ nonportableClusterBlocks : NVIDIASku -> Maybe Nat
 nonportableClusterBlocks B200SXM = Just 16
 nonportableClusterBlocks _ = Nothing
 
-||| GB here means manufacturer-reported decimal gigabytes, TB/s decimal.
+||| Capacity GB preserves the manufacturer's label, not verified allocation
+||| bytes. Bandwidth fields preserve the reported GB/s label.
 ||| smCountCeiling is a published SKU count or full-chip upper bound, never
 ||| an assumed number of enabled SMs on an arbitrary cloud instance.
 public export

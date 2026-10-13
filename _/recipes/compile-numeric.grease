@@ -1,0 +1,4 @@
+#!/usr/bin/env grease
+set -o errexit
+var IDRIS2 = ENV.IDRIS2
+"$IDRIS2" --build numeric-formats.ipkg
