@@ -34,6 +34,7 @@ oracle. The benchmark controls document this explicit correction.
 The successful path is ordinary source → registered backend → typed shader
 representation → emitted GLSL → Khronos syntax and link validation. Sources,
 emitted fragments, intermediate output, raw logs, and hashes are retained.
+Source and output digests are listed in identities.sha256.
 Vector pairs remain SVec 2 carriers for complex Cartesian components, not lists.
 
 Generated highp GLSL is 18,103 bytes. The handwritten unrolled uniform control
@@ -109,4 +110,8 @@ sources, not an accepted resident renderer.
 Earth: implement those coupled capabilities, wire fresh-output checks and the
 registered build/acceptance path, and deliver the controlled benchmark.
 Moon: NONE until that Earth result and its actual A1 acceptance exist.
+
+Repository publication is blocked: automatic approval review rejected pushing
+the research branch, interpreting the user's scope as investigation/handoff
+and citing the no-release/no-merge instruction. These commits are local.
 
