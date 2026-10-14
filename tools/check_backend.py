@@ -98,7 +98,7 @@ def main() -> int:
             dumped.startswith("fragment(v_uv : in F32x2, u_time : uniform F32) -> F32x4"),
             "typed IR dump lost explicit F32 interface widths",
         )
-        require(" : F32" in dumped and "F32x" in dumped, "typed IR dump lost F32 semantics")
+        require(" : F32" in dumped and "F32x" in dumped, "IR dump lost requested F32 labels")
         require(
             " : float" not in dumped and " : vec" not in dumped,
             "typed IR dump regressed to width-erasing GLSL type names",
@@ -292,6 +292,7 @@ def main() -> int:
         ]
         for source, output, phrase in failures:
             result = compile_source(source, temporary, output)
+            require(result.returncode != 0, source + " returned success despite rejection")
             require("Error:" in result.stdout, source + " unexpectedly compiled")
             require(
                 not (temporary / f"{output}.frag").exists(),
@@ -302,16 +303,17 @@ def main() -> int:
         dimensions = compile_source(
             "src/Test/Backend/BadDimensions.idr", temporary, "bad-dimensions"
         )
-        require("Error:" in dimensions.stdout, "mismatched vector widths unexpectedly typechecked")
+        require(dimensions.returncode != 0, "tuple-width mismatch returned success despite rejection")
+        require("Error:" in dimensions.stdout, "mismatched tuple component counts unexpectedly typechecked")
         require(
             "ShaderFloatTuple 2" in dimensions.stdout and "ShaderFloatTuple 3" in dimensions.stdout,
-            "dimension mismatch did not report both widths:\n" + dimensions.stdout,
+            "tuple mismatch did not report both component counts:\n" + dimensions.stdout,
         )
 
     print(
-        "backend checks passed: source lowering, expected outputs, explicit precision, "
-        "structured expensive branches, phase portrait math, fixed uniform arrays, "
-        "four rejections, dimension proof"
+        "backend checks passed: source lowering, golden outputs, precision directives and labels, "
+        "structured branch emission, phase-portrait emission, fixed uniform-array emission, "
+        "four backend refusals, tuple-width source refusal"
     )
     return 0
 
