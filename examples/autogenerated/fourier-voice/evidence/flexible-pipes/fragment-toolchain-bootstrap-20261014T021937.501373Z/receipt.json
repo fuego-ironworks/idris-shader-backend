@@ -1,0 +1,42 @@
+{
+  "finished_at": "2026-10-14T02:26:28.726400+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "fragment-toolchain-bootstrap",
+  "pipeline_path": "pipelines/fragment-toolchain-bootstrap.json",
+  "pipeline_sha256": "71343aeaa5a94396c6fb9d3e2aeae7bf07117dba1f9eb1a17d4f9fb8b9e27b66",
+  "repository_commit": "7dc68ca3d4ee49511e73b39f618a6f32da206bf7",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/env",
+        "SCHEMEHEAPDIRS=/workspace/scratch/06801432b09a/dependencies/usr/lib/csv9.5.8/ta6le",
+        "PATH=/workspace/scratch/06801432b09a/dependencies/usr/bin:/usr/local/bin:/usr/bin:/bin",
+        "/usr/bin/make",
+        "-C",
+        "/workspace/scratch/06801432b09a/Idris2",
+        "bootstrap",
+        "SCHEME=/workspace/scratch/06801432b09a/dependencies/usr/bin/chezscheme",
+        "PREFIX=/workspace/scratch/06801432b09a/compiler"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T02:26:28.726025+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "bootstrap-idris2",
+      "started_at": "2026-10-14T02:19:37.504173+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d6a4da5725d42568f86d44f3cad0c5c63e72d2a76ad4711e083e98a183b7e970"
+    }
+  ],
+  "started_at": "2026-10-14T02:19:37.504090+00:00",
+  "status": "PASS"
+}

@@ -1,0 +1,22 @@
+ 1/11: Building Backend.GLSLES.IR (src/Backend/GLSLES/IR.idr)
+Warning: We are about to implicitly bind the following lowercase names.
+You may be unintentionally shadowing the associated global definitions:
+  elementTy is shadowing Backend.GLSLES.IR.SomeArray.elementTy
+
+Backend.GLSLES.IR:208:3--209:70
+ 208 |   RArrayIndex : (capacity : Nat) -> Operand (TArray capacity elementTy) ->
+ 209 |                 Operand TFloat -> Rhs (arrayElementValueTy elementTy)
+
+ 2/11: Building Backend.GLSLES.Structure (src/Backend/GLSLES/Structure.idr)
+ 3/11: Building Backend.GLSLES.Sensitivity (src/Backend/GLSLES/Sensitivity.idr)
+ 4/11: Building Backend.GLSLES.FloatSemantics (src/Backend/GLSLES/FloatSemantics.idr)
+ 5/11: Building Backend.GLSLES.Emit (src/Backend/GLSLES/Emit.idr)
+ 6/11: Building Backend.GLSLES.Interface (src/Backend/GLSLES/Interface.idr)
+ 7/11: Building Backend.GLSLES.Bounded (src/Backend/GLSLES/Bounded.idr)
+Warning: No incremental compile data for Compiler.ANF
+
+ 8/11: Building Backend.GLSLES.Lower (src/Backend/GLSLES/Lower.idr)
+ 9/11: Building Backend.GLSLES.Signature (src/Backend/GLSLES/Signature.idr)
+10/11: Building Backend.GLSLES.Codegen (src/Backend/GLSLES/Codegen.idr)
+11/11: Building Backend.GLSLES.Main (src/Backend/GLSLES/Main.idr)
+Now compiling the executable: idris2-glsles

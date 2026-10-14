@@ -1,0 +1,101 @@
+{
+  "finished_at": "2026-10-14T02:28:36.447658+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "fragment-generator-build",
+  "pipeline_path": "pipelines/fragment-generator-build.json",
+  "pipeline_sha256": "fe3f48849989cb12faa4ee70511f788f94bcef889631402b33c1823befe64ddb",
+  "repository_commit": "7dc68ca3d4ee49511e73b39f618a6f32da206bf7",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/env",
+        "SCHEMEHEAPDIRS=/workspace/scratch/06801432b09a/dependencies/usr/lib/csv9.5.8/ta6le",
+        "PATH=/workspace/scratch/06801432b09a/dependencies/usr/bin:/usr/local/bin:/usr/bin:/bin",
+        "/usr/bin/make",
+        "-C",
+        "/workspace/scratch/06801432b09a/Idris2",
+        "install",
+        "PREFIX=/workspace/scratch/06801432b09a/compiler"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T02:27:34.842551+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "install-idris2",
+      "started_at": "2026-10-14T02:27:30.187004+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e0ffc5f71d8f281a0e2be2c361eb04fa7c84e25f86749d55a33cb1b4ffe2699e"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "SCHEMEHEAPDIRS=/workspace/scratch/06801432b09a/dependencies/usr/lib/csv9.5.8/ta6le",
+        "PATH=/workspace/scratch/06801432b09a/dependencies/usr/bin:/usr/local/bin:/usr/bin:/bin",
+        "/usr/bin/make",
+        "-C",
+        "/workspace/scratch/06801432b09a/Idris2",
+        "install-api",
+        "PREFIX=/workspace/scratch/06801432b09a/compiler",
+        "IDRIS2_BOOT=/workspace/scratch/06801432b09a/Idris2/build/exec/idris2"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T02:27:42.822969+00:00",
+      "index": 2,
+      "kind": "command",
+      "name": "install-compiler-api",
+      "started_at": "2026-10-14T02:27:34.842851+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "87dd164000740e13da75de206827195034be0f90302ddbe7ae84d881d7da5be8"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "SCHEMEHEAPDIRS=/workspace/scratch/06801432b09a/dependencies/usr/lib/csv9.5.8/ta6le",
+        "PATH=/workspace/scratch/06801432b09a/dependencies/usr/bin:/usr/local/bin:/usr/bin:/bin",
+        "/workspace/scratch/06801432b09a/compiler/bin/idris2",
+        "--install",
+        "/workspace/scratch/06801432b09a/idris-shader-backend/idris-glsl-es.ipkg"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T02:27:44.255988+00:00",
+      "index": 3,
+      "kind": "command",
+      "name": "install-shader-library",
+      "started_at": "2026-10-14T02:27:42.823114+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "717ffa1bbbbbd9a87501128439fc0e7521d944f2c57b2c4411fa27f2ff063298"
+    },
+    {
+      "argv": [
+        "/usr/bin/env",
+        "SCHEMEHEAPDIRS=/workspace/scratch/06801432b09a/dependencies/usr/lib/csv9.5.8/ta6le",
+        "PATH=/workspace/scratch/06801432b09a/dependencies/usr/bin:/usr/local/bin:/usr/bin:/bin",
+        "/workspace/scratch/06801432b09a/compiler/bin/idris2",
+        "--build",
+        "/workspace/scratch/06801432b09a/idris-shader-backend/backend.ipkg"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T02:28:36.447627+00:00",
+      "index": 4,
+      "kind": "command",
+      "name": "build-registered-backend",
+      "started_at": "2026-10-14T02:27:44.256077+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "7eeaadb056f0448fd6055b1f7761495e20a1e1020c2a3b6b220c5c0597d555b8"
+    }
+  ],
+  "started_at": "2026-10-14T02:27:30.186937+00:00",
+  "status": "PASS"
+}

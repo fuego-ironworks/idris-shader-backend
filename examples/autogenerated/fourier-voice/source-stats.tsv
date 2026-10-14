@@ -1,0 +1,4 @@
+variant	glsl_bytes	physical_gpu_time
+generated-unrolled-highp	18103	NOT_RUN
+handwritten-uniform-unrolled	3568	NOT_RUN
+handwritten-uniform-loop	2435	NOT_RUN

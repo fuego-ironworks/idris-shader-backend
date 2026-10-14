@@ -1,0 +1,38 @@
+{
+  "finished_at": "2026-10-14T02:36:58.347174+00:00",
+  "github_sha_declared": null,
+  "parameters": {},
+  "pipeline": "fragment-existing-loop-control",
+  "pipeline_path": "pipelines/fragment-existing-loop-control.json",
+  "pipeline_sha256": "3bf430e5d85a1bf583e4d46b89a5e7367859b10387ba83ed44f28f11c7da2df2",
+  "repository_commit": "7dc68ca3d4ee49511e73b39f618a6f32da206bf7",
+  "runner": {
+    "machine": "x86_64",
+    "python": "3.12.14",
+    "release": "6.18.44",
+    "system": "Linux"
+  },
+  "schema_version": 1,
+  "stages": [
+    {
+      "argv": [
+        "/usr/bin/env",
+        "SCHEMEHEAPDIRS=/workspace/scratch/06801432b09a/dependencies/usr/lib/csv9.5.8/ta6le",
+        "PATH=/workspace/scratch/06801432b09a/dependencies/usr/bin:/workspace/scratch/06801432b09a/compiler/bin:/usr/local/bin:/usr/bin:/bin",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/workspace/scratch/06801432b09a/idris-shader-backend/tools/probe_bounded_loop_anf.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "finished_at": "2026-10-14T02:36:58.347145+00:00",
+      "index": 1,
+      "kind": "command",
+      "name": "existing-loop-regression",
+      "started_at": "2026-10-14T02:36:57.121021+00:00",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "19a61fed3ce1db605eb771f1a89d3a3cf5d17b79029320ac88488a8da201914b"
+    }
+  ],
+  "started_at": "2026-10-14T02:36:57.120948+00:00",
+  "status": "PASS"
+}

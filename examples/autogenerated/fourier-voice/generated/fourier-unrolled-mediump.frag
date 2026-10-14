@@ -1,0 +1,436 @@
+#version 300 es
+precision mediump float;
+precision highp int;
+
+in vec2 v_uv;
+uniform vec2 u_coefficients[24];
+layout(location = 0) out vec4 _idris_fragColor;
+
+void main() {
+  float _idris_t0 = (-0.44);
+  float _idris_t1 = v_uv.x;
+  float _idris_t2 = mix(_idris_t0, 0.44, _idris_t1);
+  float _idris_t3 = (-0.88);
+  float _idris_t4 = v_uv.y;
+  float _idris_t5 = mix(_idris_t3, 0.88, _idris_t4);
+  vec2 _idris_t6 = vec2(_idris_t2, _idris_t5);
+  vec2 _idris_t7 = u_coefficients[int(23.0)];
+  float _idris_t8 = _idris_t7.x;
+  float _idris_t9 = _idris_t6.x;
+  float _idris_t10 = (_idris_t8 * _idris_t9);
+  float _idris_t11 = _idris_t7.y;
+  float _idris_t12 = _idris_t6.y;
+  float _idris_t13 = (_idris_t11 * _idris_t12);
+  float _idris_t14 = (_idris_t10 - _idris_t13);
+  float _idris_t17 = (_idris_t8 * _idris_t12);
+  float _idris_t20 = (_idris_t11 * _idris_t9);
+  float _idris_t21 = (_idris_t17 + _idris_t20);
+  vec2 _idris_t22 = vec2(_idris_t14, _idris_t21);
+  vec2 _idris_t23 = u_coefficients[int(22.0)];
+  vec2 _idris_t24 = (_idris_t22 + _idris_t23);
+  float _idris_t25 = _idris_t24.x;
+  float _idris_t27 = (_idris_t25 * _idris_t9);
+  float _idris_t28 = _idris_t24.y;
+  float _idris_t30 = (_idris_t28 * _idris_t12);
+  float _idris_t31 = (_idris_t27 - _idris_t30);
+  float _idris_t34 = (_idris_t25 * _idris_t12);
+  float _idris_t37 = (_idris_t28 * _idris_t9);
+  float _idris_t38 = (_idris_t34 + _idris_t37);
+  vec2 _idris_t39 = vec2(_idris_t31, _idris_t38);
+  vec2 _idris_t40 = u_coefficients[int(21.0)];
+  vec2 _idris_t41 = (_idris_t39 + _idris_t40);
+  float _idris_t42 = _idris_t41.x;
+  float _idris_t44 = (_idris_t42 * _idris_t9);
+  float _idris_t45 = _idris_t41.y;
+  float _idris_t47 = (_idris_t45 * _idris_t12);
+  float _idris_t48 = (_idris_t44 - _idris_t47);
+  float _idris_t51 = (_idris_t42 * _idris_t12);
+  float _idris_t54 = (_idris_t45 * _idris_t9);
+  float _idris_t55 = (_idris_t51 + _idris_t54);
+  vec2 _idris_t56 = vec2(_idris_t48, _idris_t55);
+  vec2 _idris_t57 = u_coefficients[int(20.0)];
+  vec2 _idris_t58 = (_idris_t56 + _idris_t57);
+  float _idris_t59 = _idris_t58.x;
+  float _idris_t61 = (_idris_t59 * _idris_t9);
+  float _idris_t62 = _idris_t58.y;
+  float _idris_t64 = (_idris_t62 * _idris_t12);
+  float _idris_t65 = (_idris_t61 - _idris_t64);
+  float _idris_t68 = (_idris_t59 * _idris_t12);
+  float _idris_t71 = (_idris_t62 * _idris_t9);
+  float _idris_t72 = (_idris_t68 + _idris_t71);
+  vec2 _idris_t73 = vec2(_idris_t65, _idris_t72);
+  vec2 _idris_t74 = u_coefficients[int(19.0)];
+  vec2 _idris_t75 = (_idris_t73 + _idris_t74);
+  float _idris_t76 = _idris_t75.x;
+  float _idris_t78 = (_idris_t76 * _idris_t9);
+  float _idris_t79 = _idris_t75.y;
+  float _idris_t81 = (_idris_t79 * _idris_t12);
+  float _idris_t82 = (_idris_t78 - _idris_t81);
+  float _idris_t85 = (_idris_t76 * _idris_t12);
+  float _idris_t88 = (_idris_t79 * _idris_t9);
+  float _idris_t89 = (_idris_t85 + _idris_t88);
+  vec2 _idris_t90 = vec2(_idris_t82, _idris_t89);
+  vec2 _idris_t91 = u_coefficients[int(18.0)];
+  vec2 _idris_t92 = (_idris_t90 + _idris_t91);
+  float _idris_t93 = _idris_t92.x;
+  float _idris_t95 = (_idris_t93 * _idris_t9);
+  float _idris_t96 = _idris_t92.y;
+  float _idris_t98 = (_idris_t96 * _idris_t12);
+  float _idris_t99 = (_idris_t95 - _idris_t98);
+  float _idris_t102 = (_idris_t93 * _idris_t12);
+  float _idris_t105 = (_idris_t96 * _idris_t9);
+  float _idris_t106 = (_idris_t102 + _idris_t105);
+  vec2 _idris_t107 = vec2(_idris_t99, _idris_t106);
+  vec2 _idris_t108 = u_coefficients[int(17.0)];
+  vec2 _idris_t109 = (_idris_t107 + _idris_t108);
+  float _idris_t110 = _idris_t109.x;
+  float _idris_t112 = (_idris_t110 * _idris_t9);
+  float _idris_t113 = _idris_t109.y;
+  float _idris_t115 = (_idris_t113 * _idris_t12);
+  float _idris_t116 = (_idris_t112 - _idris_t115);
+  float _idris_t119 = (_idris_t110 * _idris_t12);
+  float _idris_t122 = (_idris_t113 * _idris_t9);
+  float _idris_t123 = (_idris_t119 + _idris_t122);
+  vec2 _idris_t124 = vec2(_idris_t116, _idris_t123);
+  vec2 _idris_t125 = u_coefficients[int(16.0)];
+  vec2 _idris_t126 = (_idris_t124 + _idris_t125);
+  float _idris_t127 = _idris_t126.x;
+  float _idris_t129 = (_idris_t127 * _idris_t9);
+  float _idris_t130 = _idris_t126.y;
+  float _idris_t132 = (_idris_t130 * _idris_t12);
+  float _idris_t133 = (_idris_t129 - _idris_t132);
+  float _idris_t136 = (_idris_t127 * _idris_t12);
+  float _idris_t139 = (_idris_t130 * _idris_t9);
+  float _idris_t140 = (_idris_t136 + _idris_t139);
+  vec2 _idris_t141 = vec2(_idris_t133, _idris_t140);
+  vec2 _idris_t142 = u_coefficients[int(15.0)];
+  vec2 _idris_t143 = (_idris_t141 + _idris_t142);
+  float _idris_t144 = _idris_t143.x;
+  float _idris_t146 = (_idris_t144 * _idris_t9);
+  float _idris_t147 = _idris_t143.y;
+  float _idris_t149 = (_idris_t147 * _idris_t12);
+  float _idris_t150 = (_idris_t146 - _idris_t149);
+  float _idris_t153 = (_idris_t144 * _idris_t12);
+  float _idris_t156 = (_idris_t147 * _idris_t9);
+  float _idris_t157 = (_idris_t153 + _idris_t156);
+  vec2 _idris_t158 = vec2(_idris_t150, _idris_t157);
+  vec2 _idris_t159 = u_coefficients[int(14.0)];
+  vec2 _idris_t160 = (_idris_t158 + _idris_t159);
+  float _idris_t161 = _idris_t160.x;
+  float _idris_t163 = (_idris_t161 * _idris_t9);
+  float _idris_t164 = _idris_t160.y;
+  float _idris_t166 = (_idris_t164 * _idris_t12);
+  float _idris_t167 = (_idris_t163 - _idris_t166);
+  float _idris_t170 = (_idris_t161 * _idris_t12);
+  float _idris_t173 = (_idris_t164 * _idris_t9);
+  float _idris_t174 = (_idris_t170 + _idris_t173);
+  vec2 _idris_t175 = vec2(_idris_t167, _idris_t174);
+  vec2 _idris_t176 = u_coefficients[int(13.0)];
+  vec2 _idris_t177 = (_idris_t175 + _idris_t176);
+  float _idris_t178 = _idris_t177.x;
+  float _idris_t180 = (_idris_t178 * _idris_t9);
+  float _idris_t181 = _idris_t177.y;
+  float _idris_t183 = (_idris_t181 * _idris_t12);
+  float _idris_t184 = (_idris_t180 - _idris_t183);
+  float _idris_t187 = (_idris_t178 * _idris_t12);
+  float _idris_t190 = (_idris_t181 * _idris_t9);
+  float _idris_t191 = (_idris_t187 + _idris_t190);
+  vec2 _idris_t192 = vec2(_idris_t184, _idris_t191);
+  vec2 _idris_t193 = u_coefficients[int(12.0)];
+  vec2 _idris_t194 = (_idris_t192 + _idris_t193);
+  float _idris_t195 = _idris_t194.x;
+  float _idris_t197 = (_idris_t195 * _idris_t9);
+  float _idris_t198 = _idris_t194.y;
+  float _idris_t200 = (_idris_t198 * _idris_t12);
+  float _idris_t201 = (_idris_t197 - _idris_t200);
+  float _idris_t204 = (_idris_t195 * _idris_t12);
+  float _idris_t207 = (_idris_t198 * _idris_t9);
+  float _idris_t208 = (_idris_t204 + _idris_t207);
+  vec2 _idris_t209 = vec2(_idris_t201, _idris_t208);
+  vec2 _idris_t210 = u_coefficients[int(11.0)];
+  vec2 _idris_t211 = (_idris_t209 + _idris_t210);
+  float _idris_t212 = _idris_t211.x;
+  float _idris_t214 = (_idris_t212 * _idris_t9);
+  float _idris_t215 = _idris_t211.y;
+  float _idris_t217 = (_idris_t215 * _idris_t12);
+  float _idris_t218 = (_idris_t214 - _idris_t217);
+  float _idris_t221 = (_idris_t212 * _idris_t12);
+  float _idris_t224 = (_idris_t215 * _idris_t9);
+  float _idris_t225 = (_idris_t221 + _idris_t224);
+  vec2 _idris_t226 = vec2(_idris_t218, _idris_t225);
+  vec2 _idris_t227 = u_coefficients[int(10.0)];
+  vec2 _idris_t228 = (_idris_t226 + _idris_t227);
+  float _idris_t229 = _idris_t228.x;
+  float _idris_t231 = (_idris_t229 * _idris_t9);
+  float _idris_t232 = _idris_t228.y;
+  float _idris_t234 = (_idris_t232 * _idris_t12);
+  float _idris_t235 = (_idris_t231 - _idris_t234);
+  float _idris_t238 = (_idris_t229 * _idris_t12);
+  float _idris_t241 = (_idris_t232 * _idris_t9);
+  float _idris_t242 = (_idris_t238 + _idris_t241);
+  vec2 _idris_t243 = vec2(_idris_t235, _idris_t242);
+  vec2 _idris_t244 = u_coefficients[int(9.0)];
+  vec2 _idris_t245 = (_idris_t243 + _idris_t244);
+  float _idris_t246 = _idris_t245.x;
+  float _idris_t248 = (_idris_t246 * _idris_t9);
+  float _idris_t249 = _idris_t245.y;
+  float _idris_t251 = (_idris_t249 * _idris_t12);
+  float _idris_t252 = (_idris_t248 - _idris_t251);
+  float _idris_t255 = (_idris_t246 * _idris_t12);
+  float _idris_t258 = (_idris_t249 * _idris_t9);
+  float _idris_t259 = (_idris_t255 + _idris_t258);
+  vec2 _idris_t260 = vec2(_idris_t252, _idris_t259);
+  vec2 _idris_t261 = u_coefficients[int(8.0)];
+  vec2 _idris_t262 = (_idris_t260 + _idris_t261);
+  float _idris_t263 = _idris_t262.x;
+  float _idris_t265 = (_idris_t263 * _idris_t9);
+  float _idris_t266 = _idris_t262.y;
+  float _idris_t268 = (_idris_t266 * _idris_t12);
+  float _idris_t269 = (_idris_t265 - _idris_t268);
+  float _idris_t272 = (_idris_t263 * _idris_t12);
+  float _idris_t275 = (_idris_t266 * _idris_t9);
+  float _idris_t276 = (_idris_t272 + _idris_t275);
+  vec2 _idris_t277 = vec2(_idris_t269, _idris_t276);
+  vec2 _idris_t278 = u_coefficients[int(7.0)];
+  vec2 _idris_t279 = (_idris_t277 + _idris_t278);
+  float _idris_t280 = _idris_t279.x;
+  float _idris_t282 = (_idris_t280 * _idris_t9);
+  float _idris_t283 = _idris_t279.y;
+  float _idris_t285 = (_idris_t283 * _idris_t12);
+  float _idris_t286 = (_idris_t282 - _idris_t285);
+  float _idris_t289 = (_idris_t280 * _idris_t12);
+  float _idris_t292 = (_idris_t283 * _idris_t9);
+  float _idris_t293 = (_idris_t289 + _idris_t292);
+  vec2 _idris_t294 = vec2(_idris_t286, _idris_t293);
+  vec2 _idris_t295 = u_coefficients[int(6.0)];
+  vec2 _idris_t296 = (_idris_t294 + _idris_t295);
+  float _idris_t297 = _idris_t296.x;
+  float _idris_t299 = (_idris_t297 * _idris_t9);
+  float _idris_t300 = _idris_t296.y;
+  float _idris_t302 = (_idris_t300 * _idris_t12);
+  float _idris_t303 = (_idris_t299 - _idris_t302);
+  float _idris_t306 = (_idris_t297 * _idris_t12);
+  float _idris_t309 = (_idris_t300 * _idris_t9);
+  float _idris_t310 = (_idris_t306 + _idris_t309);
+  vec2 _idris_t311 = vec2(_idris_t303, _idris_t310);
+  vec2 _idris_t312 = u_coefficients[int(5.0)];
+  vec2 _idris_t313 = (_idris_t311 + _idris_t312);
+  float _idris_t314 = _idris_t313.x;
+  float _idris_t316 = (_idris_t314 * _idris_t9);
+  float _idris_t317 = _idris_t313.y;
+  float _idris_t319 = (_idris_t317 * _idris_t12);
+  float _idris_t320 = (_idris_t316 - _idris_t319);
+  float _idris_t323 = (_idris_t314 * _idris_t12);
+  float _idris_t326 = (_idris_t317 * _idris_t9);
+  float _idris_t327 = (_idris_t323 + _idris_t326);
+  vec2 _idris_t328 = vec2(_idris_t320, _idris_t327);
+  vec2 _idris_t329 = u_coefficients[int(4.0)];
+  vec2 _idris_t330 = (_idris_t328 + _idris_t329);
+  float _idris_t331 = _idris_t330.x;
+  float _idris_t333 = (_idris_t331 * _idris_t9);
+  float _idris_t334 = _idris_t330.y;
+  float _idris_t336 = (_idris_t334 * _idris_t12);
+  float _idris_t337 = (_idris_t333 - _idris_t336);
+  float _idris_t340 = (_idris_t331 * _idris_t12);
+  float _idris_t343 = (_idris_t334 * _idris_t9);
+  float _idris_t344 = (_idris_t340 + _idris_t343);
+  vec2 _idris_t345 = vec2(_idris_t337, _idris_t344);
+  vec2 _idris_t346 = u_coefficients[int(3.0)];
+  vec2 _idris_t347 = (_idris_t345 + _idris_t346);
+  float _idris_t348 = _idris_t347.x;
+  float _idris_t350 = (_idris_t348 * _idris_t9);
+  float _idris_t351 = _idris_t347.y;
+  float _idris_t353 = (_idris_t351 * _idris_t12);
+  float _idris_t354 = (_idris_t350 - _idris_t353);
+  float _idris_t357 = (_idris_t348 * _idris_t12);
+  float _idris_t360 = (_idris_t351 * _idris_t9);
+  float _idris_t361 = (_idris_t357 + _idris_t360);
+  vec2 _idris_t362 = vec2(_idris_t354, _idris_t361);
+  vec2 _idris_t363 = u_coefficients[int(2.0)];
+  vec2 _idris_t364 = (_idris_t362 + _idris_t363);
+  float _idris_t365 = _idris_t364.x;
+  float _idris_t367 = (_idris_t365 * _idris_t9);
+  float _idris_t368 = _idris_t364.y;
+  float _idris_t370 = (_idris_t368 * _idris_t12);
+  float _idris_t371 = (_idris_t367 - _idris_t370);
+  float _idris_t374 = (_idris_t365 * _idris_t12);
+  float _idris_t377 = (_idris_t368 * _idris_t9);
+  float _idris_t378 = (_idris_t374 + _idris_t377);
+  vec2 _idris_t379 = vec2(_idris_t371, _idris_t378);
+  vec2 _idris_t380 = u_coefficients[int(1.0)];
+  vec2 _idris_t381 = (_idris_t379 + _idris_t380);
+  float _idris_t382 = _idris_t381.x;
+  float _idris_t384 = (_idris_t382 * _idris_t9);
+  float _idris_t385 = _idris_t381.y;
+  float _idris_t387 = (_idris_t385 * _idris_t12);
+  float _idris_t388 = (_idris_t384 - _idris_t387);
+  float _idris_t391 = (_idris_t382 * _idris_t12);
+  float _idris_t394 = (_idris_t385 * _idris_t9);
+  float _idris_t395 = (_idris_t391 + _idris_t394);
+  vec2 _idris_t396 = vec2(_idris_t388, _idris_t395);
+  float _idris_t397 = _idris_t396.x;
+  bool _idris_t398 = (_idris_t397 == 0.0);
+  bool _idris_t399;
+  if (_idris_t398) {
+    _idris_t399 = true;
+  } else {
+    _idris_t399 = false;
+  }
+  float _idris_t400;
+  if (_idris_t399) {
+    float _idris_t404 = _idris_t396.y;
+    bool _idris_t405 = (_idris_t404 == 0.0);
+    bool _idris_t406;
+    if (_idris_t405) {
+      _idris_t406 = true;
+    } else {
+      _idris_t406 = false;
+    }
+    float _idris_t407;
+    if (_idris_t406) {
+      _idris_t407 = 0.0;
+    } else {
+      float _idris_t410 = atan(_idris_t404, _idris_t397);
+      _idris_t407 = _idris_t410;
+    }
+    _idris_t400 = _idris_t407;
+  } else {
+    float _idris_t401 = _idris_t396.y;
+    float _idris_t403 = atan(_idris_t401, _idris_t397);
+    _idris_t400 = _idris_t403;
+  }
+  float _idris_t411 = length(_idris_t396);
+  float _idris_t412 = max(_idris_t411, 1e-12);
+  float _idris_t413 = (_idris_t400 / 6.283185307179586);
+  float _idris_t414 = fract(_idris_t413);
+  float _idris_t415 = (360.0 * _idris_t414);
+  float _idris_t416 = log(_idris_t412);
+  float _idris_t417 = (_idris_t416 / 2.302585092994046);
+  float _idris_t418 = fract(_idris_t417);
+  float _idris_t419 = (4.0 * _idris_t418);
+  float _idris_t420 = (66.0 + _idris_t419);
+  float _idris_t421 = (_idris_t415 / 100.0);
+  float _idris_t422 = fract(_idris_t421);
+  float _idris_t423 = (3.0 * _idris_t422);
+  float _idris_t424 = (_idris_t420 + _idris_t423);
+  float _idris_t425 = (_idris_t415 * 0.017453292519943295);
+  float _idris_t426 = cos(_idris_t425);
+  float _idris_t427 = (45.0 * _idris_t426);
+  float _idris_t428 = sin(_idris_t425);
+  float _idris_t429 = (45.0 * _idris_t428);
+  bool _idris_t430 = (_idris_t424 > 8.0);
+  bool _idris_t431;
+  if (_idris_t430) {
+    _idris_t431 = true;
+  } else {
+    _idris_t431 = false;
+  }
+  float _idris_t432;
+  if (_idris_t431) {
+    float _idris_t434 = (_idris_t424 + 16.0);
+    float _idris_t435 = (_idris_t434 / 116.0);
+    float _idris_t436 = pow(_idris_t435, 3.0);
+    _idris_t432 = _idris_t436;
+  } else {
+    float _idris_t433 = (_idris_t424 / 903.2962962962963);
+    _idris_t432 = _idris_t433;
+  }
+  float _idris_t437 = (13.0 * _idris_t424);
+  float _idris_t438 = (_idris_t427 / _idris_t437);
+  float _idris_t439 = (_idris_t438 + 0.19783982482140777);
+  float _idris_t441 = (_idris_t429 / _idris_t437);
+  float _idris_t442 = (_idris_t441 + 0.46833630293240974);
+  float _idris_t443 = (9.0 * _idris_t432);
+  float _idris_t444 = (_idris_t443 * _idris_t439);
+  float _idris_t445 = (4.0 * _idris_t442);
+  float _idris_t446 = (_idris_t444 / _idris_t445);
+  float _idris_t447 = (3.0 * _idris_t439);
+  float _idris_t448 = (12.0 - _idris_t447);
+  float _idris_t449 = (20.0 * _idris_t442);
+  float _idris_t450 = (_idris_t448 - _idris_t449);
+  float _idris_t451 = (_idris_t432 * _idris_t450);
+  float _idris_t453 = (_idris_t451 / _idris_t445);
+  float _idris_t454 = (3.2404542 * _idris_t446);
+  float _idris_t455 = (1.5371385 * _idris_t432);
+  float _idris_t456 = (_idris_t454 - _idris_t455);
+  float _idris_t457 = (0.4985314 * _idris_t453);
+  float _idris_t458 = (_idris_t456 - _idris_t457);
+  float _idris_t459 = (-0.969266);
+  float _idris_t460 = (_idris_t459 * _idris_t446);
+  float _idris_t461 = (1.8760108 * _idris_t432);
+  float _idris_t462 = (_idris_t460 + _idris_t461);
+  float _idris_t463 = (0.041556 * _idris_t453);
+  float _idris_t464 = (_idris_t462 + _idris_t463);
+  float _idris_t465 = (0.0556434 * _idris_t446);
+  float _idris_t466 = (0.2040259 * _idris_t432);
+  float _idris_t467 = (_idris_t465 - _idris_t466);
+  float _idris_t468 = (1.0572252 * _idris_t453);
+  float _idris_t469 = (_idris_t467 + _idris_t468);
+  float _idris_t470 = max(_idris_t458, 0.0);
+  bool _idris_t471 = (_idris_t470 <= 0.0031308);
+  bool _idris_t472;
+  if (_idris_t471) {
+    _idris_t472 = true;
+  } else {
+    _idris_t472 = false;
+  }
+  float _idris_t473;
+  if (_idris_t472) {
+    float _idris_t478 = (12.92 * _idris_t470);
+    _idris_t473 = _idris_t478;
+  } else {
+    float _idris_t474 = (1.0 / 2.4);
+    float _idris_t475 = pow(_idris_t470, _idris_t474);
+    float _idris_t476 = (1.055 * _idris_t475);
+    float _idris_t477 = (_idris_t476 - 0.055);
+    _idris_t473 = _idris_t477;
+  }
+  float _idris_t479 = clamp(_idris_t473, 0.0, 1.0);
+  float _idris_t480 = max(_idris_t464, 0.0);
+  bool _idris_t481 = (_idris_t480 <= 0.0031308);
+  bool _idris_t482;
+  if (_idris_t481) {
+    _idris_t482 = true;
+  } else {
+    _idris_t482 = false;
+  }
+  float _idris_t483;
+  if (_idris_t482) {
+    float _idris_t488 = (12.92 * _idris_t480);
+    _idris_t483 = _idris_t488;
+  } else {
+    float _idris_t484 = (1.0 / 2.4);
+    float _idris_t485 = pow(_idris_t480, _idris_t484);
+    float _idris_t486 = (1.055 * _idris_t485);
+    float _idris_t487 = (_idris_t486 - 0.055);
+    _idris_t483 = _idris_t487;
+  }
+  float _idris_t489 = clamp(_idris_t483, 0.0, 1.0);
+  float _idris_t490 = max(_idris_t469, 0.0);
+  bool _idris_t491 = (_idris_t490 <= 0.0031308);
+  bool _idris_t492;
+  if (_idris_t491) {
+    _idris_t492 = true;
+  } else {
+    _idris_t492 = false;
+  }
+  float _idris_t493;
+  if (_idris_t492) {
+    float _idris_t498 = (12.92 * _idris_t490);
+    _idris_t493 = _idris_t498;
+  } else {
+    float _idris_t494 = (1.0 / 2.4);
+    float _idris_t495 = pow(_idris_t490, _idris_t494);
+    float _idris_t496 = (1.055 * _idris_t495);
+    float _idris_t497 = (_idris_t496 - 0.055);
+    _idris_t493 = _idris_t497;
+  }
+  float _idris_t499 = clamp(_idris_t493, 0.0, 1.0);
+  vec3 _idris_t500 = vec3(_idris_t479, _idris_t489, _idris_t499);
+  float _idris_t501 = _idris_t500.x;
+  float _idris_t502 = _idris_t500.y;
+  float _idris_t503 = _idris_t500.z;
+  vec4 _idris_t504 = vec4(_idris_t501, _idris_t502, _idris_t503, 1.0);
+  _idris_fragColor = _idris_t504;
+}
+

@@ -1,0 +1,10 @@
+case	source_check	emission	glsl_validation	physical_execution
+unrolled-highp	PASS	PASS	PASS	NOT_RUN
+unrolled-mediump	PASS	PASS	PASS	NOT_RUN
+compact-horner	PASS	REFUSED_REVERSE_INDEX	NOT_RUN	NOT_RUN
+forward-index	PASS	PASS	PASS	NOT_RUN
+safe-reverse-index	PASS	REFUSED_ARRAY_BOUNDS	NOT_RUN	NOT_RUN
+out-of-bounds	PASS	REFUSED_ARRAY_BOUNDS	NOT_RUN	NOT_RUN
+ssbo	PASS	REFUSED_UNKNOWN_STORAGE	NOT_RUN	NOT_RUN
+existing-bounded-loop	PASS	PASS	PASS	NOT_RUN
+

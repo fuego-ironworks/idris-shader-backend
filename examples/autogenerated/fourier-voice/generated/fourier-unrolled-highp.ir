@@ -1,0 +1,556 @@
+fragment(v_uv : in F32x2, u_coefficients : uniform F32x2[24]) -> F32x4
+_idris_t0 : F32 = (-0.44)
+_idris_t1 : F32 = v_uv.x
+_idris_t2 : F32 = mix(_idris_t0, 0.44, _idris_t1)
+_idris_t3 : F32 = (-0.88)
+_idris_t4 : F32 = v_uv.y
+_idris_t5 : F32 = mix(_idris_t3, 0.88, _idris_t4)
+_idris_t6 : F32x2 = vec2(_idris_t2, _idris_t5)
+_idris_t7 : F32x2 = u_coefficients[int(23.0)]
+_idris_t8 : F32 = _idris_t7.x
+_idris_t9 : F32 = _idris_t6.x
+_idris_t10 : F32 = (_idris_t8 * _idris_t9)
+_idris_t11 : F32 = _idris_t7.y
+_idris_t12 : F32 = _idris_t6.y
+_idris_t13 : F32 = (_idris_t11 * _idris_t12)
+_idris_t14 : F32 = (_idris_t10 - _idris_t13)
+_idris_t15 : F32 = _idris_t7.x
+_idris_t16 : F32 = _idris_t6.y
+_idris_t17 : F32 = (_idris_t15 * _idris_t16)
+_idris_t18 : F32 = _idris_t7.y
+_idris_t19 : F32 = _idris_t6.x
+_idris_t20 : F32 = (_idris_t18 * _idris_t19)
+_idris_t21 : F32 = (_idris_t17 + _idris_t20)
+_idris_t22 : F32x2 = vec2(_idris_t14, _idris_t21)
+_idris_t23 : F32x2 = u_coefficients[int(22.0)]
+_idris_t24 : F32x2 = (_idris_t22 + _idris_t23)
+_idris_t25 : F32 = _idris_t24.x
+_idris_t26 : F32 = _idris_t6.x
+_idris_t27 : F32 = (_idris_t25 * _idris_t26)
+_idris_t28 : F32 = _idris_t24.y
+_idris_t29 : F32 = _idris_t6.y
+_idris_t30 : F32 = (_idris_t28 * _idris_t29)
+_idris_t31 : F32 = (_idris_t27 - _idris_t30)
+_idris_t32 : F32 = _idris_t24.x
+_idris_t33 : F32 = _idris_t6.y
+_idris_t34 : F32 = (_idris_t32 * _idris_t33)
+_idris_t35 : F32 = _idris_t24.y
+_idris_t36 : F32 = _idris_t6.x
+_idris_t37 : F32 = (_idris_t35 * _idris_t36)
+_idris_t38 : F32 = (_idris_t34 + _idris_t37)
+_idris_t39 : F32x2 = vec2(_idris_t31, _idris_t38)
+_idris_t40 : F32x2 = u_coefficients[int(21.0)]
+_idris_t41 : F32x2 = (_idris_t39 + _idris_t40)
+_idris_t42 : F32 = _idris_t41.x
+_idris_t43 : F32 = _idris_t6.x
+_idris_t44 : F32 = (_idris_t42 * _idris_t43)
+_idris_t45 : F32 = _idris_t41.y
+_idris_t46 : F32 = _idris_t6.y
+_idris_t47 : F32 = (_idris_t45 * _idris_t46)
+_idris_t48 : F32 = (_idris_t44 - _idris_t47)
+_idris_t49 : F32 = _idris_t41.x
+_idris_t50 : F32 = _idris_t6.y
+_idris_t51 : F32 = (_idris_t49 * _idris_t50)
+_idris_t52 : F32 = _idris_t41.y
+_idris_t53 : F32 = _idris_t6.x
+_idris_t54 : F32 = (_idris_t52 * _idris_t53)
+_idris_t55 : F32 = (_idris_t51 + _idris_t54)
+_idris_t56 : F32x2 = vec2(_idris_t48, _idris_t55)
+_idris_t57 : F32x2 = u_coefficients[int(20.0)]
+_idris_t58 : F32x2 = (_idris_t56 + _idris_t57)
+_idris_t59 : F32 = _idris_t58.x
+_idris_t60 : F32 = _idris_t6.x
+_idris_t61 : F32 = (_idris_t59 * _idris_t60)
+_idris_t62 : F32 = _idris_t58.y
+_idris_t63 : F32 = _idris_t6.y
+_idris_t64 : F32 = (_idris_t62 * _idris_t63)
+_idris_t65 : F32 = (_idris_t61 - _idris_t64)
+_idris_t66 : F32 = _idris_t58.x
+_idris_t67 : F32 = _idris_t6.y
+_idris_t68 : F32 = (_idris_t66 * _idris_t67)
+_idris_t69 : F32 = _idris_t58.y
+_idris_t70 : F32 = _idris_t6.x
+_idris_t71 : F32 = (_idris_t69 * _idris_t70)
+_idris_t72 : F32 = (_idris_t68 + _idris_t71)
+_idris_t73 : F32x2 = vec2(_idris_t65, _idris_t72)
+_idris_t74 : F32x2 = u_coefficients[int(19.0)]
+_idris_t75 : F32x2 = (_idris_t73 + _idris_t74)
+_idris_t76 : F32 = _idris_t75.x
+_idris_t77 : F32 = _idris_t6.x
+_idris_t78 : F32 = (_idris_t76 * _idris_t77)
+_idris_t79 : F32 = _idris_t75.y
+_idris_t80 : F32 = _idris_t6.y
+_idris_t81 : F32 = (_idris_t79 * _idris_t80)
+_idris_t82 : F32 = (_idris_t78 - _idris_t81)
+_idris_t83 : F32 = _idris_t75.x
+_idris_t84 : F32 = _idris_t6.y
+_idris_t85 : F32 = (_idris_t83 * _idris_t84)
+_idris_t86 : F32 = _idris_t75.y
+_idris_t87 : F32 = _idris_t6.x
+_idris_t88 : F32 = (_idris_t86 * _idris_t87)
+_idris_t89 : F32 = (_idris_t85 + _idris_t88)
+_idris_t90 : F32x2 = vec2(_idris_t82, _idris_t89)
+_idris_t91 : F32x2 = u_coefficients[int(18.0)]
+_idris_t92 : F32x2 = (_idris_t90 + _idris_t91)
+_idris_t93 : F32 = _idris_t92.x
+_idris_t94 : F32 = _idris_t6.x
+_idris_t95 : F32 = (_idris_t93 * _idris_t94)
+_idris_t96 : F32 = _idris_t92.y
+_idris_t97 : F32 = _idris_t6.y
+_idris_t98 : F32 = (_idris_t96 * _idris_t97)
+_idris_t99 : F32 = (_idris_t95 - _idris_t98)
+_idris_t100 : F32 = _idris_t92.x
+_idris_t101 : F32 = _idris_t6.y
+_idris_t102 : F32 = (_idris_t100 * _idris_t101)
+_idris_t103 : F32 = _idris_t92.y
+_idris_t104 : F32 = _idris_t6.x
+_idris_t105 : F32 = (_idris_t103 * _idris_t104)
+_idris_t106 : F32 = (_idris_t102 + _idris_t105)
+_idris_t107 : F32x2 = vec2(_idris_t99, _idris_t106)
+_idris_t108 : F32x2 = u_coefficients[int(17.0)]
+_idris_t109 : F32x2 = (_idris_t107 + _idris_t108)
+_idris_t110 : F32 = _idris_t109.x
+_idris_t111 : F32 = _idris_t6.x
+_idris_t112 : F32 = (_idris_t110 * _idris_t111)
+_idris_t113 : F32 = _idris_t109.y
+_idris_t114 : F32 = _idris_t6.y
+_idris_t115 : F32 = (_idris_t113 * _idris_t114)
+_idris_t116 : F32 = (_idris_t112 - _idris_t115)
+_idris_t117 : F32 = _idris_t109.x
+_idris_t118 : F32 = _idris_t6.y
+_idris_t119 : F32 = (_idris_t117 * _idris_t118)
+_idris_t120 : F32 = _idris_t109.y
+_idris_t121 : F32 = _idris_t6.x
+_idris_t122 : F32 = (_idris_t120 * _idris_t121)
+_idris_t123 : F32 = (_idris_t119 + _idris_t122)
+_idris_t124 : F32x2 = vec2(_idris_t116, _idris_t123)
+_idris_t125 : F32x2 = u_coefficients[int(16.0)]
+_idris_t126 : F32x2 = (_idris_t124 + _idris_t125)
+_idris_t127 : F32 = _idris_t126.x
+_idris_t128 : F32 = _idris_t6.x
+_idris_t129 : F32 = (_idris_t127 * _idris_t128)
+_idris_t130 : F32 = _idris_t126.y
+_idris_t131 : F32 = _idris_t6.y
+_idris_t132 : F32 = (_idris_t130 * _idris_t131)
+_idris_t133 : F32 = (_idris_t129 - _idris_t132)
+_idris_t134 : F32 = _idris_t126.x
+_idris_t135 : F32 = _idris_t6.y
+_idris_t136 : F32 = (_idris_t134 * _idris_t135)
+_idris_t137 : F32 = _idris_t126.y
+_idris_t138 : F32 = _idris_t6.x
+_idris_t139 : F32 = (_idris_t137 * _idris_t138)
+_idris_t140 : F32 = (_idris_t136 + _idris_t139)
+_idris_t141 : F32x2 = vec2(_idris_t133, _idris_t140)
+_idris_t142 : F32x2 = u_coefficients[int(15.0)]
+_idris_t143 : F32x2 = (_idris_t141 + _idris_t142)
+_idris_t144 : F32 = _idris_t143.x
+_idris_t145 : F32 = _idris_t6.x
+_idris_t146 : F32 = (_idris_t144 * _idris_t145)
+_idris_t147 : F32 = _idris_t143.y
+_idris_t148 : F32 = _idris_t6.y
+_idris_t149 : F32 = (_idris_t147 * _idris_t148)
+_idris_t150 : F32 = (_idris_t146 - _idris_t149)
+_idris_t151 : F32 = _idris_t143.x
+_idris_t152 : F32 = _idris_t6.y
+_idris_t153 : F32 = (_idris_t151 * _idris_t152)
+_idris_t154 : F32 = _idris_t143.y
+_idris_t155 : F32 = _idris_t6.x
+_idris_t156 : F32 = (_idris_t154 * _idris_t155)
+_idris_t157 : F32 = (_idris_t153 + _idris_t156)
+_idris_t158 : F32x2 = vec2(_idris_t150, _idris_t157)
+_idris_t159 : F32x2 = u_coefficients[int(14.0)]
+_idris_t160 : F32x2 = (_idris_t158 + _idris_t159)
+_idris_t161 : F32 = _idris_t160.x
+_idris_t162 : F32 = _idris_t6.x
+_idris_t163 : F32 = (_idris_t161 * _idris_t162)
+_idris_t164 : F32 = _idris_t160.y
+_idris_t165 : F32 = _idris_t6.y
+_idris_t166 : F32 = (_idris_t164 * _idris_t165)
+_idris_t167 : F32 = (_idris_t163 - _idris_t166)
+_idris_t168 : F32 = _idris_t160.x
+_idris_t169 : F32 = _idris_t6.y
+_idris_t170 : F32 = (_idris_t168 * _idris_t169)
+_idris_t171 : F32 = _idris_t160.y
+_idris_t172 : F32 = _idris_t6.x
+_idris_t173 : F32 = (_idris_t171 * _idris_t172)
+_idris_t174 : F32 = (_idris_t170 + _idris_t173)
+_idris_t175 : F32x2 = vec2(_idris_t167, _idris_t174)
+_idris_t176 : F32x2 = u_coefficients[int(13.0)]
+_idris_t177 : F32x2 = (_idris_t175 + _idris_t176)
+_idris_t178 : F32 = _idris_t177.x
+_idris_t179 : F32 = _idris_t6.x
+_idris_t180 : F32 = (_idris_t178 * _idris_t179)
+_idris_t181 : F32 = _idris_t177.y
+_idris_t182 : F32 = _idris_t6.y
+_idris_t183 : F32 = (_idris_t181 * _idris_t182)
+_idris_t184 : F32 = (_idris_t180 - _idris_t183)
+_idris_t185 : F32 = _idris_t177.x
+_idris_t186 : F32 = _idris_t6.y
+_idris_t187 : F32 = (_idris_t185 * _idris_t186)
+_idris_t188 : F32 = _idris_t177.y
+_idris_t189 : F32 = _idris_t6.x
+_idris_t190 : F32 = (_idris_t188 * _idris_t189)
+_idris_t191 : F32 = (_idris_t187 + _idris_t190)
+_idris_t192 : F32x2 = vec2(_idris_t184, _idris_t191)
+_idris_t193 : F32x2 = u_coefficients[int(12.0)]
+_idris_t194 : F32x2 = (_idris_t192 + _idris_t193)
+_idris_t195 : F32 = _idris_t194.x
+_idris_t196 : F32 = _idris_t6.x
+_idris_t197 : F32 = (_idris_t195 * _idris_t196)
+_idris_t198 : F32 = _idris_t194.y
+_idris_t199 : F32 = _idris_t6.y
+_idris_t200 : F32 = (_idris_t198 * _idris_t199)
+_idris_t201 : F32 = (_idris_t197 - _idris_t200)
+_idris_t202 : F32 = _idris_t194.x
+_idris_t203 : F32 = _idris_t6.y
+_idris_t204 : F32 = (_idris_t202 * _idris_t203)
+_idris_t205 : F32 = _idris_t194.y
+_idris_t206 : F32 = _idris_t6.x
+_idris_t207 : F32 = (_idris_t205 * _idris_t206)
+_idris_t208 : F32 = (_idris_t204 + _idris_t207)
+_idris_t209 : F32x2 = vec2(_idris_t201, _idris_t208)
+_idris_t210 : F32x2 = u_coefficients[int(11.0)]
+_idris_t211 : F32x2 = (_idris_t209 + _idris_t210)
+_idris_t212 : F32 = _idris_t211.x
+_idris_t213 : F32 = _idris_t6.x
+_idris_t214 : F32 = (_idris_t212 * _idris_t213)
+_idris_t215 : F32 = _idris_t211.y
+_idris_t216 : F32 = _idris_t6.y
+_idris_t217 : F32 = (_idris_t215 * _idris_t216)
+_idris_t218 : F32 = (_idris_t214 - _idris_t217)
+_idris_t219 : F32 = _idris_t211.x
+_idris_t220 : F32 = _idris_t6.y
+_idris_t221 : F32 = (_idris_t219 * _idris_t220)
+_idris_t222 : F32 = _idris_t211.y
+_idris_t223 : F32 = _idris_t6.x
+_idris_t224 : F32 = (_idris_t222 * _idris_t223)
+_idris_t225 : F32 = (_idris_t221 + _idris_t224)
+_idris_t226 : F32x2 = vec2(_idris_t218, _idris_t225)
+_idris_t227 : F32x2 = u_coefficients[int(10.0)]
+_idris_t228 : F32x2 = (_idris_t226 + _idris_t227)
+_idris_t229 : F32 = _idris_t228.x
+_idris_t230 : F32 = _idris_t6.x
+_idris_t231 : F32 = (_idris_t229 * _idris_t230)
+_idris_t232 : F32 = _idris_t228.y
+_idris_t233 : F32 = _idris_t6.y
+_idris_t234 : F32 = (_idris_t232 * _idris_t233)
+_idris_t235 : F32 = (_idris_t231 - _idris_t234)
+_idris_t236 : F32 = _idris_t228.x
+_idris_t237 : F32 = _idris_t6.y
+_idris_t238 : F32 = (_idris_t236 * _idris_t237)
+_idris_t239 : F32 = _idris_t228.y
+_idris_t240 : F32 = _idris_t6.x
+_idris_t241 : F32 = (_idris_t239 * _idris_t240)
+_idris_t242 : F32 = (_idris_t238 + _idris_t241)
+_idris_t243 : F32x2 = vec2(_idris_t235, _idris_t242)
+_idris_t244 : F32x2 = u_coefficients[int(9.0)]
+_idris_t245 : F32x2 = (_idris_t243 + _idris_t244)
+_idris_t246 : F32 = _idris_t245.x
+_idris_t247 : F32 = _idris_t6.x
+_idris_t248 : F32 = (_idris_t246 * _idris_t247)
+_idris_t249 : F32 = _idris_t245.y
+_idris_t250 : F32 = _idris_t6.y
+_idris_t251 : F32 = (_idris_t249 * _idris_t250)
+_idris_t252 : F32 = (_idris_t248 - _idris_t251)
+_idris_t253 : F32 = _idris_t245.x
+_idris_t254 : F32 = _idris_t6.y
+_idris_t255 : F32 = (_idris_t253 * _idris_t254)
+_idris_t256 : F32 = _idris_t245.y
+_idris_t257 : F32 = _idris_t6.x
+_idris_t258 : F32 = (_idris_t256 * _idris_t257)
+_idris_t259 : F32 = (_idris_t255 + _idris_t258)
+_idris_t260 : F32x2 = vec2(_idris_t252, _idris_t259)
+_idris_t261 : F32x2 = u_coefficients[int(8.0)]
+_idris_t262 : F32x2 = (_idris_t260 + _idris_t261)
+_idris_t263 : F32 = _idris_t262.x
+_idris_t264 : F32 = _idris_t6.x
+_idris_t265 : F32 = (_idris_t263 * _idris_t264)
+_idris_t266 : F32 = _idris_t262.y
+_idris_t267 : F32 = _idris_t6.y
+_idris_t268 : F32 = (_idris_t266 * _idris_t267)
+_idris_t269 : F32 = (_idris_t265 - _idris_t268)
+_idris_t270 : F32 = _idris_t262.x
+_idris_t271 : F32 = _idris_t6.y
+_idris_t272 : F32 = (_idris_t270 * _idris_t271)
+_idris_t273 : F32 = _idris_t262.y
+_idris_t274 : F32 = _idris_t6.x
+_idris_t275 : F32 = (_idris_t273 * _idris_t274)
+_idris_t276 : F32 = (_idris_t272 + _idris_t275)
+_idris_t277 : F32x2 = vec2(_idris_t269, _idris_t276)
+_idris_t278 : F32x2 = u_coefficients[int(7.0)]
+_idris_t279 : F32x2 = (_idris_t277 + _idris_t278)
+_idris_t280 : F32 = _idris_t279.x
+_idris_t281 : F32 = _idris_t6.x
+_idris_t282 : F32 = (_idris_t280 * _idris_t281)
+_idris_t283 : F32 = _idris_t279.y
+_idris_t284 : F32 = _idris_t6.y
+_idris_t285 : F32 = (_idris_t283 * _idris_t284)
+_idris_t286 : F32 = (_idris_t282 - _idris_t285)
+_idris_t287 : F32 = _idris_t279.x
+_idris_t288 : F32 = _idris_t6.y
+_idris_t289 : F32 = (_idris_t287 * _idris_t288)
+_idris_t290 : F32 = _idris_t279.y
+_idris_t291 : F32 = _idris_t6.x
+_idris_t292 : F32 = (_idris_t290 * _idris_t291)
+_idris_t293 : F32 = (_idris_t289 + _idris_t292)
+_idris_t294 : F32x2 = vec2(_idris_t286, _idris_t293)
+_idris_t295 : F32x2 = u_coefficients[int(6.0)]
+_idris_t296 : F32x2 = (_idris_t294 + _idris_t295)
+_idris_t297 : F32 = _idris_t296.x
+_idris_t298 : F32 = _idris_t6.x
+_idris_t299 : F32 = (_idris_t297 * _idris_t298)
+_idris_t300 : F32 = _idris_t296.y
+_idris_t301 : F32 = _idris_t6.y
+_idris_t302 : F32 = (_idris_t300 * _idris_t301)
+_idris_t303 : F32 = (_idris_t299 - _idris_t302)
+_idris_t304 : F32 = _idris_t296.x
+_idris_t305 : F32 = _idris_t6.y
+_idris_t306 : F32 = (_idris_t304 * _idris_t305)
+_idris_t307 : F32 = _idris_t296.y
+_idris_t308 : F32 = _idris_t6.x
+_idris_t309 : F32 = (_idris_t307 * _idris_t308)
+_idris_t310 : F32 = (_idris_t306 + _idris_t309)
+_idris_t311 : F32x2 = vec2(_idris_t303, _idris_t310)
+_idris_t312 : F32x2 = u_coefficients[int(5.0)]
+_idris_t313 : F32x2 = (_idris_t311 + _idris_t312)
+_idris_t314 : F32 = _idris_t313.x
+_idris_t315 : F32 = _idris_t6.x
+_idris_t316 : F32 = (_idris_t314 * _idris_t315)
+_idris_t317 : F32 = _idris_t313.y
+_idris_t318 : F32 = _idris_t6.y
+_idris_t319 : F32 = (_idris_t317 * _idris_t318)
+_idris_t320 : F32 = (_idris_t316 - _idris_t319)
+_idris_t321 : F32 = _idris_t313.x
+_idris_t322 : F32 = _idris_t6.y
+_idris_t323 : F32 = (_idris_t321 * _idris_t322)
+_idris_t324 : F32 = _idris_t313.y
+_idris_t325 : F32 = _idris_t6.x
+_idris_t326 : F32 = (_idris_t324 * _idris_t325)
+_idris_t327 : F32 = (_idris_t323 + _idris_t326)
+_idris_t328 : F32x2 = vec2(_idris_t320, _idris_t327)
+_idris_t329 : F32x2 = u_coefficients[int(4.0)]
+_idris_t330 : F32x2 = (_idris_t328 + _idris_t329)
+_idris_t331 : F32 = _idris_t330.x
+_idris_t332 : F32 = _idris_t6.x
+_idris_t333 : F32 = (_idris_t331 * _idris_t332)
+_idris_t334 : F32 = _idris_t330.y
+_idris_t335 : F32 = _idris_t6.y
+_idris_t336 : F32 = (_idris_t334 * _idris_t335)
+_idris_t337 : F32 = (_idris_t333 - _idris_t336)
+_idris_t338 : F32 = _idris_t330.x
+_idris_t339 : F32 = _idris_t6.y
+_idris_t340 : F32 = (_idris_t338 * _idris_t339)
+_idris_t341 : F32 = _idris_t330.y
+_idris_t342 : F32 = _idris_t6.x
+_idris_t343 : F32 = (_idris_t341 * _idris_t342)
+_idris_t344 : F32 = (_idris_t340 + _idris_t343)
+_idris_t345 : F32x2 = vec2(_idris_t337, _idris_t344)
+_idris_t346 : F32x2 = u_coefficients[int(3.0)]
+_idris_t347 : F32x2 = (_idris_t345 + _idris_t346)
+_idris_t348 : F32 = _idris_t347.x
+_idris_t349 : F32 = _idris_t6.x
+_idris_t350 : F32 = (_idris_t348 * _idris_t349)
+_idris_t351 : F32 = _idris_t347.y
+_idris_t352 : F32 = _idris_t6.y
+_idris_t353 : F32 = (_idris_t351 * _idris_t352)
+_idris_t354 : F32 = (_idris_t350 - _idris_t353)
+_idris_t355 : F32 = _idris_t347.x
+_idris_t356 : F32 = _idris_t6.y
+_idris_t357 : F32 = (_idris_t355 * _idris_t356)
+_idris_t358 : F32 = _idris_t347.y
+_idris_t359 : F32 = _idris_t6.x
+_idris_t360 : F32 = (_idris_t358 * _idris_t359)
+_idris_t361 : F32 = (_idris_t357 + _idris_t360)
+_idris_t362 : F32x2 = vec2(_idris_t354, _idris_t361)
+_idris_t363 : F32x2 = u_coefficients[int(2.0)]
+_idris_t364 : F32x2 = (_idris_t362 + _idris_t363)
+_idris_t365 : F32 = _idris_t364.x
+_idris_t366 : F32 = _idris_t6.x
+_idris_t367 : F32 = (_idris_t365 * _idris_t366)
+_idris_t368 : F32 = _idris_t364.y
+_idris_t369 : F32 = _idris_t6.y
+_idris_t370 : F32 = (_idris_t368 * _idris_t369)
+_idris_t371 : F32 = (_idris_t367 - _idris_t370)
+_idris_t372 : F32 = _idris_t364.x
+_idris_t373 : F32 = _idris_t6.y
+_idris_t374 : F32 = (_idris_t372 * _idris_t373)
+_idris_t375 : F32 = _idris_t364.y
+_idris_t376 : F32 = _idris_t6.x
+_idris_t377 : F32 = (_idris_t375 * _idris_t376)
+_idris_t378 : F32 = (_idris_t374 + _idris_t377)
+_idris_t379 : F32x2 = vec2(_idris_t371, _idris_t378)
+_idris_t380 : F32x2 = u_coefficients[int(1.0)]
+_idris_t381 : F32x2 = (_idris_t379 + _idris_t380)
+_idris_t382 : F32 = _idris_t381.x
+_idris_t383 : F32 = _idris_t6.x
+_idris_t384 : F32 = (_idris_t382 * _idris_t383)
+_idris_t385 : F32 = _idris_t381.y
+_idris_t386 : F32 = _idris_t6.y
+_idris_t387 : F32 = (_idris_t385 * _idris_t386)
+_idris_t388 : F32 = (_idris_t384 - _idris_t387)
+_idris_t389 : F32 = _idris_t381.x
+_idris_t390 : F32 = _idris_t6.y
+_idris_t391 : F32 = (_idris_t389 * _idris_t390)
+_idris_t392 : F32 = _idris_t381.y
+_idris_t393 : F32 = _idris_t6.x
+_idris_t394 : F32 = (_idris_t392 * _idris_t393)
+_idris_t395 : F32 = (_idris_t391 + _idris_t394)
+_idris_t396 : F32x2 = vec2(_idris_t388, _idris_t395)
+_idris_t397 : F32 = _idris_t396.x
+_idris_t398 : Bool = (_idris_t397 == 0.0)
+_idris_t399 : Bool = if _idris_t398 {
+  yield true
+} else {
+  yield false
+}
+_idris_t400 : F32 = if _idris_t399 {
+  _idris_t404 : F32 = _idris_t396.y
+  _idris_t405 : Bool = (_idris_t404 == 0.0)
+  _idris_t406 : Bool = if _idris_t405 {
+    yield true
+  } else {
+    yield false
+  }
+  _idris_t407 : F32 = if _idris_t406 {
+    yield 0.0
+  } else {
+    _idris_t408 : F32 = _idris_t396.y
+    _idris_t409 : F32 = _idris_t396.x
+    _idris_t410 : F32 = atan(_idris_t408, _idris_t409)
+    yield _idris_t410
+  }
+  yield _idris_t407
+} else {
+  _idris_t401 : F32 = _idris_t396.y
+  _idris_t402 : F32 = _idris_t396.x
+  _idris_t403 : F32 = atan(_idris_t401, _idris_t402)
+  yield _idris_t403
+}
+_idris_t411 : F32 = length(_idris_t396)
+_idris_t412 : F32 = max(_idris_t411, 1e-12)
+_idris_t413 : F32 = (_idris_t400 / 6.283185307179586)
+_idris_t414 : F32 = fract(_idris_t413)
+_idris_t415 : F32 = (360.0 * _idris_t414)
+_idris_t416 : F32 = log(_idris_t412)
+_idris_t417 : F32 = (_idris_t416 / 2.302585092994046)
+_idris_t418 : F32 = fract(_idris_t417)
+_idris_t419 : F32 = (4.0 * _idris_t418)
+_idris_t420 : F32 = (66.0 + _idris_t419)
+_idris_t421 : F32 = (_idris_t415 / 100.0)
+_idris_t422 : F32 = fract(_idris_t421)
+_idris_t423 : F32 = (3.0 * _idris_t422)
+_idris_t424 : F32 = (_idris_t420 + _idris_t423)
+_idris_t425 : F32 = (_idris_t415 * 0.017453292519943295)
+_idris_t426 : F32 = cos(_idris_t425)
+_idris_t427 : F32 = (45.0 * _idris_t426)
+_idris_t428 : F32 = sin(_idris_t425)
+_idris_t429 : F32 = (45.0 * _idris_t428)
+_idris_t430 : Bool = (_idris_t424 > 8.0)
+_idris_t431 : Bool = if _idris_t430 {
+  yield true
+} else {
+  yield false
+}
+_idris_t432 : F32 = if _idris_t431 {
+  _idris_t434 : F32 = (_idris_t424 + 16.0)
+  _idris_t435 : F32 = (_idris_t434 / 116.0)
+  _idris_t436 : F32 = pow(_idris_t435, 3.0)
+  yield _idris_t436
+} else {
+  _idris_t433 : F32 = (_idris_t424 / 903.2962962962963)
+  yield _idris_t433
+}
+_idris_t437 : F32 = (13.0 * _idris_t424)
+_idris_t438 : F32 = (_idris_t427 / _idris_t437)
+_idris_t439 : F32 = (_idris_t438 + 0.19783982482140777)
+_idris_t440 : F32 = (13.0 * _idris_t424)
+_idris_t441 : F32 = (_idris_t429 / _idris_t440)
+_idris_t442 : F32 = (_idris_t441 + 0.46833630293240974)
+_idris_t443 : F32 = (9.0 * _idris_t432)
+_idris_t444 : F32 = (_idris_t443 * _idris_t439)
+_idris_t445 : F32 = (4.0 * _idris_t442)
+_idris_t446 : F32 = (_idris_t444 / _idris_t445)
+_idris_t447 : F32 = (3.0 * _idris_t439)
+_idris_t448 : F32 = (12.0 - _idris_t447)
+_idris_t449 : F32 = (20.0 * _idris_t442)
+_idris_t450 : F32 = (_idris_t448 - _idris_t449)
+_idris_t451 : F32 = (_idris_t432 * _idris_t450)
+_idris_t452 : F32 = (4.0 * _idris_t442)
+_idris_t453 : F32 = (_idris_t451 / _idris_t452)
+_idris_t454 : F32 = (3.2404542 * _idris_t446)
+_idris_t455 : F32 = (1.5371385 * _idris_t432)
+_idris_t456 : F32 = (_idris_t454 - _idris_t455)
+_idris_t457 : F32 = (0.4985314 * _idris_t453)
+_idris_t458 : F32 = (_idris_t456 - _idris_t457)
+_idris_t459 : F32 = (-0.969266)
+_idris_t460 : F32 = (_idris_t459 * _idris_t446)
+_idris_t461 : F32 = (1.8760108 * _idris_t432)
+_idris_t462 : F32 = (_idris_t460 + _idris_t461)
+_idris_t463 : F32 = (0.041556 * _idris_t453)
+_idris_t464 : F32 = (_idris_t462 + _idris_t463)
+_idris_t465 : F32 = (0.0556434 * _idris_t446)
+_idris_t466 : F32 = (0.2040259 * _idris_t432)
+_idris_t467 : F32 = (_idris_t465 - _idris_t466)
+_idris_t468 : F32 = (1.0572252 * _idris_t453)
+_idris_t469 : F32 = (_idris_t467 + _idris_t468)
+_idris_t470 : F32 = max(_idris_t458, 0.0)
+_idris_t471 : Bool = (_idris_t470 <= 0.0031308)
+_idris_t472 : Bool = if _idris_t471 {
+  yield true
+} else {
+  yield false
+}
+_idris_t473 : F32 = if _idris_t472 {
+  _idris_t478 : F32 = (12.92 * _idris_t470)
+  yield _idris_t478
+} else {
+  _idris_t474 : F32 = (1.0 / 2.4)
+  _idris_t475 : F32 = pow(_idris_t470, _idris_t474)
+  _idris_t476 : F32 = (1.055 * _idris_t475)
+  _idris_t477 : F32 = (_idris_t476 - 0.055)
+  yield _idris_t477
+}
+_idris_t479 : F32 = clamp(_idris_t473, 0.0, 1.0)
+_idris_t480 : F32 = max(_idris_t464, 0.0)
+_idris_t481 : Bool = (_idris_t480 <= 0.0031308)
+_idris_t482 : Bool = if _idris_t481 {
+  yield true
+} else {
+  yield false
+}
+_idris_t483 : F32 = if _idris_t482 {
+  _idris_t488 : F32 = (12.92 * _idris_t480)
+  yield _idris_t488
+} else {
+  _idris_t484 : F32 = (1.0 / 2.4)
+  _idris_t485 : F32 = pow(_idris_t480, _idris_t484)
+  _idris_t486 : F32 = (1.055 * _idris_t485)
+  _idris_t487 : F32 = (_idris_t486 - 0.055)
+  yield _idris_t487
+}
+_idris_t489 : F32 = clamp(_idris_t483, 0.0, 1.0)
+_idris_t490 : F32 = max(_idris_t469, 0.0)
+_idris_t491 : Bool = (_idris_t490 <= 0.0031308)
+_idris_t492 : Bool = if _idris_t491 {
+  yield true
+} else {
+  yield false
+}
+_idris_t493 : F32 = if _idris_t492 {
+  _idris_t498 : F32 = (12.92 * _idris_t490)
+  yield _idris_t498
+} else {
+  _idris_t494 : F32 = (1.0 / 2.4)
+  _idris_t495 : F32 = pow(_idris_t490, _idris_t494)
+  _idris_t496 : F32 = (1.055 * _idris_t495)
+  _idris_t497 : F32 = (_idris_t496 - 0.055)
+  yield _idris_t497
+}
+_idris_t499 : F32 = clamp(_idris_t493, 0.0, 1.0)
+_idris_t500 : F32x3 = vec3(_idris_t479, _idris_t489, _idris_t499)
+_idris_t501 : F32 = _idris_t500.x
+_idris_t502 : F32 = _idris_t500.y
+_idris_t503 : F32 = _idris_t500.z
+_idris_t504 : F32x4 = vec4(_idris_t501, _idris_t502, _idris_t503, 1.0)
+return _idris_t504
+

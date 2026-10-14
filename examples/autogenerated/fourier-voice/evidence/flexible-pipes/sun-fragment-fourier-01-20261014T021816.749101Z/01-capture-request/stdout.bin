@@ -1,0 +1,99 @@
+SUN FRAGMENT-FOURIER-01 — Generated versus handwritten fragment performance
+
+Model: SUN — extra-high reasoning
+Primary repository: https://github.com/isomorphismes/Fourier-sound
+Generator: https://github.com/fuego-ironworks/idris-shader-backend
+Control plane: https://github.com/isomorphisms/flexible-pipes
+Build execution: Kitchen / Ike, with pinned tools
+Independent acceptance: https://github.com/isomorphisms/ai-ci
+Physical target: MIRO A1, Android 14, armeabi-v7a, PowerVR GE8322
+Delivery: Cat Food; all application builds off-device
+
+Objective
+
+Determine whether generated fragments preserve Fourier Voice's mathematics and how their performance compares with equivalent handwritten GLSL on the MIRO A1. Identify the measured cause of any difference and emit bounded implementation jobs.
+
+Do not assume the generator causes the reported slowness. Distinguish fragment cost from FFT, acquisition, synchronization, frame pacing, presentation, and logging.
+
+1. Recover the actual source and running application
+
+Read repository instructions, branches, existing jobs, PRs, artifacts, and acceptance receipts. Start this work through a Flexible Pipes envelope and retain its request and receipts.
+
+Inspected starting points, not permanent choices:
+- Fourier-sound main: a71c9d37f47154ba7b66d7c0d5c912477c71f23c.
+- GPU branch gpu/fft-wegert-resident: 3c2ecaafd9384b2096dd55b11cca5a74ec0c6c83.
+- idris-shader-backend main: 4a29362e580df393e4d64a9929e4c1e592ac4c53.
+
+Main currently has CPU rendering in android/voice_main.c. The GPU branch has handwritten shaders in render/android/gpu_voice_pipeline.c. Identify the installed APK's source, digest, signer, and active renderer before attributing its speed to either path.
+
+The inspected generator uses ordinary Idris 2; Idriç integration is a separate boundary. Verify current descendants and existing work before creating another branch.
+
+2. Freeze the exact workload
+
+Recover the coefficients and normalization from the selected source. The inspected live construction uses a 1024-sample frame, mean removal, a periodic Hann window, and the first 24 normalized Fourier coefficients. Its constant coefficient is forced to zero.
+
+The displayed polynomial is:
+
+voice_polynomial(z) = c₀ + c₁z + ⋯ + c₂₃z²³, with c₀ = 0.
+
+Here cₖ is the complex coefficient at Fourier bin k. This is the current polynomial benchmark; do not substitute a different q-series.
+
+Preserve the 96×192 workload, domain [−0.44, 0.44] × [−0.88, 0.88], orientation, sampling positions, alpha, framebuffer format, and complete Wegert HCL → sRGB coloring. Use fourier/complex_field.c, fourier/ick_polynomial_leaf.c, render/complex_plot.c, and render/wegert.c as source references.
+
+Check CPU endpoint sampling against GPU pixel-center sampling before using CPU images as an oracle. Specify zero-value phase behavior, the magnitude floor 10⁻¹², color-band boundaries, and rounding.
+
+Freeze coefficient buffers and hashes for silence, DC, one tone, two tones, recorded speech, and cancellation near polynomial zeros. Feed identical bytes to both fragments. Keep FFT and audio acquisition outside the isolated fragment comparison.
+
+3. Establish a controlled comparison
+
+Compile actual Idris source through the existing backend. Preserve source, compiler identity, intermediate output, emitted GLSL, diagnostics, and digests. Handwritten text relabeled as generated is not a generated result.
+
+Compare:
+A. Existing handwritten fragment.
+B. Equivalent generated fragment using the same precision and coefficient interface.
+C. Compact-loop and fixed-unrolled Horner forms, paired across generated and handwritten paths where supported.
+
+Match vertex stage, coefficient storage, buffer bindings, resolution, GL state, and coloring. The inspected backend documents GLSL ES 3.00 uniform arrays; the GPU application uses GLSL ES 3.10 SSBOs. Establish how to preserve the same interface. Report a missing capability precisely; do not confound generator performance with a switch from SSBOs to uniforms.
+
+Use highp first. Evaluate supported lower-precision variants separately and qualify them against the same accuracy criteria. Do not presume a GLSL qualifier establishes hardware arithmetic width.
+
+4. Verify accuracy and measure physical performance
+
+Set numerical and image tolerances before examining performance. Compare complex values before coloring and final pixels against an independent reference. Report maximum and distribution of errors, phase error modulo a full turn, and mismatches around zeros and color discontinuities. Never discard difficult pixels silently.
+
+Record:
+- Generated GLSL bytes and available structural statistics.
+- Driver compilation and linking time, with cache state described.
+- Fragment GPU execution time.
+- FFT, upload, CPU submission, synchronization, swap, and full-frame time.
+- Frame-time median and tail, missed frames, and sample age.
+- Microphone-to-present latency with timestamp boundaries stated. Claim microphone-to-visible-display latency only when visibility is actually measured.
+
+Detect GPU timing support on the physical driver. Reject disjoint samples where applicable. CPU submission time is not GPU execution time; synchronized wall time includes overhead and must be labeled accordingly.
+
+Warm up, alternate variant order, repeat measured blocks, retain raw samples, and record device/build, GL vendor/renderer/version, actual surface dimensions, precision support, thermal state, pacing, and instrumentation. Keep readback and verbose logging outside performance runs. Preserve the GPU-resident live path.
+
+5. Deliver the decision and next jobs
+
+Produce the reproducible source/generation manifest, accuracy results, raw timings, summary TSV, and a concise diagnosis in the repository's established location. Deliver any physical-test APK with exact URL, digest, signer, and source identity.
+
+If no physical A1 run is available, complete reproducible build and host checks, provide the runnable acceptance artifact, and mark physical accuracy and performance NOT_RUN. Do not infer PowerVR speed from emulation or another device.
+
+Stop Sun work once the comparison, diagnosis, or exact missing capability supports a bounded handoff. Earth owns resulting implementation and focused verification; Moon handles propagation only after an accepted Earth result. No merge, release, or unrelated compiler redesign is authorized.
+
+Finish with:
+
+Decision and evidence
+- State what was measured, what remains unknown, and which change the evidence supports.
+
+Recommended allocation
+- Sun: done | further Sun work needed
+- Earth: none | bounded purpose
+- Moon: none | exact prerequisite and mechanical purpose
+
+Earth follow-up job
+- Ready-to-paste self-contained job, or NONE.
+
+Moon follow-up job(s)
+- Ready-to-paste conditional jobs, or NONE.
+
