@@ -1,0 +1,12 @@
+coordinate-pairing depends on checked-backend coordinate-source-types
+	$[ENV.GREASE] $[ENV.FP_RUNTIME] $[ENV.BACKEND_ROOT] ./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated src/Example/CoordinatePairing4Grayscale.idr -o coordinate-pairing4-grayscale
+	$[ENV.GREASE] $[ENV.FP_RUNTIME] $[ENV.BACKEND_ROOT] ./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated src/Example/CoordinatePairing32Grayscale.idr -o coordinate-pairing32-grayscale
+
+checked-backend depends on backend.ipkg src/Backend/GLSLES/Signature.idr src/Backend/GLSLES/Lower.idr src/Backend/GLSLES/Codegen.idr
+	$[ENV.IDRIC_COMPILER] --build backend.ipkg
+
+coordinate-source-types depends on src/Shader/Coordinates.idr src/Shader/Source.idr
+	$[ENV.IDRIC_COMPILER] --source-dir src --check src/Example/CoordinatePairing32Grayscale.idr
+
+coordinate-refusals depends on checked-backend coordinate-source-types
+	$[ENV.GREASE] tools/check_coordinate_interface.grease $[ENV.BACKEND_ROOT] $[ENV.IDRIC_COMPILER]

@@ -10,7 +10,7 @@ import Shader.Source
 ||| The zero-times-coordinate term keeps this a one-argument shader function at
 ||| the current backend boundary while leaving the requested colour unchanged.
 %export "glsles:fragment|v_ndc=in"
-set_block_32x32_to_rgb_52_39_182 : SVec 2 -> SVec 4
+set_block_32x32_to_rgb_52_39_182 : ShaderFloatTuple 2 -> ShaderFloatTuple 4
 set_block_32x32_to_rgb_52_39_182 ndc =
   let zero = 0.0 * x ndc
    in vec4 (52.0 / 255.0 + zero)

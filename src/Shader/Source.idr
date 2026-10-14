@@ -2,11 +2,12 @@ module Shader.Source
 
 %default total
 
-||| An opaque shader vector. Its width is checked by Idris while the GLSL ES
-||| backend recovers the concrete width from the exported entry-point schema
-||| and the primitive dataflow.
+||| An opaque numerical shader tuple. Its component count is checked by Idris
+||| while the GLSL ES backend recovers it from the exported entry-point schema
+||| and the primitive dataflow. This carrier alone establishes no geometric,
+||| complex, colour, vector-space or dual role and no physical register layout.
 public export
-data SVec : Nat -> Type where
+data ShaderFloatTuple : Nat -> Type where
 
 ||| A fixed-length shader array. This is an interface type rather than an
 ||| Idris heap container: the GLSL backend admits it only where it can preserve
@@ -21,43 +22,43 @@ public export %extern
 int_to_double : Int -> Double
 
 public export %extern
-vec2 : Double -> Double -> SVec 2
+vec2 : Double -> Double -> ShaderFloatTuple 2
 
 public export %extern
-vec3 : Double -> Double -> Double -> SVec 3
+vec3 : Double -> Double -> Double -> ShaderFloatTuple 3
 
 public export %extern
-vec4 : Double -> Double -> Double -> Double -> SVec 4
+vec4 : Double -> Double -> Double -> Double -> ShaderFloatTuple 4
 
 public export %extern
-x : SVec (S n) -> Double
+x : ShaderFloatTuple (S n) -> Double
 
 public export %extern
-y : SVec (S (S n)) -> Double
+y : ShaderFloatTuple (S (S n)) -> Double
 
 public export %extern
-z : SVec (S (S (S n))) -> Double
+z : ShaderFloatTuple (S (S (S n))) -> Double
 
 public export %extern
-w : SVec (S (S (S (S n)))) -> Double
+w : ShaderFloatTuple (S (S (S (S n)))) -> Double
 
 public export %extern
-vadd : SVec n -> SVec n -> SVec n
+add_components : ShaderFloatTuple n -> ShaderFloatTuple n -> ShaderFloatTuple n
 
 public export %extern
-vsub : SVec n -> SVec n -> SVec n
+subtract_components : ShaderFloatTuple n -> ShaderFloatTuple n -> ShaderFloatTuple n
 
 public export %extern
-scale : Double -> SVec n -> SVec n
+scale_components : Double -> ShaderFloatTuple n -> ShaderFloatTuple n
 
 public export %extern
-dot : SVec n -> SVec n -> Double
+component_product_sum : ShaderFloatTuple n -> ShaderFloatTuple n -> Double
 
 public export %extern
-length : SVec n -> Double
+euclidean_component_norm : ShaderFloatTuple n -> Double
 
 public export %extern
-normalize : SVec n -> SVec n
+normalize_components_unchecked : ShaderFloatTuple n -> ShaderFloatTuple n
 
 public export %extern
 absF : Double -> Double

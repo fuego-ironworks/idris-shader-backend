@@ -16,8 +16,8 @@ VERTEX = ROOT / "fixtures" / "wegert-fullscreen.vert"
 PROBES = [
     ("SetPixel3RGB5239182", "set-pixel-3-rgb-52-39-182"),
     ("SetBlock32x32RGB5239182", "set-block-32x32-rgb-52-39-182"),
-    ("DotVector4Covector4", "dot-vector4-covector4"),
-    ("DotVector32Covector32", "dot-vector32-covector32"),
+    ("CoordinatePairing4Grayscale", "coordinate-pairing4-grayscale"),
+    ("CoordinatePairing32Grayscale", "coordinate-pairing32-grayscale"),
     ("SubtractVector8Norm", "subtract-vector8-norm"),
     ("RotateDifference8ToE1", "rotate-difference8-to-e1"),
 ]
@@ -97,18 +97,15 @@ def main() -> int:
         require("uniform " not in block, "block fill unexpectedly acquired uniforms")
         require(block.count("255.0") >= 3, "block fill lost byte-to-float RGB conversion")
 
-        dot4 = shaders["dot-vector4-covector4"]
-        require("uniform vec4 u_vector;" in dot4, "vec4 dot lost vector uniform")
-        require("uniform vec4 u_covector;" in dot4, "vec4 dot lost covector uniform")
-        require("dot(" in dot4, "vec4 dot was not emitted as GLSL dot")
+        dot4 = shaders["coordinate-pairing4-grayscale"]
+        require("uniform float u_vector_coordinates[4];" in dot4, "4D vector packet lost dimension")
+        require("uniform float u_covector_coordinates[4];" in dot4, "4D dual packet lost dimension")
 
-        dot32 = shaders["dot-vector32-covector32"]
-        for index in range(8):
-            require(f"uniform vec4 u_v{index};" in dot32, f"32D dot lost vector chunk {index}")
-            require(f"uniform vec4 u_c{index};" in dot32, f"32D dot lost covector chunk {index}")
-        require(dot32.count("dot(") >= 8, "32D contraction did not use eight native vec4 dots")
-        require("u_vector[" not in dot32 and "u_covector[" not in dot32,
-                "32D teaching probe unexpectedly regressed to the slow nested-array path")
+        dot32 = shaders["coordinate-pairing32-grayscale"]
+        require("uniform float u_vector_coordinates[32];" in dot32, "32D vector packet lost dimension")
+        require("uniform float u_covector_coordinates[32];" in dot32, "32D dual packet lost dimension")
+        require("u_vector_coordinates[int(31.0)]" in dot32, "last vector coordinate was not lowered")
+        require("u_covector_coordinates[int(31.0)]" in dot32, "last dual coordinate was not lowered")
 
         subtract8 = shaders["subtract-vector8-norm"]
         for declaration in [

@@ -12,20 +12,20 @@ arrayElementType : ArrayElementTy -> Either String String
 arrayElementType AFloat = Right "float"
 arrayElementType ABool = Right "bool"
 arrayElementType AInt = Right "int"
-arrayElementType (AVec 2) = Right "vec2"
-arrayElementType (AVec 3) = Right "vec3"
-arrayElementType (AVec 4) = Right "vec4"
-arrayElementType (AVec n) = Left ("GLSL ES has no vec" ++ show n ++ " array element type")
+arrayElementType (AFloatTuple 2) = Right "vec2"
+arrayElementType (AFloatTuple 3) = Right "vec3"
+arrayElementType (AFloatTuple 4) = Right "vec4"
+arrayElementType (AFloatTuple n) = Left ("GLSL ES has no vec" ++ show n ++ " array element type")
 
 public export
 glslType : ValueTy -> Either String String
 glslType TFloat = Right "float"
 glslType TBool = Right "bool"
 glslType TInt = Right "int"
-glslType (TVec 2) = Right "vec2"
-glslType (TVec 3) = Right "vec3"
-glslType (TVec 4) = Right "vec4"
-glslType (TVec n) = Left ("GLSL ES has no vec" ++ show n ++ " value type")
+glslType (TFloatTuple 2) = Right "vec2"
+glslType (TFloatTuple 3) = Right "vec3"
+glslType (TFloatTuple 4) = Right "vec4"
+glslType (TFloatTuple n) = Left ("GLSL ES has no vec" ++ show n ++ " value type")
 glslType (TArray n elementTy) = do
   rendered <- arrayElementType elementTy
   Right (rendered ++ "[" ++ show n ++ "]")
@@ -34,7 +34,7 @@ arrayElementSemanticType : FloatWidth -> ArrayElementTy -> String
 arrayElementSemanticType width AFloat = semanticScalarType width
 arrayElementSemanticType _ ABool = "Bool"
 arrayElementSemanticType _ AInt = "Int"
-arrayElementSemanticType width (AVec n) = semanticVectorType width n
+arrayElementSemanticType width (AFloatTuple n) = semanticVectorType width n
 
 ||| Semantic type spelling used in the checked IR dump. This deliberately does
 ||| not reuse GLSL's width-erasing `float` / `vecN` spelling. A compilation has
@@ -43,7 +43,7 @@ semanticType : FloatWidth -> ValueTy -> String
 semanticType width TFloat = semanticScalarType width
 semanticType _ TBool = "Bool"
 semanticType _ TInt = "Int"
-semanticType width (TVec n) = semanticVectorType width n
+semanticType width (TFloatTuple n) = semanticVectorType width n
 semanticType width (TArray n elementTy) =
   arrayElementSemanticType width elementTy ++ "[" ++ show n ++ "]"
 
@@ -133,24 +133,24 @@ rhsText aliases (RBoolBinary BOr left right) =
 rhsText aliases (RIntToFloat value) = "float(" ++ operandText aliases value ++ ")"
 rhsText aliases (RArrayIndex _ array index) =
   operandText aliases array ++ "[int(" ++ operandText aliases index ++ ")]"
-rhsText aliases (RVec2 x y) =
+rhsText aliases (RFloatTuple2 x y) =
   "vec2(" ++ operandText aliases x ++ ", " ++ operandText aliases y ++ ")"
-rhsText aliases (RVec3 x y z) =
+rhsText aliases (RFloatTuple3 x y z) =
   "vec3(" ++ operandText aliases x ++ ", " ++ operandText aliases y ++ ", " ++
   operandText aliases z ++ ")"
-rhsText aliases (RVec4 x y z w) =
+rhsText aliases (RFloatTuple4 x y z w) =
   "vec4(" ++ operandText aliases x ++ ", " ++ operandText aliases y ++ ", " ++
   operandText aliases z ++ ", " ++ operandText aliases w ++ ")"
-rhsText aliases (RVectorBinary VAdd left right) =
+rhsText aliases (RComponentBinary AddComponents left right) =
   "(" ++ operandText aliases left ++ " + " ++ operandText aliases right ++ ")"
-rhsText aliases (RVectorBinary VSub left right) =
+rhsText aliases (RComponentBinary SubtractComponents left right) =
   "(" ++ operandText aliases left ++ " - " ++ operandText aliases right ++ ")"
-rhsText aliases (RScale scalar vector) =
+rhsText aliases (RScaleComponents scalar vector) =
   "(" ++ operandText aliases scalar ++ " * " ++ operandText aliases vector ++ ")"
-rhsText aliases (RDot left right) =
+rhsText aliases (RComponentProductSum left right) =
   "dot(" ++ operandText aliases left ++ ", " ++ operandText aliases right ++ ")"
-rhsText aliases (RLength vector) = "length(" ++ operandText aliases vector ++ ")"
-rhsText aliases (RNormalize vector) = "normalize(" ++ operandText aliases vector ++ ")"
+rhsText aliases (REuclideanComponentNorm vector) = "length(" ++ operandText aliases vector ++ ")"
+rhsText aliases (RNormalizeComponentsUnchecked vector) = "normalize(" ++ operandText aliases vector ++ ")"
 rhsText aliases (RComponent index vector) =
   operandText aliases vector ++ "." ++ componentText index
 rhsText aliases (RSelect condition whenTrue whenFalse) =

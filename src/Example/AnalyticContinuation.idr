@@ -13,13 +13,13 @@ import Shader.Source
 
 %export "glsles:fragment|v_ndc=in,u_center=uniform,u_half_height=uniform,u_aspect=uniform,u_resolution=uniform,u_zero_count=uniform,u_pole_count=uniform,u_zeros=uniform,u_poles=uniform,u_view_kind=uniform,u_continuation_count=uniform,u_continuation_centers=uniform,u_continuation_radii=uniform"
 covering
-analytic_continuation : SVec 2 -> SVec 2 -> Double -> Double -> SVec 2 ->
-                        Int -> Int -> SArray 64 (SVec 2) -> SArray 64 (SVec 2) ->
-                        Int -> Int -> SArray 24 (SVec 2) -> SArray 24 Double -> SVec 4
+analytic_continuation : ShaderFloatTuple 2 -> ShaderFloatTuple 2 -> Double -> Double -> ShaderFloatTuple 2 ->
+                        Int -> Int -> SArray 64 (ShaderFloatTuple 2) -> SArray 64 (ShaderFloatTuple 2) ->
+                        Int -> Int -> SArray 24 (ShaderFloatTuple 2) -> SArray 24 Double -> ShaderFloatTuple 4
 analytic_continuation ndc center half_height aspect resolution
                       zero_count pole_count zeros poles
                       view_kind continuation_count continuation_centers continuation_radii =
-  let point = vadd center (vec2 (x ndc * half_height * aspect)
+  let point = add_components center (vec2 (x ndc * half_height * aspect)
                                 (y ndc * half_height))
       base_color = wegert_rgb point
                               (int_to_double zero_count) zeros

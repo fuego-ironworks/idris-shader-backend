@@ -10,7 +10,7 @@ square : Double -> Double
 square value = value * value
 
 %noinline
-dark_pattern : SVec 2 -> SVec 2 -> Double
+dark_pattern : ShaderFloatTuple 2 -> ShaderFloatTuple 2 -> Double
 dark_pattern ndc resolution =
   let pixel_x = 0.5 * (x ndc + 1.0) * x resolution
       pixel_y = 0.5 * (y ndc + 1.0) * y resolution
@@ -19,7 +19,7 @@ dark_pattern ndc resolution =
 
 %export "glsles:fragment|v_ndc=in,u_center=uniform,u_half_height=uniform,u_aspect=uniform,u_disc_center=uniform,u_disc_radius=uniform,u_resolution=uniform"
 disc_reveal :
-  SVec 2 -> SVec 2 -> Double -> Double -> SVec 2 -> Double -> SVec 2 -> SVec 4
+  ShaderFloatTuple 2 -> ShaderFloatTuple 2 -> Double -> Double -> ShaderFloatTuple 2 -> Double -> ShaderFloatTuple 2 -> ShaderFloatTuple 4
 disc_reveal ndc center half_height aspect disc_center disc_radius resolution =
   let world_x = x center + x ndc * half_height * aspect
       world_y = y center + y ndc * half_height

@@ -24,7 +24,7 @@ fromEither : MockTarget -> Either String a -> Core a
 fromEither target (Left message) = backendError target message
 fromEither _ (Right value) = pure value
 
-findANF : Name -> List (Name, ANFDef) -> Maybe ANFDef
+findANF : Name -> List (Name, Administrative_Normal_Form_Definition) -> Maybe Administrative_Normal_Form_Definition
 findANF _ [] = Nothing
 findANF wanted ((name, definition) :: rest) =
   if wanted == name then Just definition else findANF wanted rest
@@ -52,7 +52,7 @@ compileFragmentMock :
   (tmpDir : String) -> (outputDir : String) ->
   ClosedTerm -> (outfile : String) -> Core (Maybe String)
 compileFragmentMock target defs syn tmpDir outputDir term outfile = do
-  cdata <- getCompileDataWith [codegenName target] False ANF term
+  cdata <- getCompileDataWith [codegenName target] False Administrative_Normal_Form term
   (resolvedName, annotation) <- case exported cdata of
     [] => backendError target
       ("no shader entry; add %export \"" ++ codegenName target ++
@@ -67,7 +67,7 @@ compileFragmentMock target defs syn tmpDir outputDir term outfile = do
   (argumentTypes, resultType) <- fromEither target (shaderSignature signature)
   spec <- fromEither target (makeEntrySpec raw argumentTypes resultType)
   Just definition <- pure (findANF entryName (anf cdata))
-    | Nothing => backendError target ("could not find ANF for exported entry " ++ show entryName)
+    | Nothing => backendError target ("could not find Administrative_Normal_Form for exported entry " ++ show entryName)
   program <- fromEither target (lowerFragment spec entryName (anf cdata) definition)
   let output = outputDir ++ "/" ++ outfile ++ "." ++ codegenName target ++ ".frag.mock"
   writeMock target output (emitFragmentMock target program)

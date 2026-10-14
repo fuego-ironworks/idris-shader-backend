@@ -1,0 +1,6 @@
+module SourceFloat32Probe
+
+%unbound_implicits off
+
+identity_float32 : Float32 → Float32
+identity_float32 value = value

@@ -47,9 +47,9 @@ comparisonOp FEq = "fcmp.eq"
 comparisonOp FGe = "fcmp.ge"
 comparisonOp FGt = "fcmp.gt"
 
-vectorBinaryOp : VectorBinary -> String
-vectorBinaryOp VAdd = "vadd"
-vectorBinaryOp VSub = "vsub"
+componentBinaryOpcode : ComponentBinaryOperation -> String
+componentBinaryOpcode AddComponents = "vadd"
+componentBinaryOpcode SubtractComponents = "vsub"
 
 rhsText : Rhs ty -> String
 rhsText (RFloatUnary operation value) =
@@ -69,21 +69,21 @@ rhsText (RBoolBinary BOr left right) =
 rhsText (RIntToFloat value) = "itof " ++ operandText value
 rhsText (RArrayIndex _ array index) =
   "load.index " ++ operandText array ++ ", " ++ operandText index
-rhsText (RVec2 x y) =
+rhsText (RFloatTuple2 x y) =
   "pack2 " ++ operandText x ++ ", " ++ operandText y
-rhsText (RVec3 x y z) =
+rhsText (RFloatTuple3 x y z) =
   "pack3 " ++ operandText x ++ ", " ++ operandText y ++ ", " ++ operandText z
-rhsText (RVec4 x y z w) =
+rhsText (RFloatTuple4 x y z w) =
   "pack4 " ++ operandText x ++ ", " ++ operandText y ++ ", " ++
   operandText z ++ ", " ++ operandText w
-rhsText (RVectorBinary operation left right) =
-  vectorBinaryOp operation ++ " " ++ operandText left ++ ", " ++ operandText right
-rhsText (RScale scalar vector) =
+rhsText (RComponentBinary operation left right) =
+  componentBinaryOpcode operation ++ " " ++ operandText left ++ ", " ++ operandText right
+rhsText (RScaleComponents scalar vector) =
   "vscale " ++ operandText scalar ++ ", " ++ operandText vector
-rhsText (RDot left right) =
+rhsText (RComponentProductSum left right) =
   "vdot " ++ operandText left ++ ", " ++ operandText right
-rhsText (RLength vector) = "vlength " ++ operandText vector
-rhsText (RNormalize vector) = "vnormalize " ++ operandText vector
+rhsText (REuclideanComponentNorm vector) = "vlength " ++ operandText vector
+rhsText (RNormalizeComponentsUnchecked vector) = "vnormalize " ++ operandText vector
 rhsText (RComponent index vector) =
   "extract " ++ operandText vector ++ ", " ++ show (finToNat index)
 rhsText (RSelect condition whenTrue whenFalse) =
