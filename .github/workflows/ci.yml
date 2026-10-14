@@ -42,10 +42,17 @@ jobs:
           path: .idric-compiler-api
           persist-credentials: false
 
+      - name: Prepare the ICK frontend for native stages
+        id: ick
+        uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+
       - name: Bootstrap the pinned Idriç compiler
-        # This inherited entrypoint builds compiler dependencies. Consumer native
-        # compile/link remains the separately declared ICK stage below.
+        # Native compiler support also uses the declared ICK stage, not an
+        # undeclared host compiler. The GLES runner is a separate ICK consumer.
         working-directory: .idric-compiler-api
+        env:
+          CC: ${{ steps.ick.outputs.compiler }}
+          CFLAGS: -fno-link-libatomic -static-libgcc
         run: ./edric bootstrap
 
       - name: Install the pinned Idriç compiler API
@@ -55,9 +62,6 @@ jobs:
       - name: Record the actual Idriç compiler version
         run: ${{ env.IDRIS2 }} --version
 
-      - name: Build the C runner frontend
-        id: ick
-        uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
       - name: Check out the C stage contract
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
