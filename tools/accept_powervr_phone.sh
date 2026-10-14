@@ -100,8 +100,8 @@ make -f tools/ick-android.mk runner ABI="$ABI" ANDROID_API="$ANDROID_API" \
 
 SHADERS='set-pixel-3-rgb-52-39-182.frag
 set-block-32x32-rgb-52-39-182.frag
-dot-vector4-covector4.frag
-dot-vector32-covector32.frag
+coordinate-pairing4-grayscale.frag
+coordinate-pairing32-grayscale.frag
 subtract-vector8-norm.frag
 rotate-difference8-to-e1.frag'
 

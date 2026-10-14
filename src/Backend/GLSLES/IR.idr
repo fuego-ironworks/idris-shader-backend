@@ -6,14 +6,14 @@ import Decidable.Equality
 %default total
 
 public export
-data ArrayElementTy = AFloat | ABool | AInt | AVec Nat
+data ArrayElementTy = AFloat | ABool | AInt | AFloatTuple Nat
 
 public export
 Eq ArrayElementTy where
   AFloat == AFloat = True
   ABool == ABool = True
   AInt == AInt = True
-  AVec n == AVec m = n == m
+  AFloatTuple n == AFloatTuple m = n == m
   _ == _ = False
 
 public export
@@ -21,47 +21,47 @@ DecEq ArrayElementTy where
   decEq AFloat AFloat = Yes Refl
   decEq AFloat ABool = No (\Refl impossible)
   decEq AFloat AInt = No (\Refl impossible)
-  decEq AFloat (AVec _) = No (\Refl impossible)
+  decEq AFloat (AFloatTuple _) = No (\Refl impossible)
   decEq ABool AFloat = No (\Refl impossible)
   decEq ABool ABool = Yes Refl
   decEq ABool AInt = No (\Refl impossible)
-  decEq ABool (AVec _) = No (\Refl impossible)
+  decEq ABool (AFloatTuple _) = No (\Refl impossible)
   decEq AInt AFloat = No (\Refl impossible)
   decEq AInt ABool = No (\Refl impossible)
   decEq AInt AInt = Yes Refl
-  decEq AInt (AVec _) = No (\Refl impossible)
-  decEq (AVec _) AFloat = No (\Refl impossible)
-  decEq (AVec _) ABool = No (\Refl impossible)
-  decEq (AVec _) AInt = No (\Refl impossible)
-  decEq (AVec n) (AVec m) with (decEq n m)
-    decEq (AVec n) (AVec n) | Yes Refl = Yes Refl
-    decEq (AVec n) (AVec m) | No contra = No (\Refl => contra Refl)
+  decEq AInt (AFloatTuple _) = No (\Refl impossible)
+  decEq (AFloatTuple _) AFloat = No (\Refl impossible)
+  decEq (AFloatTuple _) ABool = No (\Refl impossible)
+  decEq (AFloatTuple _) AInt = No (\Refl impossible)
+  decEq (AFloatTuple n) (AFloatTuple m) with (decEq n m)
+    decEq (AFloatTuple n) (AFloatTuple n) | Yes Refl = Yes Refl
+    decEq (AFloatTuple n) (AFloatTuple m) | No contra = No (\Refl => contra Refl)
 
 public export
 Show ArrayElementTy where
   show AFloat = "float"
   show ABool = "bool"
   show AInt = "int"
-  show (AVec n) = "vec" ++ show n
+  show (AFloatTuple n) = "float-tuple" ++ show n
 
-||| Runtime value types admitted by the restricted shader compiler. Vector
-||| width and fixed array length remain explicit in the checked shader IR.
+||| Runtime value types admitted by the restricted shader compiler. Component
+||| count and fixed array length remain explicit in the checked shader IR.
 public export
-data ValueTy = TFloat | TBool | TInt | TVec Nat | TArray Nat ArrayElementTy
+data ValueTy = TFloat | TBool | TInt | TFloatTuple Nat | TArray Nat ArrayElementTy
 
 public export
 arrayElementValueTy : ArrayElementTy -> ValueTy
 arrayElementValueTy AFloat = TFloat
 arrayElementValueTy ABool = TBool
 arrayElementValueTy AInt = TInt
-arrayElementValueTy (AVec n) = TVec n
+arrayElementValueTy (AFloatTuple n) = TFloatTuple n
 
 public export
 Eq ValueTy where
   TFloat == TFloat = True
   TBool == TBool = True
   TInt == TInt = True
-  TVec n == TVec m = n == m
+  TFloatTuple n == TFloatTuple m = n == m
   TArray n a == TArray m b = n == m && a == b
   _ == _ = False
 
@@ -70,29 +70,29 @@ DecEq ValueTy where
   decEq TFloat TFloat = Yes Refl
   decEq TFloat TBool = No (\Refl impossible)
   decEq TFloat TInt = No (\Refl impossible)
-  decEq TFloat (TVec _) = No (\Refl impossible)
+  decEq TFloat (TFloatTuple _) = No (\Refl impossible)
   decEq TFloat (TArray _ _) = No (\Refl impossible)
   decEq TBool TFloat = No (\Refl impossible)
   decEq TBool TBool = Yes Refl
   decEq TBool TInt = No (\Refl impossible)
-  decEq TBool (TVec _) = No (\Refl impossible)
+  decEq TBool (TFloatTuple _) = No (\Refl impossible)
   decEq TBool (TArray _ _) = No (\Refl impossible)
   decEq TInt TFloat = No (\Refl impossible)
   decEq TInt TBool = No (\Refl impossible)
   decEq TInt TInt = Yes Refl
-  decEq TInt (TVec _) = No (\Refl impossible)
+  decEq TInt (TFloatTuple _) = No (\Refl impossible)
   decEq TInt (TArray _ _) = No (\Refl impossible)
-  decEq (TVec _) TFloat = No (\Refl impossible)
-  decEq (TVec _) TBool = No (\Refl impossible)
-  decEq (TVec _) TInt = No (\Refl impossible)
-  decEq (TVec n) (TVec m) with (decEq n m)
-    decEq (TVec n) (TVec n) | Yes Refl = Yes Refl
-    decEq (TVec n) (TVec m) | No contra = No (\Refl => contra Refl)
-  decEq (TVec _) (TArray _ _) = No (\Refl impossible)
+  decEq (TFloatTuple _) TFloat = No (\Refl impossible)
+  decEq (TFloatTuple _) TBool = No (\Refl impossible)
+  decEq (TFloatTuple _) TInt = No (\Refl impossible)
+  decEq (TFloatTuple n) (TFloatTuple m) with (decEq n m)
+    decEq (TFloatTuple n) (TFloatTuple n) | Yes Refl = Yes Refl
+    decEq (TFloatTuple n) (TFloatTuple m) | No contra = No (\Refl => contra Refl)
+  decEq (TFloatTuple _) (TArray _ _) = No (\Refl impossible)
   decEq (TArray _ _) TFloat = No (\Refl impossible)
   decEq (TArray _ _) TBool = No (\Refl impossible)
   decEq (TArray _ _) TInt = No (\Refl impossible)
-  decEq (TArray _ _) (TVec _) = No (\Refl impossible)
+  decEq (TArray _ _) (TFloatTuple _) = No (\Refl impossible)
   decEq (TArray n a) (TArray m b) with (decEq n m)
     decEq (TArray n a) (TArray n b) | Yes Refl with (decEq a b)
       decEq (TArray n a) (TArray n a) | Yes Refl | Yes Refl = Yes Refl
@@ -105,7 +105,7 @@ Show ValueTy where
   show TFloat = "float"
   show TBool = "bool"
   show TInt = "int"
-  show (TVec n) = "vec" ++ show n
+  show (TFloatTuple n) = "vec" ++ show n
   show (TArray n elementTy) = show elementTy ++ "[" ++ show n ++ "]"
 
 public export
@@ -145,10 +145,10 @@ record SomeOperand where
   operand : Operand operandTy
 
 public export
-record SomeVector where
-  constructor PackVector
+record SomeFloatTuple where
+  constructor PackFloatTuple
   width : Nat
-  vector : Operand (TVec width)
+  components : Operand (TFloatTuple width)
 
 public export
 record SomeArray where
@@ -192,7 +192,7 @@ public export
 data BoolBinary = BAnd | BOr
 
 public export
-data VectorBinary = VAdd | VSub
+data ComponentBinaryOperation = AddComponents | SubtractComponents
 
 ||| A right-hand side whose Idris index is its GLSL result type.
 public export
@@ -207,17 +207,17 @@ data Rhs : ValueTy -> Type where
   RIntToFloat : Operand TInt -> Rhs TFloat
   RArrayIndex : (capacity : Nat) -> Operand (TArray capacity elementTy) ->
                 Operand TFloat -> Rhs (arrayElementValueTy elementTy)
-  RVec2 : Operand TFloat -> Operand TFloat -> Rhs (TVec 2)
-  RVec3 : Operand TFloat -> Operand TFloat -> Operand TFloat -> Rhs (TVec 3)
-  RVec4 : Operand TFloat -> Operand TFloat -> Operand TFloat ->
-          Operand TFloat -> Rhs (TVec 4)
-  RVectorBinary : VectorBinary -> Operand (TVec n) -> Operand (TVec n) ->
-                  Rhs (TVec n)
-  RScale : Operand TFloat -> Operand (TVec n) -> Rhs (TVec n)
-  RDot : Operand (TVec n) -> Operand (TVec n) -> Rhs TFloat
-  RLength : Operand (TVec n) -> Rhs TFloat
-  RNormalize : Operand (TVec n) -> Rhs (TVec n)
-  RComponent : Fin n -> Operand (TVec n) -> Rhs TFloat
+  RFloatTuple2 : Operand TFloat -> Operand TFloat -> Rhs (TFloatTuple 2)
+  RFloatTuple3 : Operand TFloat -> Operand TFloat -> Operand TFloat -> Rhs (TFloatTuple 3)
+  RFloatTuple4 : Operand TFloat -> Operand TFloat -> Operand TFloat ->
+          Operand TFloat -> Rhs (TFloatTuple 4)
+  RComponentBinary : ComponentBinaryOperation -> Operand (TFloatTuple n) -> Operand (TFloatTuple n) ->
+                  Rhs (TFloatTuple n)
+  RScaleComponents : Operand TFloat -> Operand (TFloatTuple n) -> Rhs (TFloatTuple n)
+  RComponentProductSum : Operand (TFloatTuple n) -> Operand (TFloatTuple n) -> Rhs TFloat
+  REuclideanComponentNorm : Operand (TFloatTuple n) -> Rhs TFloat
+  RNormalizeComponentsUnchecked : Operand (TFloatTuple n) -> Rhs (TFloatTuple n)
+  RComponent : Fin n -> Operand (TFloatTuple n) -> Rhs TFloat
   RSelect : Operand TBool -> Operand ty -> Operand ty -> Rhs ty
 
 public export
@@ -254,7 +254,7 @@ record FragmentProgram where
   constructor MkFragmentProgram
   spec : EntrySpec
   statements : List Statement
-  result : Operand (TVec 4)
+  result : Operand (TFloatTuple 4)
 
 public export
 expect : (wanted : ValueTy) -> SomeOperand -> Either String (Operand wanted)
@@ -264,10 +264,10 @@ expect wanted (PackOperand actual value) with (decEq wanted actual)
     Left ("expected " ++ show wanted ++ ", received " ++ show actual)
 
 public export
-expectVector : SomeOperand -> Either String SomeVector
-expectVector (PackOperand (TVec n) value) = Right (PackVector n value)
-expectVector (PackOperand actual _) =
-  Left ("expected a vector, received " ++ show actual)
+expectFloatTuple : SomeOperand -> Either String SomeFloatTuple
+expectFloatTuple (PackOperand (TFloatTuple n) value) = Right (PackFloatTuple n value)
+expectFloatTuple (PackOperand actual _) =
+  Left ("expected a floating component tuple, received " ++ show actual)
 
 public export
 expectArray : SomeOperand -> Either String SomeArray

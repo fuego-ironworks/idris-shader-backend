@@ -58,6 +58,20 @@ jobs:
       - name: Record compiler version
         run: idris2 --version
 
+      - name: Check out the pinned Idriç compiler API
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/Idric
+          ref: 2734ac5a86610eddfab73b1644d72b4ac85a65ee
+          path: .idric-compiler-api
+          persist-credentials: false
+
+      - name: Install the Idriç API used by the registered shader compiler
+        # The cached official compiler is only the API build bootstrap.
+        # The registered driver/lowering uses this exact Idriç API source.
+        working-directory: .idric-compiler-api/_
+        run: idris2 --install idris2api.ipkg
+
       - name: Build the C runner frontend
         id: ick
         uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8

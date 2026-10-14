@@ -272,7 +272,7 @@ def main() -> int:
             (
                 "src/Test/Backend/BadResult.idr",
                 "bad-result",
-                "fragment entry must return SVec 4",
+                "fragment entry must return ShaderFloatTuple 4",
             ),
             (
                 "src/Test/Backend/BadRecursion.idr",
@@ -304,7 +304,7 @@ def main() -> int:
         )
         require("Error:" in dimensions.stdout, "mismatched vector widths unexpectedly typechecked")
         require(
-            "SVec 2" in dimensions.stdout and "SVec 3" in dimensions.stdout,
+            "ShaderFloatTuple 2" in dimensions.stdout and "ShaderFloatTuple 3" in dimensions.stdout,
             "dimension mismatch did not report both widths:\n" + dimensions.stdout,
         )
 

@@ -22,7 +22,7 @@ fromEither : Either String a -> Core a
 fromEither (Left message) = backendError message
 fromEither (Right value) = pure value
 
-findANF : Name -> List (Name, ANFDef) -> Maybe ANFDef
+findANF : Name -> List (Name, Administrative_Normal_Form_Definition) -> Maybe Administrative_Normal_Form_Definition
 findANF _ [] = Nothing
 findANF wanted ((name, definition) :: rest) =
   if wanted == name then Just definition else findANF wanted rest
@@ -49,7 +49,7 @@ compileMaliMock :
   (tmpDir : String) -> (outputDir : String) ->
   ClosedTerm -> (outfile : String) -> Core (Maybe String)
 compileMaliMock defs syn tmpDir outputDir term outfile = do
-  cdata <- getCompileDataWith ["mali-mock"] False ANF term
+  cdata <- getCompileDataWith ["mali-mock"] False Administrative_Normal_Form term
   (resolvedName, annotation) <- case exported cdata of
     [] => backendError "no shader entry; add %export \"mali-mock:fragment|name=in,name=uniform\""
     [entry] => pure entry
@@ -60,7 +60,7 @@ compileMaliMock defs syn tmpDir outputDir term outfile = do
   (argumentTypes, resultType) <- fromEither (shaderSignature signature)
   spec <- fromEither (makeEntrySpec raw argumentTypes resultType)
   Just definition <- pure (findANF entryName (anf cdata))
-    | Nothing => backendError ("could not find ANF for exported entry " ++ show entryName)
+    | Nothing => backendError ("could not find Administrative_Normal_Form for exported entry " ++ show entryName)
   program <- fromEither (lowerFragment spec entryName (anf cdata) definition)
   let output = outputDir ++ "/" ++ outfile ++ ".mali.mock"
   writeMock output (emitMaliMock program)

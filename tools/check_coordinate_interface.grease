@@ -1,0 +1,25 @@
+#!/usr/bin/env grease
+var repo = $1
+var compiler = $2
+if (not repo.startsWith('/')) { echo 'requires absolute backend source root' >&2; exit 2 }
+test -x "$compiler"
+test -x "$repo/build/exec/idris2-glsles"
+cd -- "$repo"
+var output = "$(mktemp -d)"
+for fixture in CoordinateRoleMismatch CoordinateSpaceMismatch CoordinateDimensionMismatch {
+  if "$compiler" --source-dir src --check "src/Test/Backend/$fixture.idr" >"$output/$fixture.log" 2>&1 {
+    echo "FAIL accepted invalid coordinate interface: $fixture" >&2
+    exit 1
+  }
+  rg -q 'Mismatch between:' "$output/$fixture.log"
+  echo "PASS source refusal: $fixture"
+}
+for fixture in SpoofCoordinatePairing SpoofShaderTuple {
+  if ./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir "$output" "src/Test/Backend/$fixture.idr" -o "$fixture" >"$output/$fixture.log" 2>&1 {
+    echo "FAIL compiler returned success for a rejected declaration: $fixture" >&2
+    exit 1
+  }
+  rg -q '^Error: GLSL ES backend:' "$output/$fixture.log"
+  test ! -e "$output/$fixture.frag"
+  echo "PASS backend refusal: $fixture"
+}
