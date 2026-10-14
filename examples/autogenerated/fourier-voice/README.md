@@ -111,7 +111,8 @@ Earth: implement those coupled capabilities, wire fresh-output checks and the
 registered build/acceptance path, and deliver the controlled benchmark.
 Moon: NONE until that Earth result and its actual A1 acceptance exist.
 
-Repository publication is blocked: automatic approval review rejected pushing
-the research branch, interpreting the user's scope as investigation/handoff
-and citing the no-release/no-merge instruction. These commits are local.
+The reviewed packet is published on
+https://github.com/fuego-ironworks/idris-shader-backend/tree/sun/fragment-fourier-01.
+The original local commits remain provenance pins; the published commits have
+the same final Git tree rather than the same commit IDs.
 
