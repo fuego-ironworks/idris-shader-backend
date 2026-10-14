@@ -48,8 +48,10 @@ coordinate-swap mutant and an omitted-case result. Mesa llvmpipe is software
 host execution, not a physical PowerVR/Mali receipt or a mathematical proof.
 
 The host native runner was built by ICK c61e448251744a2f40ad743ebef1a027bdcd2f9d.
-The GLSL frontend uses Idriç API 2734ac5a86610eddfab73b1644d72b4ac85a65ee;
-upstream Idris is an API-build bootstrap in hosted CI, not the emitted driver.
+The GLSL frontend uses Idriç API 2734ac5a86610eddfab73b1644d72b4ac85a65ee.
+Hosted CI now bootstraps that exact Idriç compiler before installing its API;
+the initial upstream-compiler API install rejected `depends on network` and
+its failed run is historical, not a passing backend receipt.
 Native host linkage used installed EGL/OpenGL dispatch with official Khronos
 headers; the observed API was OpenGL ES 3.2 Mesa 25.2.8.
 
