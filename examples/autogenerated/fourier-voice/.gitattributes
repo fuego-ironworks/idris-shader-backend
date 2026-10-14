@@ -1,0 +1,4 @@
+# Preserve generated output and captured receipt bytes; their hashes include whitespace.
+* whitespace=-blank-at-eof
+generated/** -text
+evidence/** -text whitespace=-blank-at-eof,-blank-at-eol
