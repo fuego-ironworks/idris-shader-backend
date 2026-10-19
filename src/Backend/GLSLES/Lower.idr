@@ -310,6 +310,7 @@ lowerExtPrim env primitive arguments = do
     "floorF" => floatUnary "floorF" FFloor values
     "fractF" => floatUnary "fractF" FFract values
     "logF" => floatUnary "logF" FLog values
+    "expF" => floatUnary "expF" FExp values
     "minF" => floatBinary "minF" FMin values
     "maxF" => floatBinary "maxF" FMax values
     "atan2F" => floatBinary "atan2F" FAtan2 values

@@ -167,6 +167,7 @@ data FloatUnary =
   | FFloor
   | FFract
   | FLog
+  | FExp
 
 public export
 data FloatBinary =

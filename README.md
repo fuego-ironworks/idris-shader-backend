@@ -69,7 +69,7 @@ The accepted numerical operations now include:
   subtraction and scaling, component-product sum, Euclidean component norm,
   and explicitly unchecked normalization
 - `abs`, `sqrt`, `sin`, `cos`, `min`, `max`, `clamp`, and `mix`
-- `floor`, `fract`, `log`, two-argument `atan`, `pow`, and `smoothstep`
+- `floor`, `fract`, `log`, `exp`, two-argument `atan`, `pow`, and `smoothstep`
 - fixed uniform arrays with typed indexing
 - `let` bindings and pure conditionals
 - saturated calls to first-order helper functions; their bodies are

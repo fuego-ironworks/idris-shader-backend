@@ -82,6 +82,12 @@ backend-test: backend
 	python3 tools/check_backend.py
 	python3 tools/check_f16.py
 	python3 tools/check_shared_factor_portrait.py
+	@temp=$(mktemp -d); trap 'rm -rf "$temp"' EXIT; \
+		$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir "$temp" \
+			src/Example/ExpPrimitive.idr -o exp-primitive && \
+		grep -Fq 'exp(' "$temp/exp-primitive.frag" && \
+		{ ! command -v glslangValidator >/dev/null || \
+		  glslangValidator -S frag "$temp/exp-primitive.frag"; }
 	python3 tools/check_analytic_continuation.py
 	python3 tools/check_surfer_root_search.py
 	python3 tools/check_powervr_primitives.py

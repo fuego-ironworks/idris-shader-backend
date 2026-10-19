@@ -81,6 +81,7 @@ floatUnaryText FCos value = "cos(" ++ value ++ ")"
 floatUnaryText FFloor value = "floor(" ++ value ++ ")"
 floatUnaryText FFract value = "fract(" ++ value ++ ")"
 floatUnaryText FLog value = "log(" ++ value ++ ")"
+floatUnaryText FExp value = "exp(" ++ value ++ ")"
 
 floatBinaryText : FloatBinary -> String -> String -> String
 floatBinaryText FAdd left right = "(" ++ left ++ " + " ++ right ++ ")"
