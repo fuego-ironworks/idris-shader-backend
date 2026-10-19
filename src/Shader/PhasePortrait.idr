@@ -14,7 +14,7 @@ srgb_component linear_value =
          then 12.92 * value
          else 1.055 * powF value (1.0 / 2.4) - 0.055
 
-hcl_to_srgb : Double -> Double -> Double -> SVec 3
+hcl_to_srgb : Double -> Double -> Double -> ShaderFloatTuple 3
 hcl_to_srgb hue_degrees chroma lightness =
   let hue = hue_degrees * 3.14159265358979323846 / 180.0
       u_star = chroma * cosF hue
@@ -37,11 +37,11 @@ hcl_to_srgb hue_degrees chroma lightness =
       blue = clampF (srgb_component linear_b) 0.0 1.0
    in vec3 red green blue
 
-factor_measure : SVec 2 -> SVec 2 -> SVec 2
+factor_measure : ShaderFloatTuple 2 -> ShaderFloatTuple 2 -> ShaderFloatTuple 2
 factor_measure point factor =
-  let delta = vsub point factor
+  let delta = subtract_components point factor
       phase = atan2F (y delta) (x delta)
-      log_modulus = logF (maxF (length delta) 0.000000000001)
+      log_modulus = logF (maxF (euclidean_component_norm delta) 0.000000000001)
    in vec2 phase log_modulus
 
 ||| The source expresses factor accumulation once. The shader backend accepts
@@ -49,38 +49,38 @@ factor_measure point factor =
 ||| element compile-time maximum and the runtime active bound.
 covering
 factor_sum_from :
-  SVec 2 -> Double -> SArray 64 (SVec 2) -> Double -> SVec 2 -> SVec 2
+  ShaderFloatTuple 2 -> Double -> SArray 64 (ShaderFloatTuple 2) -> Double -> ShaderFloatTuple 2 -> ShaderFloatTuple 2
 factor_sum_from point count factors index state =
   if index < minF count 64.0
      then
        let factor = array_at factors index
            contribution = factor_measure point factor
-           next = vadd state contribution
+           next = add_components state contribution
         in factor_sum_from point count factors (index + 1.0) next
      else state
 
 covering
-factor_sum_64 : SVec 2 -> Double -> SArray 64 (SVec 2) -> SVec 2
+factor_sum_64 : ShaderFloatTuple 2 -> Double -> SArray 64 (ShaderFloatTuple 2) -> ShaderFloatTuple 2
 factor_sum_64 point count factors =
   factor_sum_from point count factors 0.0 (vec2 0.0 0.0)
 
 covering
+public export
 rational_measure :
-  SVec 2 -> Double -> SArray 64 (SVec 2) ->
-  Double -> SArray 64 (SVec 2) -> SVec 2
+  ShaderFloatTuple 2 -> Double -> SArray 64 (ShaderFloatTuple 2) ->
+  Double -> SArray 64 (ShaderFloatTuple 2) -> ShaderFloatTuple 2
 rational_measure point zero_count zeros pole_count poles =
   let zero_measure = factor_sum_64 point zero_count zeros
       pole_measure = factor_sum_64 point pole_count poles
-   in vsub zero_measure pole_measure
+   in subtract_components zero_measure pole_measure
 
-covering
+||| Convert a mathematically accumulated (phase, log modulus) to the
+||| canonical Wegert colour. The caller owns R(z), exp(q(z)), and any
+||| additional meromorphic factors; this function owns only colouring.
 public export
-wegert_rgb :
-  SVec 2 -> Double -> SArray 64 (SVec 2) ->
-  Double -> SArray 64 (SVec 2) -> SVec 3
-wegert_rgb point zero_count zeros pole_count poles =
-  let measure = rational_measure point zero_count zeros pole_count poles
-      phase = x measure
+wegert_rgb_from_measure : ShaderFloatTuple 2 -> ShaderFloatTuple 3
+wegert_rgb_from_measure measure =
+  let phase = x measure
       log_modulus = y measure
       hue_degrees = 360.0 * positive_fract (phase / 6.28318530717958647692)
       log_modulus_band = positive_fract (log_modulus / 2.30258509299404568402)
@@ -88,3 +88,11 @@ wegert_rgb point zero_count zeros pole_count poles =
                 + 4.0 * log_modulus_band
                 + 3.0 * positive_fract (hue_degrees / 100.0)
    in hcl_to_srgb hue_degrees 45.0 lightness
+
+covering
+public export
+wegert_rgb :
+  ShaderFloatTuple 2 -> Double -> SArray 64 (ShaderFloatTuple 2) ->
+  Double -> SArray 64 (ShaderFloatTuple 2) -> ShaderFloatTuple 3
+wegert_rgb point zero_count zeros pole_count poles =
+  wegert_rgb_from_measure (rational_measure point zero_count zeros pole_count poles)

@@ -5,7 +5,7 @@ import Shader.Source
 %default total
 
 %export "amdgcn:fragment|coordinate=in,gain=uniform"
-pixel : SVec 2 -> Double -> SVec 4
+pixel : ShaderFloatTuple 2 -> Double -> ShaderFloatTuple 4
 pixel coordinate gain =
   let horizontal = x coordinate
       vertical = y coordinate

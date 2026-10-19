@@ -41,14 +41,14 @@ predicate : Operand TBool -> String
 predicate (OLocal name) = register name
 predicate (OBool value) = if value then "1" else "0"
 
-vector : (width : Nat) -> Operand (TVec width) -> List String
+vector : (width : Nat) -> Operand (TFloatTuple width) -> List String
 vector width (OLocal name) = map (component name) (indices width)
 
 declarations : ValueTy -> String -> Either String (List String)
 declarations TFloat name = Right [".reg .f32 " ++ register name ++ ";"]
 declarations TBool name = Right [".reg .pred " ++ register name ++ ", " ++ register name ++
                                "_yes, " ++ register name ++ "_no, " ++ register name ++ "_inverse;"]
-declarations (TVec width) name =
+declarations (TFloatTuple width) name =
   if elem width [2, 3, 4]
      then Right (map (\r => ".reg .f32 " ++ r ++ ";") (map (component name) (indices width)))
      else Left "PTX vector width must be 2, 3, or 4"
@@ -95,7 +95,7 @@ select TBool name condition first second =
          instruction "not.pred" (register name ++ "_inverse") [predicate condition],
          instruction "and.pred" (register name ++ "_no") [register name ++ "_inverse", predicate second],
          instruction "or.pred" (register name) [register name ++ "_yes", register name ++ "_no"]]
-select (TVec width) name condition first second =
+select (TFloatTuple width) name condition first second =
   Right (zipWith (\index, (a, b) => instruction "selp.f32" (component name index)
                     [a, b, predicate condition])
                  (indices width) (zip (vector width first) (vector width second)))
@@ -120,13 +120,13 @@ rhs _ name (RBoolUnary BNot value) =
 rhs _ name (RBoolBinary operation first second) =
   Right [instruction (case operation of BAnd => "and.pred"; BOr => "or.pred")
                      (register name) [predicate first, predicate second]]
-rhs _ name (RVec2 first second) = do
+rhs _ name (RFloatTuple2 first second) = do
   values <- traverse scalar [first, second]
   Right (moveVector name values)
-rhs _ name (RVec3 first second third) = do
+rhs _ name (RFloatTuple3 first second third) = do
   values <- traverse scalar [first, second, third]
   Right (moveVector name values)
-rhs _ name (RVec4 first second third fourth) = do
+rhs _ name (RFloatTuple4 first second third fourth) = do
   values <- traverse scalar [first, second, third, fourth]
   Right (moveVector name values)
 rhs _ name (RComponent index (OLocal source)) =
@@ -139,7 +139,7 @@ assign TFloat name value = do
   input <- scalar value
   Right [instruction "mov.f32" (register name) [input]]
 assign TBool name value = Right [instruction "and.pred" (register name) [predicate value, "1"]]
-assign (TVec width) name value = Right (moveVector name (vector width value))
+assign (TFloatTuple width) name value = Right (moveVector name (vector width value))
 assign _ _ _ = Left "PTX follower refuses integer/array branch results"
 
 mutual
@@ -175,8 +175,8 @@ input : InterfaceVar -> Either String (List String, List String, List String)
 input (MkInterfaceVar name Uniform TFloat) =
   Right ([".param .f32 p_arg_" ++ name], [".reg .f32 " ++ register name ++ ";"],
          [instruction "ld.param.f32" (register name) ["[p_arg_" ++ name ++ "]"]])
-input (MkInterfaceVar name FragmentInput (TVec width)) = do
-  registers <- declarations (TVec width) name
+input (MkInterfaceVar name FragmentInput (TFloatTuple width)) = do
+  registers <- declarations (TFloatTuple width) name
   let body = [instruction "ld.param.u64" "%__input" ["[p_arg_" ++ name ++ "]"],
               instruction "mul.wide.u32" "%__offset" ["%__index", show (4 * width)],
               instruction "add.u64" "%__input" ["%__input", "%__offset"]] ++

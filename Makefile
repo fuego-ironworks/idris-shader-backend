@@ -3,6 +3,7 @@ IDRIS2_GLSLES ?= ./build/exec/idris2-glsles
 IDRIS2_MALI_MOCK ?= ./build/exec/idris2-mali-mock
 IDRIS2_FRAGMENT_MOCKS ?= ./build/exec/idris2-fragment-mocks
 ICK ?=
+ITHON ?=
 ICK_FLAGS ?= -fno-link-libatomic
 EGL_LIBS ?= -lEGL
 GLES_LIBS ?= -lGLESv3
@@ -54,9 +55,9 @@ powervr-primitives-frag: backend
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
 		src/Example/SetBlock32x32RGB5239182.idr -o set-block-32x32-rgb-52-39-182
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
-		src/Example/DotVector4Covector4.idr -o dot-vector4-covector4
+		src/Example/CoordinatePairing4Grayscale.idr -o coordinate-pairing4-grayscale
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
-		src/Example/DotVector32Covector32.idr -o dot-vector32-covector32
+		src/Example/CoordinatePairing32Grayscale.idr -o coordinate-pairing32-grayscale
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
 		src/Example/SubtractVector8Norm.idr -o subtract-vector8-norm
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
@@ -83,7 +84,8 @@ backend-test: backend
 	python3 tools/check_f16.py
 	python3 tools/check_shared_factor_portrait.py
 	python3 tools/check_analytic_continuation.py
-	python3 tools/check_surfer_root_search.py
+	test -x "$(ITHON)"
+	"$(ITHON)" tools/check_surfer_root_search.pi
 	python3 tools/check_powervr_primitives.py
 	sh -n tools/accept_powervr_phone.sh
 	sh -n tools/accept_powervr_android.sh

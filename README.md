@@ -14,7 +14,7 @@ Idris ANF (a simplified compiler representation)
         ↓
 shader subset checking and first-order helper specialization
         ↓
-typed linear shader representation
+typed structured shader representation
         ↓
 GLSL ES 3.00 fragment shader
 ```
@@ -24,9 +24,10 @@ runtime. Closures, general recursion, heap-shaped data, IO, and partial
 application are rejected rather than silently translated into something with
 different semantics.
 
-The compiler integration currently uses ordinary Idris 2. Moving the same
-backend behind Idriç/`edric` is a separate integration step once that compiler's
-surface language is settled.
+This integration uses the pinned Idriç compiler API, including its descriptive
+administrative-normal-form definitions. Ordinary `.idr` shader compatibility
+source remains supported. Explicit source-width preservation is a separate
+unfinished boundary; see [the checked coordinate contract](docs/coordinate-semantic-contract.md).
 
 The required outer build graph is the pinned root `Ikefile`. Its primary
 `check` target retains the existing Make leaf. Optional `qualify-nvidia` and
@@ -42,19 +43,19 @@ signature before those types are erased. A declaration such as
 
 ```idris
 %export "glsles:fragment|v_uv=in,u_time=uniform"
-sphere : SVec 2 -> Double -> SVec 4
+sphere : ShaderFloatTuple 2 -> Double -> ShaderFloatTuple 4
 ```
 
 therefore becomes a `vec2` fragment input, a `float` uniform, and a `vec4`
 fragment result without a second handwritten type description.
 
-`SVec n` keeps vector width in the Idris type. For example,
+`ShaderFloatTuple n` keeps numerical component count in the source type. For example,
 
 ```idris
-dot : SVec n -> SVec n -> Double
+component_product_sum : ShaderFloatTuple n -> ShaderFloatTuple n -> Double
 ```
 
-cannot be called with a `SVec 2` and a `SVec 3`.
+cannot be called with a `ShaderFloatTuple 2` and a `ShaderFloatTuple 3`.
 
 `SArray n a` is a fixed shader array, not an Idris heap container. Its length
 and element type survive into generated GLSL. It is currently accepted as a
@@ -70,9 +71,10 @@ The accepted numerical operations now include:
 - `Double` arithmetic, negation, comparisons, and Boolean conditionals
 - `Int` uniforms where an integer count is needed, with explicit conversion to
   shader floating-point arithmetic
-- `SVec 2`, `SVec 3`, and `SVec 4`
-- vector construction, components, addition, subtraction, scaling, dot,
-  length, and normalization
+- `ShaderFloatTuple 2`, `ShaderFloatTuple 3`, and `ShaderFloatTuple 4`
+- numerical tuple construction, components, componentwise addition,
+  subtraction and scaling, component-product sum, Euclidean component norm,
+  and explicitly unchecked normalization
 - `abs`, `sqrt`, `sin`, `cos`, `min`, `max`, `clamp`, and `mix`
 - `floor`, `fract`, `log`, two-argument `atan`, `pow`, and `smoothstep`
 - fixed uniform arrays with typed indexing
@@ -155,15 +157,16 @@ The compiler currently rejects:
 - IO, crashes, holes, strings, and unsupported primitives
 - implicit or auto arguments on an exported shader entry
 - dynamically sized shader arrays
-- fragment results other than `SVec 4`
+- fragment results other than `ShaderFloatTuple 4`
 
 Finite renderer work is written as explicit bounded shader computation instead
 of using general recursion. This keeps the GPU execution bound visible in the
 source and in the generated shader.
 
-Structured branch work remains inside its chosen branch. Empty branch bodies
-may use a select, but guarded work is not moved before the condition. Bounded
-loops retain their capacity and active-count checks in the shared IR.
+Source branches and bounded loops remain structured through lowering.
+An operand-only branch may become a GLSL select; branch-local computations
+remain guarded. The broader indexed-access safety contract is still a
+separate unfinished boundary.
 
 ## Build
 
@@ -235,7 +238,7 @@ The checks cover:
   types
 - `src/Backend/GLSLES/Interface.idr` — parses exported shader names and storage
   classes
-- `src/Backend/GLSLES/IR.idr` — typed linear shader representation
+- `src/Backend/GLSLES/IR.idr` — typed structured shader representation
 - `src/Backend/GLSLES/Lower.idr` — checks the supported subset and lowers Idris
   ANF into shader operations
 - `src/Backend/GLSLES/Emit.idr` — emits GLSL ES and removes repeated pure
@@ -252,7 +255,7 @@ The checks cover:
 - `fixtures/wegert-fullscreen.vert` — matching Wegert fullscreen vertex stage
 - `src/Test/Backend/` — accepted and rejected compiler fixtures
 
-## NVIDIA GPU architecture specification (not a PTX backend)
+## NVIDIA architecture catalogue and optional host compilers
 
 The [NVIDIA Hopper, Blackwell and Blackwell Ultra specifications](docs/nvidia-hopper-blackwell-specifications.md)
 record hardware resource and numerical features for H100, H200, B200, GB200
@@ -270,8 +273,10 @@ optional PTX compiler exercises a bounded F32 Givens/pixel subset; vendor output
 and physical gaps are recorded in the qualification.
 The pre-existing NVIDIA fragment mocks remain unchanged; their older
 pseudo-assembly implementation has unqualified compatibility with the current
-structured shader IR. This change does not claim a functioning NVIDIA shader,
-GPU execution, CUDA support, or Idriç compiler integration.
+structured shader IR. The optional PTX and AMDGPU compilers have now been built
+against the owned Idriç compiler/API, and their emitted artifacts passed the
+pinned vendor assemblers. Physical execution and the canonical source Float32
+handoff remain unverified; see the dated qualification record.
 
 ## Current boundary
 

@@ -7,7 +7,7 @@ import Shader.Source
 ||| Independently testable numerical/pixel kernel. Input is a per-sample
 ||| coordinate; output contains an actual polynomial plus RGB-like channels.
 %export "ptx:fragment|coordinate=in,gain=uniform"
-pixel : SVec 2 -> Double -> SVec 4
+pixel : ShaderFloatTuple 2 -> Double -> ShaderFloatTuple 4
 pixel coordinate gain =
   let horizontal = x coordinate
       vertical = y coordinate

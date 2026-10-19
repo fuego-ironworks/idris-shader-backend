@@ -17,7 +17,7 @@ stableNorm first second =
 ||| A real plane rotation, returned with norms for independent readback.
 ||| This finite-input slice avoids transcendental approximations and FMA.
 %export "ptx:fragment|ab=in"
-givens : SVec 2 -> SVec 4
+givens : ShaderFloatTuple 2 -> ShaderFloatTuple 4
 givens ab =
   let first = x ab
       second = y ab

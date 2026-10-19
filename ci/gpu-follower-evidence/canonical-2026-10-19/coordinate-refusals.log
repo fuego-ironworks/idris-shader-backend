@@ -1,0 +1,5 @@
+PASS source refusal: CoordinateRoleMismatch
+PASS source refusal: CoordinateSpaceMismatch
+PASS source refusal: CoordinateDimensionMismatch
+PASS backend refusal: SpoofCoordinatePairing
+PASS backend refusal: SpoofShaderTuple

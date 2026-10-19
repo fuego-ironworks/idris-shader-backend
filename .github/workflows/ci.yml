@@ -13,7 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IDRIS2_VERSION: 0.8.0
+  IDRIS2: ${{ github.workspace }}/.idric-compiler-api/_/build/exec/idris2
+  IDRIS2_PREFIX: ${{ github.workspace }}/.idric-compiler-api/_/bootstrap-build
+  CHEZ: ${{ github.workspace }}/.idric-compiler-api/_/.tools/bin/scheme
 
 jobs:
   idris-to-glsl:
@@ -32,46 +34,34 @@ jobs:
             chezscheme glslang-tools libgmp-dev \
             libegl1-mesa-dev libgles2-mesa-dev
 
-      - name: Restore Idris 2 compiler and API
-        id: idris-cache
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+      - name: Check out the pinned Idriç compiler API
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          path: ~/.idris2
-          key: idris2-${{ runner.os }}-${{ runner.arch }}-15a3e4e70843f7a34100f6470c04b791330788df-api-v2
+          repository: isomorphisms/Idric
+          ref: 2734ac5a86610eddfab73b1644d72b4ac85a65ee
+          path: .idric-compiler-api
+          persist-credentials: false
 
-      - name: Build Idris 2 and compiler API
-        if: steps.idris-cache.outputs.cache-hit != 'true'
-        run: |
-          git clone --depth 1 --branch "v${IDRIS2_VERSION}" \
-            https://github.com/idris-lang/Idris2.git /tmp/Idris2
-          test "$(git -C /tmp/Idris2 rev-parse HEAD)" = 15a3e4e70843f7a34100f6470c04b791330788df
-          make -C /tmp/Idris2 bootstrap SCHEME=chezscheme
-          make -C /tmp/Idris2 install
-          export PATH="$HOME/.idris2/bin:$PATH"
-          make -C /tmp/Idris2 clean
-          make -C /tmp/Idris2 all
-          make -C /tmp/Idris2 install
-          make -C /tmp/Idris2 install-api
-
-      - name: Save compiler cache independently of downstream test failures
-        if: steps.idris-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
-        with:
-          path: ~/.idris2
-          key: idris2-${{ runner.os }}-${{ runner.arch }}-15a3e4e70843f7a34100f6470c04b791330788df-api-v2
-
-      - name: Put Idris 2 on PATH
-        run: echo "$HOME/.idris2/bin" >> "$GITHUB_PATH"
-
-      - name: Record compiler version
-        run: idris2 --version
-
-      - name: Typecheck NVIDIA target specifications and proofs
-        run: idris2 --build nvidia-target-specifications.ipkg
-
-      - name: Build the C runner frontend
+      - name: Prepare the ICK frontend for native stages
         id: ick
         uses: isomorphisms/ai-ci/ick-host@903b2cb27ea572c9c6cb2ffa9f39e0fbf06ec9f8
+
+      - name: Bootstrap the pinned Idriç compiler
+        # Native compiler support also uses the declared ICK stage, not an
+        # undeclared host compiler. The GLES runner is a separate ICK consumer.
+        working-directory: .idric-compiler-api
+        env:
+          CC: ${{ steps.ick.outputs.compiler }}
+          CFLAGS: -fno-link-libatomic -static-libgcc
+        run: ./edric bootstrap
+
+      - name: Install the pinned Idriç compiler API
+        working-directory: .idric-compiler-api/_
+        run: ${{ env.IDRIS2 }} --install idris2api.ipkg
+
+      - name: Record the actual Idriç compiler version
+        run: ${{ env.IDRIS2 }} --version
+
       - name: Check out the C stage contract
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -84,6 +74,17 @@ jobs:
           persist-credentials: false
       - name: Verify the C runner stages
         run: make -f ci/Makefile verify ICK="${{ steps.ick.outputs.compiler }}"
+
+      - name: Typecheck NVIDIA target specifications and proofs
+        run: ${{ env.IDRIS2 }} --build nvidia-target-specifications.ipkg
+
+      - name: Check out the accepted Ithon host frontend
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          repository: dilapidated-shed/ithon
+          ref: 9d530f4ad51f5b0a09c3e74dbe45cac5bb6d52d3
+          path: .ithon
+          persist-credentials: false
 
       - name: Check out pinned Ike
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -101,6 +102,8 @@ jobs:
 
       - name: Run complete backend checks
         # Ike owns the required outer graph; retained Make is its legacy leaf.
+        env:
+          ITHON: ${{ github.workspace }}/.ithon/ithon
         run: |
           IKE_RECEIPT="$RUNNER_TEMP/primary.ike.tsv" \
           IKE_IKEFILE_IDENTITY="sha256:$(sha256sum Ikefile | cut -d ' ' -f 1)" \
@@ -110,22 +113,14 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: isomorphisms/ai-ci
-          ref: ab5786fcab8cd179342ac9f8f2858083d0373b04
+          ref: fada3841bc119c9b64e4076a56b2dffedf0a9d8b
           path: .aici-gpu
           sparse-checkout: gpu-follower
           persist-credentials: false
 
-      - name: Check out pinned Ithon frontend
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          repository: dilapidated-shed/ithon
-          ref: 396d8b7af1417a0a61245db940fdb22ef9fbac51
-          path: .ithon-host
-          persist-credentials: false
-
       - name: Independently verify primary Ike execution
         run: |
-          ITHON_PYTHON=python3 .ithon-host/ithon \
+          ITHON_PYTHON=python3 .ithon/ithon \
             .aici-gpu/gpu-follower/verify_ike.pi \
             "$RUNNER_TEMP/primary.ike.tsv" Ikefile check \
             'POSIX-system()' ci/gpu-plans/primary.tsv

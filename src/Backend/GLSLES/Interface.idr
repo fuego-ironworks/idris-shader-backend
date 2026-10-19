@@ -117,5 +117,5 @@ makeEntrySpec raw argumentTypes resultType =
      else do
        variables <- attach names argumentTypes
        case resultType of
-         TVec 4 => Right (MkEntrySpec (rawEntryName raw) variables resultType)
-         _ => Left ("fragment entry must return SVec 4, received " ++ show resultType)
+         TFloatTuple 4 => Right (MkEntrySpec (rawEntryName raw) variables resultType)
+         _ => Left ("fragment entry must return ShaderFloatTuple 4, received " ++ show resultType)

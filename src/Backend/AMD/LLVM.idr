@@ -26,7 +26,7 @@ opcode _ = Left "LLVM follower refuses this floating operation"
 
 isInput2 : String -> List InterfaceVar -> Bool
 isInput2 _ [] = False
-isInput2 name (MkInterfaceVar actual FragmentInput (TVec 2) :: rest) =
+isInput2 name (MkInterfaceVar actual FragmentInput (TFloatTuple 2) :: rest) =
   name == actual || isInput2 name rest
 isInput2 name (_ :: rest) = isInput2 name rest
 
@@ -40,7 +40,7 @@ binding inputs (MkBinding TFloat name (RComponent index (OLocal source))) =
   if isInput2 source inputs && finToNat index < 2
      then Right ["  %value_" ++ name ++ " = extractelement <2 x float> %value_" ++ source ++ ", i32 " ++ show (finToNat index)]
      else Left "LLVM component requires a checked two-component input"
-binding inputs (MkBinding (TVec 4) name (RVec4 first second third fourth)) = do
+binding inputs (MkBinding (TFloatTuple 4) name (RFloatTuple4 first second third fourth)) = do
   a <- value first
   b <- value second
   c <- value third
@@ -57,7 +57,7 @@ statement _ _ = Left "LLVM follower refuses control flow in this initial pixel s
 
 input : InterfaceVar -> Either String (String, List String)
 input (MkInterfaceVar name Uniform TFloat) = Right ("float %value_" ++ name, [])
-input (MkInterfaceVar name FragmentInput (TVec 2)) =
+input (MkInterfaceVar name FragmentInput (TFloatTuple 2)) =
   Right ("ptr addrspace(1) %arg_" ++ name,
     ["  %address_" ++ name ++ " = getelementptr <2 x float>, ptr addrspace(1) %arg_" ++ name ++ ", i32 %__index",
      "  %value_" ++ name ++ " = load <2 x float>, ptr addrspace(1) %address_" ++ name ++ ", align 4"])

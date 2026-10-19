@@ -1,0 +1,5 @@
+from builtins import AssertionError
+
+def require(condition ∈ bool, message ∈ str) → None:
+    if not condition:
+        raise AssertionError(message)

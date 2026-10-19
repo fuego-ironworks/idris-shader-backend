@@ -25,7 +25,7 @@ evaluate_degree_7 coefficients value =
       accumulated_1 = accumulated_2 * value + coefficient_1
    in accumulated_1 * value + coefficient_0
 
-bracket_step : SArray 8 Double -> Double -> Double -> SVec 3 -> Double -> SVec 3
+bracket_step : SArray 8 Double -> Double -> Double -> ShaderFloatTuple 3 -> Double -> ShaderFloatTuple 3
 bracket_step coefficients near interval_width state index =
   let found = x state
       left_value = near + (index - 1.0) * interval_width
@@ -38,7 +38,7 @@ bracket_step coefficients near interval_width state index =
          then state
          else if crosses then candidate else state
 
-bracket_16 : SArray 8 Double -> Double -> Double -> SVec 3
+bracket_16 : SArray 8 Double -> Double -> Double -> ShaderFloatTuple 3
 bracket_16 coefficients near far =
   let interval_width = (far - near) / 16.0
       state_0 = bracket_step coefficients near interval_width (vec3 0.0 near near) 1.0
@@ -59,7 +59,7 @@ bracket_16 coefficients near far =
       state_15 = bracket_step coefficients near interval_width state_14 16.0
    in state_15
 
-bisect_step : SArray 8 Double -> SVec 2 -> SVec 2
+bisect_step : SArray 8 Double -> ShaderFloatTuple 2 -> ShaderFloatTuple 2
 bisect_step coefficients interval =
   let low = x interval
       high = y interval
@@ -70,7 +70,7 @@ bisect_step coefficients interval =
          then vec2 low middle
          else vec2 middle high
 
-bisect_20 : SArray 8 Double -> SVec 2 -> SVec 2
+bisect_20 : SArray 8 Double -> ShaderFloatTuple 2 -> ShaderFloatTuple 2
 bisect_20 coefficients interval =
   let state_0 = bisect_step coefficients interval
       state_1 = bisect_step coefficients state_0
@@ -98,7 +98,7 @@ bisect_20 coefficients interval =
 ||| interval. This is a bounded GPU-compatible search primitive, not a claim
 ||| that sign-change sampling alone finds every real polynomial root.
 public export
-nearest_crossing_degree_7 : SArray 8 Double -> Double -> Double -> SVec 2
+nearest_crossing_degree_7 : SArray 8 Double -> Double -> Double -> ShaderFloatTuple 2
 nearest_crossing_degree_7 coefficients near far =
   let bracket = bracket_16 coefficients near far
       found = x bracket
