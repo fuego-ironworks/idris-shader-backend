@@ -54,9 +54,9 @@ powervr-primitives-frag: backend
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
 		src/Example/SetBlock32x32RGB5239182.idr -o set-block-32x32-rgb-52-39-182
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
-		src/Example/DotVector4Covector4.idr -o dot-vector4-covector4
+		src/Example/CoordinatePairing4Grayscale.idr -o coordinate-pairing4-grayscale
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
-		src/Example/DotVector32Covector32.idr -o dot-vector32-covector32
+		src/Example/CoordinatePairing32Grayscale.idr -o coordinate-pairing32-grayscale
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \
 		src/Example/SubtractVector8Norm.idr -o subtract-vector8-norm
 	$(IDRIS2_GLSLES) --cg glsles --source-dir src --output-dir generated \

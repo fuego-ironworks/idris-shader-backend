@@ -14,7 +14,7 @@ expensive_positive value =
    in waved * waved
 
 %export "glsles:fragment|v_x=in"
-structured_branch : Double -> SVec 4
+structured_branch : Double -> ShaderFloatTuple 4
 structured_branch v_x =
   let chosen = if v_x > 0.0 then expensive_positive v_x else 0.0
    in vec4 chosen chosen chosen 1.0

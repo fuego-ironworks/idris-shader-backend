@@ -14,7 +14,7 @@ Idris ANF (a simplified compiler representation)
         ↓
 shader subset checking and first-order helper specialization
         ↓
-typed linear shader representation
+typed structured shader representation
         ↓
 GLSL ES 3.00 fragment shader
 ```
@@ -24,9 +24,10 @@ runtime. Closures, general recursion, heap-shaped data, IO, and partial
 application are rejected rather than silently translated into something with
 different semantics.
 
-The compiler integration currently uses ordinary Idris 2. Moving the same
-backend behind Idriç/`edric` is a separate integration step once that compiler's
-surface language is settled.
+This integration uses the pinned Idriç compiler API, including its descriptive
+administrative-normal-form definitions. Ordinary `.idr` shader compatibility
+source remains supported. Explicit source-width preservation is a separate
+unfinished boundary; see [the checked coordinate contract](docs/coordinate-semantic-contract.md).
 
 ## What already works
 
@@ -35,19 +36,19 @@ signature before those types are erased. A declaration such as
 
 ```idris
 %export "glsles:fragment|v_uv=in,u_time=uniform"
-sphere : SVec 2 -> Double -> SVec 4
+sphere : ShaderFloatTuple 2 -> Double -> ShaderFloatTuple 4
 ```
 
 therefore becomes a `vec2` fragment input, a `float` uniform, and a `vec4`
 fragment result without a second handwritten type description.
 
-`SVec n` keeps vector width in the Idris type. For example,
+`ShaderFloatTuple n` keeps numerical component count in the source type. For example,
 
 ```idris
-dot : SVec n -> SVec n -> Double
+component_product_sum : ShaderFloatTuple n -> ShaderFloatTuple n -> Double
 ```
 
-cannot be called with a `SVec 2` and a `SVec 3`.
+cannot be called with a `ShaderFloatTuple 2` and a `ShaderFloatTuple 3`.
 
 `SArray n a` is a fixed shader array, not an Idris heap container. Its length
 and element type survive into generated GLSL. It is currently accepted as a
@@ -63,9 +64,10 @@ The accepted numerical operations now include:
 - `Double` arithmetic, negation, comparisons, and Boolean conditionals
 - `Int` uniforms where an integer count is needed, with explicit conversion to
   shader floating-point arithmetic
-- `SVec 2`, `SVec 3`, and `SVec 4`
-- vector construction, components, addition, subtraction, scaling, dot,
-  length, and normalization
+- `ShaderFloatTuple 2`, `ShaderFloatTuple 3`, and `ShaderFloatTuple 4`
+- numerical tuple construction, components, componentwise addition,
+  subtraction and scaling, component-product sum, Euclidean component norm,
+  and explicitly unchecked normalization
 - `abs`, `sqrt`, `sin`, `cos`, `min`, `max`, `clamp`, and `mix`
 - `floor`, `fract`, `log`, two-argument `atan`, `pow`, and `smoothstep`
 - fixed uniform arrays with typed indexing
@@ -148,16 +150,16 @@ The compiler currently rejects:
 - IO, crashes, holes, strings, and unsupported primitives
 - implicit or auto arguments on an exported shader entry
 - dynamically sized shader arrays
-- fragment results other than `SVec 4`
+- fragment results other than `ShaderFloatTuple 4`
 
 Finite renderer work is written as explicit bounded shader computation instead
 of using general recursion. This keeps the GPU execution bound visible in the
 source and in the generated shader.
 
-One current lowering detail matters when writing shader source: both sides of
-an Idris conditional can be lowered into temporaries before the final GLSL
-ternary is emitted. Code therefore must not rely on a dead branch to protect an
-out-of-bounds array access or a division by zero.
+Source branches and bounded loops remain structured through lowering.
+An operand-only branch may become a GLSL select; branch-local computations
+remain guarded. The broader indexed-access safety contract is still a
+separate unfinished boundary.
 
 ## Build
 
@@ -229,7 +231,7 @@ The checks cover:
   types
 - `src/Backend/GLSLES/Interface.idr` — parses exported shader names and storage
   classes
-- `src/Backend/GLSLES/IR.idr` — typed linear shader representation
+- `src/Backend/GLSLES/IR.idr` — typed structured shader representation
 - `src/Backend/GLSLES/Lower.idr` — checks the supported subset and lowers Idris
   ANF into shader operations
 - `src/Backend/GLSLES/Emit.idr` — emits GLSL ES and removes repeated pure

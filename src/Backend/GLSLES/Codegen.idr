@@ -15,22 +15,23 @@ import Core.Options
 import Data.String
 import Idris.Syntax
 import System.File
+import System
 
 %default covering
 
 backendError : String -> Core a
-backendError message = throw (GenericMsg emptyFC ("GLSL ES backend: " ++ message))
+backendError message = coreLift $ die ("Error: GLSL ES backend: " ++ message)
 
 fromEither : Either String a -> Core a
 fromEither (Left message) = backendError message
 fromEither (Right value) = pure value
 
-findANF : Name -> List (Name, ANFDef) -> Maybe ANFDef
+findANF : Name -> List (Name, Administrative_Normal_Form_Definition) -> Maybe Administrative_Normal_Form_Definition
 findANF _ [] = Nothing
 findANF wanted ((name, definition) :: rest) =
   if wanted == name then Just definition else findANF wanted rest
 
-renderANFDefinitions : List (Name, ANFDef) -> String
+renderANFDefinitions : List (Name, Administrative_Normal_Form_Definition) -> String
 renderANFDefinitions [] = ""
 renderANFDefinitions ((name, definition) :: rest) =
   show name ++ " = " ++ show definition ++ "\n" ++ renderANFDefinitions rest
@@ -87,7 +88,7 @@ record ExportedShader where
 
 prepareExportedShader : Ref Ctxt Defs -> ClosedTerm -> Core ExportedShader
 prepareExportedShader defs term = do
-  compilation <- getCompileDataWith {c = defs} ["glsles"] False ANF term
+  compilation <- getCompileDataWith {c = defs} ["glsles"] False Administrative_Normal_Form term
   (resolvedName, annotation) <- requireSingleShaderExport (exported compilation)
   entryName <- toFullNames resolvedName
   pure (MkExportedShader entryName annotation (anf compilation))
@@ -104,7 +105,7 @@ lowerExportedShader spec shader = do
   let entryName = shaderEntryName shader
   let definitions = shaderDefinitions shader
   Just definition <- pure (findANF entryName definitions)
-    | Nothing => backendError ("could not find ANF for exported entry " ++ show entryName)
+    | Nothing => backendError ("could not find Administrative_Normal_Form for exported entry " ++ show entryName)
   fromEither (lowerFragment spec entryName definitions definition)
 
 writeRequestedIR : List String -> FloatWidth -> FragmentProgram -> Core ()
@@ -139,6 +140,11 @@ compileGLSLES :
 compileGLSLES defs syn tmpDir outputDir term outfile = do
   shader <- prepareExportedShader defs term
   spec <- checkShaderInterface defs shader
+  checkedSourceType <- entryType {c = defs} (shaderEntryName shader)
+  checkedSchema <- fromEither (checkedSourceSchema checkedSourceType)
+  writeShader (outputDir ++ "/" ++ outfile ++ ".source-interface")
+    ("schema=checked-shader-source-v1\n" ++ checkedSchema ++
+     "arithmetic=shader-profile-approximation; source Double does not promise binary64\n")
   session <- getSession {c = defs}
   let requestedDirectives = directives session
   case directiveValue "dump-anf=" requestedDirectives of

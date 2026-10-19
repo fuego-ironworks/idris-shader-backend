@@ -22,14 +22,14 @@ rhsLocals (RBoolUnary _ value) = operandLocals value
 rhsLocals (RBoolBinary _ left right) = operandLocals left ++ operandLocals right
 rhsLocals (RIntToFloat value) = operandLocals value
 rhsLocals (RArrayIndex _ array index) = operandLocals array ++ operandLocals index
-rhsLocals (RVec2 x y) = operandLocals x ++ operandLocals y
-rhsLocals (RVec3 x y z) = operandLocals x ++ operandLocals y ++ operandLocals z
-rhsLocals (RVec4 x y z w) = operandLocals x ++ operandLocals y ++ operandLocals z ++ operandLocals w
-rhsLocals (RVectorBinary _ left right) = operandLocals left ++ operandLocals right
-rhsLocals (RScale scalar vector) = operandLocals scalar ++ operandLocals vector
-rhsLocals (RDot left right) = operandLocals left ++ operandLocals right
-rhsLocals (RLength vector) = operandLocals vector
-rhsLocals (RNormalize vector) = operandLocals vector
+rhsLocals (RFloatTuple2 x y) = operandLocals x ++ operandLocals y
+rhsLocals (RFloatTuple3 x y z) = operandLocals x ++ operandLocals y ++ operandLocals z
+rhsLocals (RFloatTuple4 x y z w) = operandLocals x ++ operandLocals y ++ operandLocals z ++ operandLocals w
+rhsLocals (RComponentBinary _ left right) = operandLocals left ++ operandLocals right
+rhsLocals (RScaleComponents scalar vector) = operandLocals scalar ++ operandLocals vector
+rhsLocals (RComponentProductSum left right) = operandLocals left ++ operandLocals right
+rhsLocals (REuclideanComponentNorm vector) = operandLocals vector
+rhsLocals (RNormalizeComponentsUnchecked vector) = operandLocals vector
 rhsLocals (RComponent _ vector) = operandLocals vector
 rhsLocals (RSelect condition whenTrue whenFalse) = operandLocals condition ++ operandLocals whenTrue ++ operandLocals whenFalse
 
@@ -134,8 +134,8 @@ rhsCost (RFloatUnary FSqrt _) = 4
 rhsCost (RFloatUnary FLog _) = 5
 rhsCost (RFloatBinary FAtan2 _ _) = 5
 rhsCost (RFloatBinary FPow _ _) = 6
-rhsCost (RLength _) = 3
-rhsCost (RNormalize _) = 4
+rhsCost (REuclideanComponentNorm _) = 3
+rhsCost (RNormalizeComponentsUnchecked _) = 4
 rhsCost _ = 1
 
 bindingCost : Binding -> Nat

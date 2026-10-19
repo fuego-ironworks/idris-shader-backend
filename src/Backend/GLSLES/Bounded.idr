@@ -10,7 +10,7 @@ import Data.Vect
 %default covering
 
 Bindings : Type
-Bindings = List (Int, ANF)
+Bindings = List (Int, Administrative_Normal_Form)
 
 public export
 record BoundedLoopShape where
@@ -20,31 +20,31 @@ record BoundedLoopShape where
   loopStateParameter : Int
   loopActiveParameter : Int
   loopMaximum : Nat
-  loopBody : ANF
+  loopBody : Administrative_Normal_Form
 
-peelLets : ANF -> (Bindings, ANF)
-peelLets (ALet _ variable value scope) =
+peelLets : Administrative_Normal_Form -> (Bindings, Administrative_Normal_Form)
+peelLets (Administrative_Normal_Form_Binding _ variable value scope) =
   let (rest, terminal) = peelLets scope
    in ((variable, value) :: rest, terminal)
 peelLets expression = ([], expression)
 
-lookupBinding : Int -> Bindings -> Maybe ANF
+lookupBinding : Int -> Bindings -> Maybe Administrative_Normal_Form
 lookupBinding _ [] = Nothing
 lookupBinding wanted ((variable, value) :: rest) =
   if wanted == variable then Just value else lookupBinding wanted rest
 
-localNumber : AVar -> Maybe Int
-localNumber (ALocal variable) = Just variable
-localNumber ANull = Nothing
+localNumber : Administrative_Normal_Form_Variable -> Maybe Int
+localNumber (Administrative_Normal_Form_Local_Variable variable) = Just variable
+localNumber Administrative_Normal_Form_Erased_Variable = Nothing
 
-floatConstant : Bindings -> AVar -> Maybe Double
-floatConstant bindings (ALocal variable) = do
+floatConstant : Bindings -> Administrative_Normal_Form_Variable -> Maybe Double
+floatConstant bindings (Administrative_Normal_Form_Local_Variable variable) = do
   expression <- lookupBinding variable bindings
   case expression of
-    APrimVal _ (Db value) => Just value
-    AV _ alias => floatConstant bindings alias
+    Administrative_Normal_Form_Primitive_Value _ (Db value) => Just value
+    Administrative_Normal_Form_Variable_Expression _ alias => floatConstant bindings alias
     _ => Nothing
-floatConstant _ ANull = Nothing
+floatConstant _ Administrative_Normal_Form_Erased_Variable = Nothing
 
 naturalBound : Double -> Maybe Nat
 naturalBound value =
@@ -56,11 +56,11 @@ naturalBound value =
               then Just candidate
               else Nothing
 
-matchMinBound : ANF -> Maybe (Int, Nat)
+matchMinBound : Administrative_Normal_Form -> Maybe (Int, Nat)
 matchMinBound expression =
   let (bindings, terminal) = peelLets expression in
   case terminal of
-    AExtPrim _ _ primitive [left, right] =>
+    Administrative_Normal_Form_External_Primitive _ _ primitive [left, right] =>
       if nameRoot primitive == "minF"
          then case (floatConstant bindings left, floatConstant bindings right) of
                 (Nothing, Just maximum) => do
@@ -75,22 +75,22 @@ matchMinBound expression =
          else Nothing
     _ => Nothing
 
-boundExpression : Bindings -> AVar -> Maybe ANF
-boundExpression bindings (ALocal variable) = lookupBinding variable bindings
-boundExpression _ ANull = Nothing
+boundExpression : Bindings -> Administrative_Normal_Form_Variable -> Maybe Administrative_Normal_Form
+boundExpression bindings (Administrative_Normal_Form_Local_Variable variable) = lookupBinding variable bindings
+boundExpression _ Administrative_Normal_Form_Erased_Variable = Nothing
 
-||| Interface-method names may reach ANF wrapped in a display-name constructor.
+||| Interface-method names may reach Administrative_Normal_Form wrapped in a display-name constructor.
 ||| `nameRoot` intentionally ignores that display spelling, so accept the
 ||| canonical qualified spelling as well as an ordinary root name.
 isLessThanName : Name -> Bool
 isLessThanName name =
   nameRoot name == "<" || show name == "<" || isSuffixOf ".<" (show name)
 
-matchLessThan : ANF -> Maybe (Int, Int, Nat)
+matchLessThan : Administrative_Normal_Form -> Maybe (Int, Int, Nat)
 matchLessThan expression =
   let (bindings, terminal) = peelLets expression in
   case terminal of
-    AAppName _ _ comparison [index, bound] =>
+    Administrative_Normal_Form_Named_Function_Application _ _ comparison [index, bound] =>
       if isLessThanName comparison
          then do
            indexParameter <- localNumber index
@@ -98,7 +98,7 @@ matchLessThan expression =
            (activeParameter, maximum) <- matchMinBound boundValue
            Just (indexParameter, activeParameter, maximum)
          else Nothing
-    AOp _ _ (LT DoubleType) arguments =>
+    Administrative_Normal_Form_Primitive_Operation _ _ (LT DoubleType) arguments =>
       case toList arguments of
         [index, bound] => do
           indexParameter <- localNumber index
@@ -131,26 +131,26 @@ boolConstant (B64 0) = Just False
 boolConstant (B64 1) = Just True
 boolConstant _ = Nothing
 
-findConstBranch : Bool -> List AConstAlt -> Maybe ANF
+findConstBranch : Bool -> List Administrative_Normal_Form_Constant_Alternative -> Maybe Administrative_Normal_Form
 findConstBranch _ [] = Nothing
-findConstBranch wanted (MkAConstAlt constant body :: rest) =
+findConstBranch wanted (Make_Administrative_Normal_Form_Constant_Alternative constant body :: rest) =
   case boolConstant constant of
     Just actual => if wanted == actual then Just body else findConstBranch wanted rest
     Nothing => findConstBranch wanted rest
 
-findConBranch : Bool -> List AConAlt -> Maybe ANF
+findConBranch : Bool -> List Administrative_Normal_Form_Constructor_Alternative -> Maybe Administrative_Normal_Form
 findConBranch _ [] = Nothing
-findConBranch wanted (MkAConAlt name _ _ _ body :: rest) =
+findConBranch wanted (Make_Administrative_Normal_Form_Constructor_Alternative name _ _ _ body :: rest) =
   case nameRoot name of
     "False" => if not wanted then Just body else findConBranch wanted rest
     "True" => if wanted then Just body else findConBranch wanted rest
     _ => findConBranch wanted rest
 
-matchCase : ANF -> Maybe (ANF, ANF, ANF)
+matchCase : Administrative_Normal_Form -> Maybe (Administrative_Normal_Form, Administrative_Normal_Form, Administrative_Normal_Form)
 matchCase expression =
   let (bindings, terminal) = peelLets expression in
   case terminal of
-    AConstCase _ scrutinee alternatives defaultBranch => do
+    Administrative_Normal_Form_Constant_Case _ scrutinee alternatives defaultBranch => do
       condition <- boundExpression bindings scrutinee
       let falseBranch = case findConstBranch False alternatives of
                              Just body => Just body
@@ -161,7 +161,7 @@ matchCase expression =
       falseBody <- falseBranch
       trueBody <- trueBranch
       Just (condition, trueBody, falseBody)
-    AConCase _ scrutinee alternatives defaultBranch => do
+    Administrative_Normal_Form_Constructor_Case _ scrutinee alternatives defaultBranch => do
       condition <- boundExpression bindings scrutinee
       let falseBranch = case findConBranch False alternatives of
                              Just body => Just body
@@ -174,11 +174,11 @@ matchCase expression =
       Just (condition, trueBody, falseBody)
     _ => Nothing
 
-stateReturn : ANF -> Maybe Int
-stateReturn (AV _ (ALocal variable)) = Just variable
+stateReturn : Administrative_Normal_Form -> Maybe Int
+stateReturn (Administrative_Normal_Form_Variable_Expression _ (Administrative_Normal_Form_Local_Variable variable)) = Just variable
 stateReturn _ = Nothing
 
-argumentFor : Int -> List Int -> List AVar -> Maybe AVar
+argumentFor : Int -> List Int -> List Administrative_Normal_Form_Variable -> Maybe Administrative_Normal_Form_Variable
 argumentFor _ [] [] = Nothing
 argumentFor wanted (parameter :: params) (argument :: arguments) =
   if wanted == parameter
@@ -186,42 +186,42 @@ argumentFor wanted (parameter :: params) (argument :: arguments) =
      else argumentFor wanted params arguments
 argumentFor _ _ _ = Nothing
 
-sameInvariantArguments : Int -> Int -> List Int -> List AVar -> Bool
+sameInvariantArguments : Int -> Int -> List Int -> List Administrative_Normal_Form_Variable -> Bool
 sameInvariantArguments _ _ [] [] = True
 sameInvariantArguments indexParameter stateParameter
                        (parameter :: params) (argument :: arguments) =
   let current =
         if parameter == indexParameter || parameter == stateParameter
            then True
-           else argument == ALocal parameter
+           else argument == Administrative_Normal_Form_Local_Variable parameter
    in current &&
       sameInvariantArguments indexParameter stateParameter params arguments
 sameInvariantArguments _ _ _ _ = False
 
-isOne : Bindings -> AVar -> Bool
+isOne : Bindings -> Administrative_Normal_Form_Variable -> Bool
 isOne bindings variable = case floatConstant bindings variable of
   Just value => value == 1.0
   Nothing => False
 
-matchIncrement : Int -> Bindings -> AVar -> Bool
-matchIncrement indexParameter bindings (ALocal variable) =
+matchIncrement : Int -> Bindings -> Administrative_Normal_Form_Variable -> Bool
+matchIncrement indexParameter bindings (Administrative_Normal_Form_Local_Variable variable) =
   case lookupBinding variable bindings of
     Nothing => False
     Just expression =>
       let (innerBindings, terminal) = peelLets expression in
       case terminal of
-        AOp _ _ (Add DoubleType) arguments =>
+        Administrative_Normal_Form_Primitive_Operation _ _ (Add DoubleType) arguments =>
           case toList arguments of
             [left, right] =>
-              (left == ALocal indexParameter && isOne innerBindings right) ||
-              (right == ALocal indexParameter && isOne innerBindings left)
+              (left == Administrative_Normal_Form_Local_Variable indexParameter && isOne innerBindings right) ||
+              (right == Administrative_Normal_Form_Local_Variable indexParameter && isOne innerBindings left)
             _ => False
         _ => False
-matchIncrement _ _ ANull = False
+matchIncrement _ _ Administrative_Normal_Form_Erased_Variable = False
 
 public export
-matchBoundedLoop : Name -> ANFDef -> Maybe BoundedLoopShape
-matchBoundedLoop self (MkAFun params body) = do
+matchBoundedLoop : Name -> Administrative_Normal_Form_Definition -> Maybe BoundedLoopShape
+matchBoundedLoop self (Make_Administrative_Normal_Form_Function params body) = do
   (condition, trueBody, falseBody) <- matchCase body
   (indexParameter, activeParameter, maximum) <- matchLessThan condition
   stateParameter <- stateReturn falseBody
@@ -235,7 +235,7 @@ matchBoundedLoop self (MkAFun params body) = do
      else pure ()
   let (bodyBindings, terminal) = peelLets trueBody
   recursiveArguments <- case terminal of
-    AAppName _ _ called arguments =>
+    Administrative_Normal_Form_Named_Function_Application _ _ called arguments =>
       if called == self then Just arguments else Nothing
     _ => Nothing
   if sameInvariantArguments indexParameter stateParameter params recursiveArguments

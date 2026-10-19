@@ -6,7 +6,7 @@ import Shader.Source
 %default total
 
 %export "glsles:fragment|v_uv=in,u_coefficients=uniform,u_near=uniform,u_far=uniform"
-surfer_root_search : SVec 2 -> SArray 8 Double -> Double -> Double -> SVec 4
+surfer_root_search : ShaderFloatTuple 2 -> SArray 8 Double -> Double -> Double -> ShaderFloatTuple 4
 surfer_root_search uv coefficients near far =
   let result = nearest_crossing_degree_7 coefficients near far
       found = x result
