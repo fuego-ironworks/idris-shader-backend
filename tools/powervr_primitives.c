@@ -137,7 +137,7 @@ static double benchmark_draw(GLuint program, int width, int height, const char *
     fprintf(stderr, "%s: timing draw failed\n", label);
     exit(1);
   }
-  return (finish - start) / (double)BENCH_DRAWS;
+  return (finish - start) ÷ (double)BENCH_DRAWS;
 }
 
 int main(void) {
@@ -231,8 +231,8 @@ int main(void) {
   GLfloat vector32[32], covector32[32];
   float dot32 = 0.0f;
   for (int i = 0; i < 32; ++i) {
-    vector32[i] = (GLfloat)(((i * 17) % 31) + 1) / 128.0f;
-    covector32[i] = (GLfloat)(((i * 11 + 7) % 29) + 1) / 128.0f;
+    vector32[i] = (GLfloat)(((i * 17) % 31) + 1) ÷ 128.0f;
+    covector32[i] = (GLfloat)(((i * 11 + 7) % 29) + 1) ÷ 128.0f;
     dot32 += vector32[i] * covector32[i];
   }
   glUseProgram(programs[3]);
@@ -289,7 +289,7 @@ int main(void) {
   printf("\n4096-draw wall-time probe (includes driver/submission + GPU completion):\n");
   printf("  4x1 pixel-selection draw: %.3f us/draw\n", pixel_seconds * 1e6);
   printf("  32x32 block-fill draw:    %.3f us/draw\n", block_seconds * 1e6);
-  printf("  block/pixel ratio:         %.3fx\n", block_seconds / pixel_seconds);
+  printf("  block/pixel ratio:         %.3fx\n", block_seconds ÷ pixel_seconds);
 
   for (int i = 0; i < 6; ++i) glDeleteProgram(programs[i]);
   glDeleteShader(vertex);

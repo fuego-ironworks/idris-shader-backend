@@ -23,23 +23,32 @@ _idris_t20 : F32x3 = vec3(0.35, 0.55, 1.0)
 _idris_t21 : F32x3 = normalize(_idris_t20)
 _idris_t22 : F32 = dot(_idris_t19, _idris_t21)
 _idris_t23 : Bool = (_idris_t22 > 0.0)
-_idris_t24 : F32 = (_idris_t23 ? _idris_t22 : 0.0)
-_idris_t25 : F32 = abs(_idris_t11)
-_idris_t26 : F32 = (0.075 - _idris_t25)
-_idris_t27 : F32 = (_idris_t26 / 0.075)
-_idris_t28 : F32 = clamp(_idris_t27, 0.0, 1.0)
-_idris_t29 : F32 = sin(u_time)
-_idris_t30 : F32 = (0.12 * _idris_t29)
-_idris_t31 : F32 = (0.88 + _idris_t30)
-_idris_t32 : F32 = (0.75 * _idris_t24)
-_idris_t33 : F32 = (0.25 + _idris_t32)
-_idris_t34 : F32 = (_idris_t31 * _idris_t33)
-_idris_t35 : F32 = (0.95 * _idris_t34)
-_idris_t36 : F32 = mix(0.015, _idris_t35, _idris_t28)
-_idris_t37 : F32 = (0.72 * _idris_t34)
-_idris_t38 : F32 = mix(0.025, _idris_t37, _idris_t28)
-_idris_t39 : F32 = (0.18 * _idris_t34)
-_idris_t40 : F32 = mix(0.06, _idris_t39, _idris_t28)
-_idris_t41 : F32x4 = vec4(_idris_t36, _idris_t38, _idris_t40, 1.0)
-return _idris_t41
+_idris_t24 : Bool = if _idris_t23 {
+  yield true
+} else {
+  yield false
+}
+_idris_t25 : F32 = if _idris_t24 {
+  yield _idris_t22
+} else {
+  yield 0.0
+}
+_idris_t26 : F32 = abs(_idris_t11)
+_idris_t27 : F32 = (0.075 - _idris_t26)
+_idris_t28 : F32 = (_idris_t27 / 0.075)
+_idris_t29 : F32 = clamp(_idris_t28, 0.0, 1.0)
+_idris_t30 : F32 = sin(u_time)
+_idris_t31 : F32 = (0.12 * _idris_t30)
+_idris_t32 : F32 = (0.88 + _idris_t31)
+_idris_t33 : F32 = (0.75 * _idris_t25)
+_idris_t34 : F32 = (0.25 + _idris_t33)
+_idris_t35 : F32 = (_idris_t32 * _idris_t34)
+_idris_t36 : F32 = (0.95 * _idris_t35)
+_idris_t37 : F32 = mix(0.015, _idris_t36, _idris_t29)
+_idris_t38 : F32 = (0.72 * _idris_t35)
+_idris_t39 : F32 = mix(0.025, _idris_t38, _idris_t29)
+_idris_t40 : F32 = (0.18 * _idris_t35)
+_idris_t41 : F32 = mix(0.06, _idris_t40, _idris_t29)
+_idris_t42 : F32x4 = vec4(_idris_t37, _idris_t39, _idris_t41, 1.0)
+return _idris_t42
 

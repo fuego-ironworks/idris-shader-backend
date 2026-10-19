@@ -2,7 +2,8 @@ IDRIS2 ?= idris2
 IDRIS2_GLSLES ?= ./build/exec/idris2-glsles
 IDRIS2_MALI_MOCK ?= ./build/exec/idris2-mali-mock
 IDRIS2_FRAGMENT_MOCKS ?= ./build/exec/idris2-fragment-mocks
-CC ?= cc
+ICK ?=
+ICK_FLAGS ?= -fno-link-libatomic
 EGL_LIBS ?= -lEGL
 GLES_LIBS ?= -lGLESv3
 
@@ -62,8 +63,9 @@ powervr-primitives-frag: backend
 		src/Example/RotateDifference8ToE1.idr -o rotate-difference8-to-e1
 
 powervr-primitives-host:
+	test -x "$(ICK)"
 	mkdir -p build
-	$(CC) -std=c11 -O2 -Wall -Wextra tools/powervr_primitives.c \
+	"$(ICK)" $(ICK_FLAGS) -std=c11 -O2 -Wall -Wextra tools/powervr_primitives.c \
 		-o build/powervr-primitives $(EGL_LIBS) $(GLES_LIBS) -lm
 
 powervr-primitives: powervr-primitives-frag powervr-primitives-host
@@ -106,6 +108,9 @@ fragment-mock-test: fragment-mocks
 			--source-dir src --output-dir /tmp/idris-fragment-mocks \
 			src/Example/GivensFragmentMocks.idr -o givens || exit $$?; \
 	done
+	$(IDRIS2_FRAGMENT_MOCKS) --cg mali-g57-valhall-mock \
+		--source-dir src --output-dir /tmp/idris-fragment-mocks \
+		src/Example/BoundedLoopProbe.idr -o bounded-loop
 	python3 tools/check_fragment_mocks.py /tmp/idris-fragment-mocks
 
 check: generate test backend-test mali-mock-test fragment-mock-test powervr-primitives-frag

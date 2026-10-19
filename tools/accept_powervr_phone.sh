@@ -74,16 +74,15 @@ esac
 [ "$DEVICE_SDK" -ge "$ANDROID_API" ] || \
   fail "device API $DEVICE_SDK cannot run an API $ANDROID_API executable"
 case "$ABI" in
-  armeabi-v7a) TRIPLE=armv7a-linux-androideabi ;;
-  arm64-v8a) TRIPLE=aarch64-linux-android ;;
-  x86) TRIPLE=i686-linux-android ;;
-  x86_64) TRIPLE=x86_64-linux-android ;;
-  *) fail "unsupported Android ABI: $ABI" ;;
+  armeabi-v7a|arm64-v8a|x86_64) ;;
+  *) fail "no qualified ICK Android frontend for ABI: $ABI" ;;
 esac
 
 TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/$HOST_TAG"
-CC="$TOOLCHAIN/bin/clang"
-[ -x "$CC" ] || fail "NDK compiler not found: $CC"
+ICK_STAGE=${ICK_STAGE:-}
+[ -n "$ICK_STAGE" ] || fail "set ICK_STAGE to the qualified installed frontend for $ABI"
+AICI_ROOT=${AICI_ROOT:-$ROOT/.ai-ci-ick}
+[ -f "$AICI_ROOT/ick-android/Makefile" ] || fail "set AICI_ROOT to the pinned shared producer checkout"
 
 # Clean the backend build so an ignored executable from another revision cannot
 # contaminate the receipt. Then prove that every regenerated fragment is the
@@ -95,9 +94,9 @@ make powervr-primitives-frag \
   fail "regenerated GLSL differs from commit $COMMIT; commit it or use the matching backend"
 
 mkdir -p build "$(dirname -- "$EVIDENCE")"
-"$CC" --target="${TRIPLE}${ANDROID_API}" \
-  -std=c11 -O2 -Wall -Wextra tools/powervr_primitives.c \
-  -o build/powervr-primitives-android -lEGL -lGLESv3 -lm
+make -f tools/ick-android.mk runner ABI="$ABI" ANDROID_API="$ANDROID_API" \
+  NDK="$NDK" NDK_BIN="$TOOLCHAIN/bin" AICI_ROOT="$AICI_ROOT" \
+  ICK_STAGE="$ICK_STAGE" RUNNER="$ROOT/build/powervr-primitives-android"
 
 SHADERS='set-pixel-3-rgb-52-39-182.frag
 set-block-32x32-rgb-52-39-182.frag
@@ -132,6 +131,7 @@ esac
   echo "commit: $COMMIT"
   echo "source.generated: matches commit"
   echo "host.idris2: $IDRIS2_VERSION"
+  echo "host.ick-stage: $ICK_STAGE"
   echo "device.manufacturer: $(adb_cmd shell getprop ro.product.manufacturer | tr -d '\r')"
   echo "device.model: $(adb_cmd shell getprop ro.product.model | tr -d '\r')"
   echo "device.android: $(adb_cmd shell getprop ro.build.version.release | tr -d '\r')"
