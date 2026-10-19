@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #ifndef EGL_OPENGL_ES3_BIT
@@ -140,12 +141,70 @@ static double benchmark_draw(GLuint program, int width, int height, const char *
   return (finish - start) ÷ (double)BENCH_DRAWS;
 }
 
-int main(void) {
+static void coordinate_numeric_readback(GLuint program, int compare_values) {
+  GLuint framebuffer = 0, texture = 0;
+  glGenFramebuffers(1, &framebuffer);
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1, 1, 0, GL_RGBA, GL_FLOAT, NULL);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    fail("numeric coordinate readback requires a renderable RGBA32F target");
+  GLint vector_location = uniform_location(program, "u_vector_coordinates");
+  GLint covector_location = uniform_location(program, "u_covector_coordinates");
+  GLfloat vector_coordinates[32] = {0}, covector_coordinates[32] = {0};
+  for (int covector_index = 0; covector_index < 32; ++covector_index) {
+    for (int vector_index = 0; vector_index < 32; ++vector_index) {
+      memset(vector_coordinates, 0, sizeof vector_coordinates);
+      memset(covector_coordinates, 0, sizeof covector_coordinates);
+      vector_coordinates[vector_index] = 1.0f;
+      covector_coordinates[covector_index] = 1.0f;
+      glUseProgram(program);
+      glUniform1fv(vector_location, 32, vector_coordinates);
+      glUniform1fv(covector_location, 32, covector_coordinates);
+      draw(program, 1, 1, "coordinate basis numerical readback");
+      GLfloat result[4];
+      glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, result);
+      if (glGetError() != GL_NO_ERROR) fail("floating coordinate readback failed");
+      GLfloat expected = covector_index == vector_index ? 1.0f : 0.0f;
+      if (compare_values && (result[0] != expected || result[1] != expected || result[2] != expected || result[3] != 1.0f))
+        fail("coordinate basis pairing disagrees with independent Kronecker pairing");
+      printf("basis-pairing\t%d\t%d\t%.9g\n", covector_index, vector_index, (double)result[0]);
+    }
+  }
+  const GLfloat cases[2][4] = {{5.0f, 7.0f, 2.0f, 3.0f}, {5.0f, 12.0f, -1.0f, 3.0f}};
+  for (int case_index = 0; case_index < 2; ++case_index) {
+    memset(vector_coordinates, 0, sizeof vector_coordinates);
+    memset(covector_coordinates, 0, sizeof covector_coordinates);
+    covector_coordinates[0] = cases[case_index][0];
+    covector_coordinates[1] = cases[case_index][1];
+    vector_coordinates[0] = cases[case_index][2];
+    vector_coordinates[1] = cases[case_index][3];
+    glUseProgram(program);
+    glUniform1fv(vector_location, 32, vector_coordinates);
+    glUniform1fv(covector_location, 32, covector_coordinates);
+    draw(program, 1, 1, "coordinate basis-change numerical sample");
+    GLfloat result[4];
+    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, result);
+    if (glGetError() != GL_NO_ERROR || (compare_values && result[0] != 31.0f))
+      fail("coordinate basis-change sample failed independent exact oracle 31");
+    printf("basis-change\t%d\t%.9g\n", case_index, (double)result[0]);
+  }
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDeleteTextures(1, &texture);
+  glDeleteFramebuffers(1, &framebuffer);
+}
+
+int main(int argc, char **argv) {
+  int numeric_coordinates = argc == 2 && strcmp(argv[1], "--coordinate-numeric") == 0;
+  int record_coordinates = argc == 2 && strcmp(argv[1], "--coordinate-record") == 0;
+  if (argc > 1 && !numeric_coordinates && !record_coordinates) fail("unknown runner option");
   const char *paths[6] = {
       "generated/set-pixel-3-rgb-52-39-182.frag",
       "generated/set-block-32x32-rgb-52-39-182.frag",
-      "generated/dot-vector4-covector4.frag",
-      "generated/dot-vector32-covector32.frag",
+      "generated/coordinate-pairing4-grayscale.frag",
+      "generated/coordinate-pairing32-grayscale.frag",
       "generated/subtract-vector8-norm.frag",
       "generated/rotate-difference8-to-e1.frag",
   };
@@ -195,6 +254,12 @@ int main(void) {
   }
   putchar('\n');
 
+  if (numeric_coordinates || record_coordinates) {
+    coordinate_numeric_readback(programs[3], numeric_coordinates);
+    puts(numeric_coordinates ? "coordinate-numeric: PASS (1024 exact basis samples and 2 basis-change samples)" : "coordinate-readback: COMPLETE (1026 samples; independent comparison required)");
+    return 0;
+  }
+
   /* 1. Zero-based pixel 3 of a 4x1 framebuffer. */
   draw(programs[0], 4, 1, "1 set_pixel_3_to_rgb_52_39_182");
   unsigned char pixels4[4 * 4];
@@ -216,16 +281,16 @@ int main(void) {
   const GLfloat vector4[4] = {0.13f, 0.27f, 0.41f, 0.59f};
   const GLfloat covector4[4] = {0.31f, 0.17f, 0.23f, 0.47f};
   glUseProgram(programs[2]);
-  glUniform4fv(uniform_location(programs[2], "u_vector"), 1, vector4);
-  glUniform4fv(uniform_location(programs[2], "u_covector"), 1, covector4);
-  draw(programs[2], 1, 1, "3 dot_vector4_covector4");
+  glUniform1fv(uniform_location(programs[2], "u_vector_coordinates"), 4, vector4);
+  glUniform1fv(uniform_location(programs[2], "u_covector_coordinates"), 4, covector4);
+  draw(programs[2], 1, 1, "3 coordinate_pairing4_grayscale");
   unsigned char pixel[4];
   glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
   float dot4 = 0.0f;
   for (int i = 0; i < 4; ++i) dot4 += vector4[i] * covector4[i];
   int dot4_byte = (int)lroundf(255.0f * dot4);
   require_pixel(pixel, dot4_byte, dot4_byte, dot4_byte, 255, 2, "vec4 dot");
-  printf("3 dot_vector4_covector4: PASS (%.7g)\n", dot4);
+  printf("3 coordinate_pairing4_grayscale: PASS (%.7g)\n", dot4);
 
   /* 4. A real 32-component contraction, stored as eight vec4 chunks each. */
   GLfloat vector32[32], covector32[32];
@@ -236,19 +301,13 @@ int main(void) {
     dot32 += vector32[i] * covector32[i];
   }
   glUseProgram(programs[3]);
-  for (int chunk = 0; chunk < 8; ++chunk) {
-    char vector_name[16];
-    char covector_name[16];
-    snprintf(vector_name, sizeof vector_name, "u_v%d", chunk);
-    snprintf(covector_name, sizeof covector_name, "u_c%d", chunk);
-    glUniform4fv(uniform_location(programs[3], vector_name), 1, &vector32[4 * chunk]);
-    glUniform4fv(uniform_location(programs[3], covector_name), 1, &covector32[4 * chunk]);
-  }
-  draw(programs[3], 1, 1, "4 dot_vector32_covector32");
+  glUniform1fv(uniform_location(programs[3], "u_vector_coordinates"), 32, vector32);
+  glUniform1fv(uniform_location(programs[3], "u_covector_coordinates"), 32, covector32);
+  draw(programs[3], 1, 1, "4 coordinate_pairing32_grayscale");
   glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
   int dot32_byte = (int)lroundf(255.0f * dot32);
   require_pixel(pixel, dot32_byte, dot32_byte, dot32_byte, 255, 2, "32D dot");
-  printf("4 dot_vector32_covector32: PASS (%.7g)\n", dot32);
+  printf("4 coordinate_pairing32_grayscale: PASS (%.7g)\n", dot32);
 
   /* Shared 8D inputs for subtraction and rotation. */
   const GLfloat a0[4] = {0.10f, 0.20f, 0.30f, 0.40f};

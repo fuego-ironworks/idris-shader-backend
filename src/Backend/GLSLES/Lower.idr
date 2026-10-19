@@ -17,7 +17,7 @@ Env = List (Int, SomeOperand)
 
 public export
 ShaderDefs : Type
-ShaderDefs = List (Name, ANFDef)
+ShaderDefs = List (Name, Administrative_Normal_Form_Definition)
 
 record LowerState where
   constructor MkLowerState
@@ -61,17 +61,17 @@ emit {ty} rhs = MkLower $ \state =>
    in Right (state', OLocal name)
 
 lookupLocal : Int -> Env -> Either String SomeOperand
-lookupLocal variable [] = Left ("unbound ANF local v" ++ show variable)
+lookupLocal variable [] = Left ("unbound Administrative_Normal_Form local v" ++ show variable)
 lookupLocal variable ((candidate, value) :: rest) =
   if variable == candidate then Right value else lookupLocal variable rest
 
-resolveVar : Env -> AVar -> Either String SomeOperand
-resolveVar _ ANull = Left "erased value used at runtime in shader code"
-resolveVar env (ALocal variable) = lookupLocal variable env
+resolveVar : Env -> Administrative_Normal_Form_Variable -> Either String SomeOperand
+resolveVar _ Administrative_Normal_Form_Erased_Variable = Left "erased value used at runtime in shader code"
+resolveVar env (Administrative_Normal_Form_Local_Variable variable) = lookupLocal variable env
 
-resolveRuntimeArgs : Env -> List AVar -> Either String (List SomeOperand)
+resolveRuntimeArgs : Env -> List Administrative_Normal_Form_Variable -> Either String (List SomeOperand)
 resolveRuntimeArgs _ [] = Right []
-resolveRuntimeArgs env (ANull :: rest) = resolveRuntimeArgs env rest
+resolveRuntimeArgs env (Administrative_Normal_Form_Erased_Variable :: rest) = resolveRuntimeArgs env rest
 resolveRuntimeArgs env (variable :: rest) = do
   value <- resolveVar env variable
   values <- resolveRuntimeArgs env rest
@@ -86,19 +86,19 @@ expectBool = expect TBool
 expectInt : SomeOperand -> Either String (Operand TInt)
 expectInt = expect TInt
 
-record VectorPair where
-  constructor PackVectorPair
+record FloatTuplePair where
+  constructor PackFloatTuplePair
   pairWidth : Nat
-  leftVector : Operand (TVec pairWidth)
-  rightVector : Operand (TVec pairWidth)
+  leftComponents : Operand (TFloatTuple pairWidth)
+  rightComponents : Operand (TFloatTuple pairWidth)
 
-matchingVectors : SomeOperand -> SomeOperand -> Either String VectorPair
-matchingVectors left right = do
-  PackVector n left' <- expectVector left
-  PackVector m right' <- expectVector right
+matchingFloatTuples : SomeOperand -> SomeOperand -> Either String FloatTuplePair
+matchingFloatTuples left right = do
+  PackFloatTuple n left' <- expectFloatTuple left
+  PackFloatTuple m right' <- expectFloatTuple right
   case decEq n m of
-    Yes Refl => Right (PackVectorPair n left' right')
-    No _ => Left ("vector width mismatch: vec" ++ show n ++ " and vec" ++ show m)
+    Yes Refl => Right (PackFloatTuplePair n left' right')
+    No _ => Left ("component count mismatch: tuple" ++ show n ++ " and tuple" ++ show m)
 
 one : String -> List SomeOperand -> Either String SomeOperand
 one _ [value] = Right value
@@ -167,7 +167,7 @@ arrayIndex values = do
   result <- emit (RArrayIndex n array index)
   pure (PackOperand (arrayElementValueTy elementTy) result)
 
-lowerPrim : Env -> PrimFn arity -> List AVar -> Lower SomeOperand
+lowerPrim : Env -> PrimFn arity -> List Administrative_Normal_Form_Variable -> Lower SomeOperand
 lowerPrim env primitive arguments = do
   values <- liftEither (resolveRuntimeArgs env arguments)
   case primitive of
@@ -189,94 +189,120 @@ lowerPrim env primitive arguments = do
 component : String -> Nat -> List SomeOperand -> Lower SomeOperand
 component operation index values = do
   value <- liftEither (one operation values)
-  PackVector n vector <- liftEither (expectVector value)
+  PackFloatTuple n vector <- liftEither (expectFloatTuple value)
   Just position <- pure (natToFin index n)
     | Nothing => failLower (operation ++ " is invalid for vec" ++ show n)
   result <- emit (RComponent position vector)
   pure (PackOperand TFloat result)
 
-vectorConstructor2 : List SomeOperand -> Lower SomeOperand
-vectorConstructor2 values = do
+floatTupleConstructor2 : List SomeOperand -> Lower SomeOperand
+floatTupleConstructor2 values = do
   (x, y) <- liftEither (two "vec2" values)
   x' <- liftEither (expectFloat x)
   y' <- liftEither (expectFloat y)
-  result <- emit (RVec2 x' y')
-  pure (PackOperand (TVec 2) result)
+  result <- emit (RFloatTuple2 x' y')
+  pure (PackOperand (TFloatTuple 2) result)
 
-vectorConstructor3 : List SomeOperand -> Lower SomeOperand
-vectorConstructor3 values = do
+floatTupleConstructor3 : List SomeOperand -> Lower SomeOperand
+floatTupleConstructor3 values = do
   (x, y, z) <- liftEither (three "vec3" values)
   x' <- liftEither (expectFloat x)
   y' <- liftEither (expectFloat y)
   z' <- liftEither (expectFloat z)
-  result <- emit (RVec3 x' y' z')
-  pure (PackOperand (TVec 3) result)
+  result <- emit (RFloatTuple3 x' y' z')
+  pure (PackOperand (TFloatTuple 3) result)
 
-vectorConstructor4 : List SomeOperand -> Lower SomeOperand
-vectorConstructor4 values = do
+floatTupleConstructor4 : List SomeOperand -> Lower SomeOperand
+floatTupleConstructor4 values = do
   (x, y, z, w) <- liftEither (four "vec4" values)
   x' <- liftEither (expectFloat x)
   y' <- liftEither (expectFloat y)
   z' <- liftEither (expectFloat z)
   w' <- liftEither (expectFloat w)
-  result <- emit (RVec4 x' y' z' w')
-  pure (PackOperand (TVec 4) result)
+  result <- emit (RFloatTuple4 x' y' z' w')
+  pure (PackOperand (TFloatTuple 4) result)
 
-vectorBinary : String -> VectorBinary -> List SomeOperand -> Lower SomeOperand
-vectorBinary operation constructor values = do
+componentBinaryOperation : String -> ComponentBinaryOperation -> List SomeOperand -> Lower SomeOperand
+componentBinaryOperation operation constructor values = do
   (left, right) <- liftEither (two operation values)
-  PackVectorPair n left' right' <- liftEither (matchingVectors left right)
-  result <- emit (RVectorBinary constructor left' right')
-  pure (PackOperand (TVec n) result)
+  PackFloatTuplePair n left' right' <- liftEither (matchingFloatTuples left right)
+  result <- emit (RComponentBinary constructor left' right')
+  pure (PackOperand (TFloatTuple n) result)
 
-vectorScale : List SomeOperand -> Lower SomeOperand
-vectorScale values = do
-  (scalar, vector) <- liftEither (two "scale" values)
+scaleComponents : List SomeOperand -> Lower SomeOperand
+scaleComponents values = do
+  (scalar, vector) <- liftEither (two "scale_components" values)
   scalar' <- liftEither (expectFloat scalar)
-  PackVector n vector' <- liftEither (expectVector vector)
-  result <- emit (RScale scalar' vector')
-  pure (PackOperand (TVec n) result)
+  PackFloatTuple n vector' <- liftEither (expectFloatTuple vector)
+  result <- emit (RScaleComponents scalar' vector')
+  pure (PackOperand (TFloatTuple n) result)
 
-vectorDot : List SomeOperand -> Lower SomeOperand
-vectorDot values = do
-  (left, right) <- liftEither (two "dot" values)
-  PackVectorPair _ left' right' <- liftEither (matchingVectors left right)
-  result <- emit (RDot left' right')
+componentProductSum : List SomeOperand -> Lower SomeOperand
+componentProductSum values = do
+  (left, right) <- liftEither (two "component_product_sum" values)
+  PackFloatTuplePair _ left' right' <- liftEither (matchingFloatTuples left right)
+  result <- emit (RComponentProductSum left' right')
   pure (PackOperand TFloat result)
 
-vectorLength : List SomeOperand -> Lower SomeOperand
-vectorLength values = do
-  value <- liftEither (one "length" values)
-  PackVector _ vector <- liftEither (expectVector value)
-  result <- emit (RLength vector)
+euclideanComponentNorm : List SomeOperand -> Lower SomeOperand
+euclideanComponentNorm values = do
+  value <- liftEither (one "euclidean_component_norm" values)
+  PackFloatTuple _ vector <- liftEither (expectFloatTuple value)
+  result <- emit (REuclideanComponentNorm vector)
   pure (PackOperand TFloat result)
 
-vectorNormalize : List SomeOperand -> Lower SomeOperand
-vectorNormalize values = do
-  value <- liftEither (one "normalize" values)
-  PackVector n vector <- liftEither (expectVector value)
-  result <- emit (RNormalize vector)
-  pure (PackOperand (TVec n) result)
+normalizeComponentsUnchecked : List SomeOperand -> Lower SomeOperand
+normalizeComponentsUnchecked values = do
+  value <- liftEither (one "normalize_components_unchecked" values)
+  PackFloatTuple n vector <- liftEither (expectFloatTuple value)
+  result <- emit (RNormalizeComponentsUnchecked vector)
+  pure (PackOperand (TFloatTuple n) result)
 
-lowerExtPrim : Env -> Name -> List AVar -> Lower SomeOperand
+coordinatePairing : List SomeOperand -> Lower SomeOperand
+coordinatePairing values = do
+  (covectorValue, vectorValue) <- liftEither (two "coordinate_pairing" values)
+  PackArray dimension AFloat covector <- liftEither (expectArray covectorValue)
+    | _ => failLower "coordinate pairing requires scalar coordinate arrays"
+  vector <- liftEither (expect (TArray dimension AFloat) vectorValue)
+  reduceCoordinates dimension dimension 0 covector vector (OFloat 0.0)
+  where
+    reduceCoordinates : (dimension : Nat) -> (remaining : Nat) -> Nat ->
+      Operand (TArray dimension AFloat) -> Operand (TArray dimension AFloat) ->
+      Operand TFloat -> Lower SomeOperand
+    reduceCoordinates _ Z _ _ _ accumulated = pure (PackOperand TFloat accumulated)
+    reduceCoordinates dimension (S remaining) coordinateIndex covector vector accumulated = do
+      let index = OFloat (cast coordinateIndex)
+      coefficient <- emit (RArrayIndex dimension covector index)
+      coordinate <- emit (RArrayIndex dimension vector index)
+      product <- emit (RFloatBinary FMul coefficient coordinate)
+      next <- emit (RFloatBinary FAdd accumulated product)
+      reduceCoordinates dimension remaining (S coordinateIndex) covector vector next
+
+lowerExtPrim : Env -> Name -> List Administrative_Normal_Form_Variable -> Lower SomeOperand
 lowerExtPrim env primitive arguments = do
   values <- liftEither (resolveRuntimeArgs env arguments)
+  let primitiveName = nameRoot primitive
+  if show primitive /= "Shader.Source." ++ primitiveName &&
+     show primitive /= "Shader.Coordinates." ++ primitiveName
+    then failLower ("external primitive is not a canonical shader declaration: " ++ show primitive)
+    else pure ()
   case nameRoot primitive of
+    "coordinate_pairing" => coordinatePairing values
     "array_at" => arrayIndex values
     "int_to_double" => intToFloat values
-    "vec2" => vectorConstructor2 values
-    "vec3" => vectorConstructor3 values
-    "vec4" => vectorConstructor4 values
+    "vec2" => floatTupleConstructor2 values
+    "vec3" => floatTupleConstructor3 values
+    "vec4" => floatTupleConstructor4 values
     "x" => component "x" 0 values
     "y" => component "y" 1 values
     "z" => component "z" 2 values
     "w" => component "w" 3 values
-    "vadd" => vectorBinary "vadd" VAdd values
-    "vsub" => vectorBinary "vsub" VSub values
-    "scale" => vectorScale values
-    "dot" => vectorDot values
-    "length" => vectorLength values
-    "normalize" => vectorNormalize values
+    "add_components" => componentBinaryOperation "add_components" AddComponents values
+    "subtract_components" => componentBinaryOperation "subtract_components" SubtractComponents values
+    "scale_components" => scaleComponents values
+    "component_product_sum" => componentProductSum values
+    "euclidean_component_norm" => euclideanComponentNorm values
+    "normalize_components_unchecked" => normalizeComponentsUnchecked values
     "absF" => floatUnary "absF" FAbs values
     "sqrtF" => floatUnary "sqrtF" FSqrt values
     "sinF" => floatUnary "sinF" FSin values
@@ -293,7 +319,7 @@ lowerExtPrim env primitive arguments = do
     "smoothstepF" => floatTernary "smoothstepF" FSmoothstep values
     other => failLower ("unsupported external primitive in shader: " ++ show primitive)
 
-findDef : Name -> ShaderDefs -> Maybe ANFDef
+findDef : Name -> ShaderDefs -> Maybe Administrative_Normal_Form_Definition
 findDef _ [] = Nothing
 findDef wanted ((name, definition) :: rest) =
   if wanted == name then Just definition else findDef wanted rest
@@ -307,7 +333,7 @@ bindArguments params values =
   Left ("function expected " ++ show (length params) ++
         " runtime arguments, received " ++ show (length values))
 
-argumentForParameter : Int -> List Int -> List AVar -> Maybe AVar
+argumentForParameter : Int -> List Int -> List Administrative_Normal_Form_Variable -> Maybe Administrative_Normal_Form_Variable
 argumentForParameter _ [] [] = Nothing
 argumentForParameter wanted (parameter :: params) (argument :: arguments) =
   if wanted == parameter
@@ -362,16 +388,16 @@ boolConstant (B64 0) = Just False
 boolConstant (B64 1) = Just True
 boolConstant _ = Nothing
 
-findConstBranch : Bool -> List AConstAlt -> Maybe ANF
+findConstBranch : Bool -> List Administrative_Normal_Form_Constant_Alternative -> Maybe Administrative_Normal_Form
 findConstBranch _ [] = Nothing
-findConstBranch wanted (MkAConstAlt constant body :: rest) =
+findConstBranch wanted (Make_Administrative_Normal_Form_Constant_Alternative constant body :: rest) =
   case boolConstant constant of
     Just actual => if wanted == actual then Just body else findConstBranch wanted rest
     Nothing => findConstBranch wanted rest
 
-findConBranch : Bool -> List AConAlt -> Maybe ANF
+findConBranch : Bool -> List Administrative_Normal_Form_Constructor_Alternative -> Maybe Administrative_Normal_Form
 findConBranch _ [] = Nothing
-findConBranch wanted (MkAConAlt name _ _ _ body :: rest) =
+findConBranch wanted (Make_Administrative_Normal_Form_Constructor_Alternative name _ _ _ body :: rest) =
   case nameRoot name of
     "False" => if not wanted then Just body else findConBranch wanted rest
     "True" => if wanted then Just body else findConBranch wanted rest
@@ -379,14 +405,14 @@ findConBranch wanted (MkAConAlt name _ _ _ body :: rest) =
 
 mutual
   lowerLoopBody : ShaderDefs -> List Name -> Env -> Name ->
-                  List Int -> Int -> ANF -> Lower SomeOperand
+                  List Int -> Int -> Administrative_Normal_Form -> Lower SomeOperand
   lowerLoopBody definitions stack env self params stateParameter
-                (ALet _ variable value scope) = do
+                (Administrative_Normal_Form_Binding _ variable value scope) = do
     lowered <- lowerANF definitions stack env value
     lowerLoopBody definitions stack ((variable, lowered) :: env)
                   self params stateParameter scope
   lowerLoopBody _ _ env self params stateParameter
-                (AAppName _ _ called arguments) =
+                (Administrative_Normal_Form_Named_Function_Application _ _ called arguments) =
     if called == self
        then case argumentForParameter stateParameter params arguments of
               Nothing => failLower "bounded loop recursion has no state argument"
@@ -445,7 +471,7 @@ mutual
                 else Left ("bounded loop array access is not proven within " ++
                            show (loopMaximum shape) ++ " elements")
 
-  lowerCall : ShaderDefs -> List Name -> Env -> Name -> List AVar -> Lower SomeOperand
+  lowerCall : ShaderDefs -> List Name -> Env -> Name -> List Administrative_Normal_Form_Variable -> Lower SomeOperand
   lowerCall definitions stack env name arguments = do
     if elem name stack
        then failLower ("recursive shader call is not supported: " ++ show name)
@@ -454,7 +480,7 @@ mutual
     Just definition <- pure (findDef name definitions)
       | Nothing => failLower ("shader calls unknown definition " ++ show name)
     case definition of
-      MkAFun params body => do
+      Make_Administrative_Normal_Form_Function params body => do
         callEnv <- liftEither (bindArguments params values)
         case matchBoundedLoop name definition of
           Just shape => lowerBoundedCall definitions stack name shape callEnv
@@ -462,7 +488,7 @@ mutual
       _ => failLower ("shader call does not name a first-order function: " ++ show name)
 
   lowerStructuredCase : ShaderDefs -> List Name -> Env -> Operand TBool ->
-                        ANF -> ANF -> Lower SomeOperand
+                        Administrative_Normal_Form -> Administrative_Normal_Form -> Lower SomeOperand
   lowerStructuredCase definitions stack env condition trueBody falseBody =
     MkLower $ \state => do
       let resultName = "_idris_t" ++ show (nextTemp state)
@@ -486,8 +512,8 @@ mutual
                                        (statement :: reversedStatements state)
                in Right (final, PackOperand trueTy (OLocal resultName))
 
-  lowerConstCase : ShaderDefs -> List Name -> Env -> AVar ->
-                   List AConstAlt -> Maybe ANF -> Lower SomeOperand
+  lowerConstCase : ShaderDefs -> List Name -> Env -> Administrative_Normal_Form_Variable ->
+                   List Administrative_Normal_Form_Constant_Alternative -> Maybe Administrative_Normal_Form -> Lower SomeOperand
   lowerConstCase definitions stack env scrutinee alternatives defaultBranch = do
     conditionValue <- liftEither (resolveVar env scrutinee)
     condition <- liftEither (expectBool conditionValue)
@@ -503,8 +529,8 @@ mutual
       | Nothing => failLower "boolean case has no true/default branch"
     lowerStructuredCase definitions stack env condition trueBody falseBody
 
-  lowerConCase : ShaderDefs -> List Name -> Env -> AVar ->
-                 List AConAlt -> Maybe ANF -> Lower SomeOperand
+  lowerConCase : ShaderDefs -> List Name -> Env -> Administrative_Normal_Form_Variable ->
+                 List Administrative_Normal_Form_Constructor_Alternative -> Maybe Administrative_Normal_Form -> Lower SomeOperand
   lowerConCase definitions stack env scrutinee alternatives defaultBranch = do
     conditionValue <- liftEither (resolveVar env scrutinee)
     condition <- liftEither (expectBool conditionValue)
@@ -520,38 +546,38 @@ mutual
       | Nothing => failLower "boolean case has no true/default branch"
     lowerStructuredCase definitions stack env condition trueBody falseBody
 
-  lowerANF : ShaderDefs -> List Name -> Env -> ANF -> Lower SomeOperand
-  lowerANF _ _ env (AV _ variable) = liftEither (resolveVar env variable)
-  lowerANF _ _ _ (APrimVal _ (Db value)) = pure (PackOperand TFloat (OFloat value))
-  lowerANF _ _ _ (APrimVal _ constant) =
+  lowerANF : ShaderDefs -> List Name -> Env -> Administrative_Normal_Form -> Lower SomeOperand
+  lowerANF _ _ env (Administrative_Normal_Form_Variable_Expression _ variable) = liftEither (resolveVar env variable)
+  lowerANF _ _ _ (Administrative_Normal_Form_Primitive_Value _ (Db value)) = pure (PackOperand TFloat (OFloat value))
+  lowerANF _ _ _ (Administrative_Normal_Form_Primitive_Value _ constant) =
     case boolConstant constant of
       Just value => pure (PackOperand TBool (OBool value))
       Nothing => failLower ("unsupported literal in shader: " ++ show constant)
-  lowerANF definitions stack env (ALet _ variable value scope) = do
+  lowerANF definitions stack env (Administrative_Normal_Form_Binding _ variable value scope) = do
     lowered <- lowerANF definitions stack env value
     lowerANF definitions stack ((variable, lowered) :: env) scope
-  lowerANF _ _ env (AOp _ _ primitive arguments) =
+  lowerANF _ _ env (Administrative_Normal_Form_Primitive_Operation _ _ primitive arguments) =
     lowerPrim env primitive (toList arguments)
-  lowerANF _ _ env (AExtPrim _ _ primitive arguments) =
+  lowerANF _ _ env (Administrative_Normal_Form_External_Primitive _ _ primitive arguments) =
     lowerExtPrim env primitive arguments
-  lowerANF definitions stack env (AAppName _ _ name arguments) =
+  lowerANF definitions stack env (Administrative_Normal_Form_Named_Function_Application _ _ name arguments) =
     lowerCall definitions stack env name arguments
-  lowerANF definitions stack env (AConstCase _ scrutinee alternatives defaultBranch) =
+  lowerANF definitions stack env (Administrative_Normal_Form_Constant_Case _ scrutinee alternatives defaultBranch) =
     lowerConstCase definitions stack env scrutinee alternatives defaultBranch
-  lowerANF definitions stack env (AConCase _ scrutinee alternatives defaultBranch) =
+  lowerANF definitions stack env (Administrative_Normal_Form_Constructor_Case _ scrutinee alternatives defaultBranch) =
     lowerConCase definitions stack env scrutinee alternatives defaultBranch
-  lowerANF _ _ _ (ACon _ name _ _ []) = case nameRoot name of
+  lowerANF _ _ _ (Administrative_Normal_Form_Constructor_Value _ name _ _ []) = case nameRoot name of
     "False" => pure (PackOperand TBool (OBool False))
     "True" => pure (PackOperand TBool (OBool True))
     _ => failLower ("heap-shaped constructor values are not supported in shaders: " ++ show name)
-  lowerANF _ _ _ (ACon _ name _ _ _) =
+  lowerANF _ _ _ (Administrative_Normal_Form_Constructor_Value _ name _ _ _) =
     failLower ("heap-shaped constructor values are not supported in shaders: " ++ show name)
-  lowerANF _ _ _ (AUnderApp _ name _ _) =
+  lowerANF _ _ _ (Administrative_Normal_Form_Partial_Application _ name _ _) =
     failLower ("partial application is not supported in shaders: " ++ show name)
-  lowerANF _ _ _ (AApp _ _ _ _) =
+  lowerANF _ _ _ (Administrative_Normal_Form_Closure_Application _ _ _ _) =
     failLower "closure application is not supported in shaders"
-  lowerANF _ _ _ (AErased _) = failLower "erased value used as shader result"
-  lowerANF _ _ _ (ACrash _ message) = failLower ("shader contains a crash: " ++ message)
+  lowerANF _ _ _ (Administrative_Normal_Form_Erased_Value _) = failLower "erased value used as shader result"
+  lowerANF _ _ _ (Administrative_Normal_Form_Crash _ message) = failLower ("shader contains a crash: " ++ message)
 
 interfaceEnv : List Int -> List InterfaceVar -> Either String Env
 interfaceEnv [] [] = Right []
@@ -559,17 +585,17 @@ interfaceEnv (parameter :: params) (MkInterfaceVar name _ ty :: variables) = do
   rest <- interfaceEnv params variables
   Right ((parameter, PackOperand ty (OLocal name)) :: rest)
 interfaceEnv params variables =
-  Left ("entry ANF has " ++ show (length params) ++
+  Left ("entry Administrative_Normal_Form has " ++ show (length params) ++
         " arguments, but its checked Idris signature has " ++ show (length variables))
 
 public export
-lowerFragment : EntrySpec -> Name -> ShaderDefs -> ANFDef ->
+lowerFragment : EntrySpec -> Name -> ShaderDefs -> Administrative_Normal_Form_Definition ->
                 Either String FragmentProgram
-lowerFragment spec entryName definitions (MkAFun params body) = do
+lowerFragment spec entryName definitions (Make_Administrative_Normal_Form_Function params body) = do
   env <- interfaceEnv params (entryInterface spec)
   let initial = MkLowerState 0 []
   (final, value) <- runLower (lowerANF definitions [entryName] env body) initial
-  output <- expect (TVec 4) value
+  output <- expect (TFloatTuple 4) value
   Right (MkFragmentProgram spec (reverse (reversedStatements final)) output)
 lowerFragment _ entryName _ _ =
   Left ("exported shader entry is not a function: " ++ show entryName)

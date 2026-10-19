@@ -4,22 +4,22 @@ import Shader.Source
 
 %default total
 
-mix_vec3 : SVec 3 -> SVec 3 -> Double -> SVec 3
+mix_vec3 : ShaderFloatTuple 3 -> ShaderFloatTuple 3 -> Double -> ShaderFloatTuple 3
 mix_vec3 left right weight =
-  vadd (scale (1.0 - weight) left) (scale weight right)
+  add_components (scale_components (1.0 - weight) left) (scale_components weight right)
 
-distance_to_segment : SVec 2 -> SVec 2 -> SVec 2 -> Double
+distance_to_segment : ShaderFloatTuple 2 -> ShaderFloatTuple 2 -> ShaderFloatTuple 2 -> Double
 distance_to_segment point start finish =
-  let segment = vsub finish start
-      length_squared = dot segment segment
-      along = clampF (dot (vsub point start) segment /
+  let segment = subtract_components finish start
+      length_squared = component_product_sum segment segment
+      along = clampF (component_product_sum (subtract_components point start) segment /
                       maxF length_squared 0.00000000000000000001) 0.0 1.0
-      nearest = vadd start (scale along segment)
-   in length (vsub point nearest)
+      nearest = add_components start (scale_components along segment)
+   in euclidean_component_norm (subtract_components point nearest)
 
-step_values : SVec 2 -> Double -> SVec 4 -> SVec 2 -> Double -> Double -> SVec 4
+step_values : ShaderFloatTuple 2 -> Double -> ShaderFloatTuple 4 -> ShaderFloatTuple 2 -> Double -> Double -> ShaderFloatTuple 4
 step_values point world_per_pixel previous_state disc_center disc_radius path_distance =
-  let distance_from_center = length (vsub point disc_center)
+  let distance_from_center = euclidean_component_norm (subtract_components point disc_center)
       edge_width = 1.25 * world_per_pixel
       disc_reveal = 1.0 - smoothstepF (disc_radius - edge_width)
                                         (disc_radius + edge_width)
@@ -39,8 +39,8 @@ step_values point world_per_pixel previous_state disc_center disc_radius path_di
                                               (distance_from_center / world_per_pixel))
    in vec4 revealed boundary path_line center_mark
 
-first_step : SVec 2 -> Double -> Double -> SArray 24 (SVec 2) ->
-             SArray 24 Double -> SVec 4 -> SVec 4
+first_step : ShaderFloatTuple 2 -> Double -> Double -> SArray 24 (ShaderFloatTuple 2) ->
+             SArray 24 Double -> ShaderFloatTuple 4 -> ShaderFloatTuple 4
 first_step point world_per_pixel count centers radii previous_state =
   let disc_center = array_at centers 0.0
       disc_radius = array_at radii 0.0
@@ -48,8 +48,8 @@ first_step point world_per_pixel count centers radii previous_state =
                                disc_center disc_radius 1000000000.0
    in if 0.0 < count then next_state else previous_state
 
-next_step : SVec 2 -> Double -> Double -> SArray 24 (SVec 2) ->
-            SArray 24 Double -> SVec 4 -> Double -> Double -> SVec 4
+next_step : ShaderFloatTuple 2 -> Double -> Double -> SArray 24 (ShaderFloatTuple 2) ->
+            SArray 24 Double -> ShaderFloatTuple 4 -> Double -> Double -> ShaderFloatTuple 4
 next_step point world_per_pixel count centers radii previous_state previous_index index =
   let disc_center = array_at centers index
       previous_center = array_at centers previous_index
@@ -59,8 +59,8 @@ next_step point world_per_pixel count centers radii previous_state previous_inde
                                disc_center disc_radius path_distance
    in if index < count then next_state else previous_state
 
-continuation_state_24 : SVec 2 -> Double -> Double -> SArray 24 (SVec 2) ->
-                        SArray 24 Double -> SVec 4
+continuation_state_24 : ShaderFloatTuple 2 -> Double -> Double -> SArray 24 (ShaderFloatTuple 2) ->
+                        SArray 24 Double -> ShaderFloatTuple 4
 continuation_state_24 point world_per_pixel count centers radii =
   let state_0 = first_step point world_per_pixel count centers radii (vec4 0.0 0.0 0.0 0.0)
       state_1 = next_step point world_per_pixel count centers radii state_0 0.0 1.0
@@ -89,8 +89,8 @@ continuation_state_24 point world_per_pixel count centers radii =
    in state_23
 
 public export
-continuation_overlay : SVec 2 -> SVec 2 -> SVec 2 -> Double -> Double ->
-                       SArray 24 (SVec 2) -> SArray 24 Double -> SVec 3 -> SVec 3
+continuation_overlay : ShaderFloatTuple 2 -> ShaderFloatTuple 2 -> ShaderFloatTuple 2 -> Double -> Double ->
+                       SArray 24 (ShaderFloatTuple 2) -> SArray 24 Double -> ShaderFloatTuple 3 -> ShaderFloatTuple 3
 continuation_overlay ndc resolution point world_per_pixel count centers radii base_color =
   let state = continuation_state_24 point world_per_pixel count centers radii
       revealed = x state
@@ -103,8 +103,8 @@ continuation_overlay ndc resolution point world_per_pixel count centers radii ba
       diagonal_b = 0.5 + 0.5 * cosF ((pixel_x - pixel_y) * 6.28318530717958647692 / 28.0)
       weave = 0.5 * (smoothstepF 0.92 1.0 diagonal_a +
                      smoothstepF 0.92 1.0 diagonal_b)
-      unrevealed = vadd (vec3 0.080 0.086 0.096)
-                        (scale weave (vec3 0.018 0.020 0.024))
+      unrevealed = add_components (vec3 0.080 0.086 0.096)
+                        (scale_components weave (vec3 0.018 0.020 0.024))
       marker_dark = vec3 0.09411765 0.09411765 0.09411765
       marker_light = vec3 0.98 0.95 0.76
       revealed_color = mix_vec3 unrevealed base_color revealed

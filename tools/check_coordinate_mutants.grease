@@ -1,0 +1,32 @@
+#!/usr/bin/env grease
+var repo = $1
+var runner = $2
+var checker = $3
+if (not repo.startsWith('/')) { echo 'requires absolute backend source root' >&2; exit 2 }
+test -x "$runner"
+test -x "$checker"
+var stage = "$(mktemp -d)"
+mkdir -p "$stage/generated"
+cp -R "$repo/generated/." "$stage/generated/"
+cd -- "$stage"
+env EGL_PLATFORM=surfaceless "$runner" --coordinate-record > control.tsv
+"$checker" "$stage/control.tsv"
+
+# Preserve the complete active array; swap two coordinates in only one operand.
+sed -e 's/u_vector_coordinates\[int(0.0)\]/u_vector_coordinates[int(999.0)]/g' -e 's/u_vector_coordinates\[int(31.0)\]/u_vector_coordinates[int(0.0)]/g' -e 's/u_vector_coordinates\[int(999.0)\]/u_vector_coordinates[int(31.0)]/g' "$repo/generated/coordinate-pairing32-grayscale.frag" > generated/coordinate-pairing32-grayscale.frag
+env EGL_PLATFORM=surfaceless "$runner" --coordinate-record > swapped.tsv
+if "$checker" "$stage/swapped.tsv" > swapped-verdict.txt 2>&1 {
+  echo 'FAIL independent checker accepted the executed coordinate-swap mutant' >&2
+  exit 1
+}
+rg -q 'FAIL coordinate numerical comparison' swapped-verdict.txt
+echo 'PASS executed one-operand coordinate-swap mutant rejected'
+
+sed '/basis-pairing\t31\t31/d' control.tsv > omitted.tsv
+if "$checker" "$stage/omitted.tsv" > omitted-verdict.txt 2>&1 {
+  echo 'FAIL independent checker accepted a missing final-coordinate case' >&2
+  exit 1
+}
+rg -q 'FAIL coordinate numerical comparison' omitted-verdict.txt
+echo 'PASS omitted-case receipt mutant rejected'
+sha256sum control.tsv swapped.tsv omitted.tsv

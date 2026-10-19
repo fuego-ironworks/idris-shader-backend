@@ -1,0 +1,5 @@
+schema=checked-shader-source-v1
+argument=0 CovectorCoordinates dimension=32 ambient-field=real frame=Shader.Coordinates.CartesianReal32 packing=fixed-scalar-array
+argument=1 VectorCoordinates dimension=32 ambient-field=real frame=Shader.Coordinates.CartesianReal32 packing=fixed-scalar-array
+result vec4
+arithmetic=shader-profile-approximation; source Double does not promise binary64
