@@ -1,0 +1,2 @@
+def accepted_condition(condition ∈ bool) → bool:
+    return condition

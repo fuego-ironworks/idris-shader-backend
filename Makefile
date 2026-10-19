@@ -3,6 +3,7 @@ IDRIS2_GLSLES ?= ./build/exec/idris2-glsles
 IDRIS2_MALI_MOCK ?= ./build/exec/idris2-mali-mock
 IDRIS2_FRAGMENT_MOCKS ?= ./build/exec/idris2-fragment-mocks
 ICK ?=
+ITHON ?=
 ICK_FLAGS ?= -fno-link-libatomic
 EGL_LIBS ?= -lEGL
 GLES_LIBS ?= -lGLESv3
@@ -83,7 +84,8 @@ backend-test: backend
 	python3 tools/check_f16.py
 	python3 tools/check_shared_factor_portrait.py
 	python3 tools/check_analytic_continuation.py
-	python3 tools/check_surfer_root_search.py
+	test -x "$(ITHON)"
+	"$(ITHON)" tools/check_surfer_root_search.pi
 	python3 tools/check_powervr_primitives.py
 	sh -n tools/accept_powervr_phone.sh
 	sh -n tools/accept_powervr_android.sh

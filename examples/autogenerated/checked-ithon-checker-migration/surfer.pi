@@ -1,0 +1,61 @@
+"""Check the actual Surfer emitter using the checked Ithon host frontend."""
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from builtins import AssertionError, SystemExit
+
+ROOT ∈ object ← Path(__file__).resolve().parent.parent.parent.parent
+BACKEND ∈ object ← ROOT.joinpath("build", "exec", "idris2-glsles")
+
+def require(condition ∈ bool, message ∈ str) → None:
+    if not condition:
+        raise AssertionError(message)
+
+def main() → int:
+    require(BACKEND.is_file(), "backend executable is missing; run make backend")
+    with tempfile.TemporaryDirectory(prefix="surfer-root-search-") as directory:
+        output_dir ∈ object ← Path(directory)
+        result ∈ object ← subprocess.run(
+            [str(BACKEND), "--cg", "glsles", "--source-dir", "src",
+             "--output-dir", str(output_dir),
+             "src/Example/SurferRootSearch.idr", "-o", "surfer-root-search"],
+            cwd=ROOT, text=True, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, check=False)
+        result_status ∈ int ← result.returncode
+        result_output ∈ str ← result.stdout
+        require(result_status == 0, "Surfer root-search shader failed:\n" + result_output)
+        shader_path ∈ object ← output_dir.joinpath("surfer-root-search.frag")
+        require(shader_path.is_file(), "backend did not write surfer-root-search.frag")
+        shader ∈ str ← shader_path.read_text()
+        for declaration in ["in vec2 v_uv;", "uniform float u_coefficients[8];",
+                            "uniform float u_near;", "uniform float u_far;"]:
+            require(declaration in shader, "Surfer root-search interface lost " + declaration)
+        for index in range(8):
+            require("u_coefficients[int(" + str(float(index)) + ")]" in shader,
+                    "polynomial coefficient " + str(index) + " was not used")
+        branch_count ∈ int ← shader.count("if (")
+        select_count ∈ int ← shader.count(" ? ")
+        require(branch_count + select_count >= 20,
+                "bounded bracket/bisection decisions were not emitted as branches or operand selects")
+        require("16.0" in shader, "16-interval bracket search bound was lost")
+        require("0.5" in shader, "bisection midpoint was not emitted")
+        validator ∈ str | None ← shutil.which("glslangValidator")
+        if validator:
+            validated ∈ object ← subprocess.run(
+                [validator, "-S", "frag", str(shader_path)], cwd=ROOT,
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                check=False)
+            validation_status ∈ int ← validated.returncode
+            validation_output ∈ str ← validated.stdout
+            require(validation_status == 0,
+                    "GLSL validator rejected Surfer root-search fragment:\n" + validation_output)
+    print("Surfer root search passed: degree 7, 16 brackets, 20 bisections, valid GLSL")
+    return 0
+
+try:
+    raise SystemExit(main())
+except AssertionError as error:
+    print("Surfer root-search check failed: " + str(error), file=sys.stderr)
+    raise SystemExit(1)
