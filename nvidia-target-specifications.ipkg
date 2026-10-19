@@ -1,0 +1,7 @@
+package nvidia-target-specifications
+version = 0.1.0
+
+sourcedir = "src"
+
+-- Self-contained, hardware-documentation-only catalogue. No CUDA/PTX runtime.
+modules = Backend.NVIDIA.Specs, Test.NVIDIA.Specs

@@ -1,0 +1,2 @@
+ptx-compiler	grease _/recipes/compile-ptx.grease
+qualify-nvidia	grease _/recipes/nvidia.grease

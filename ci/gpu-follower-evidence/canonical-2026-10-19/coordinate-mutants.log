@@ -1,0 +1,6 @@
+PASS independent numerical comparison: 1024 basis pairings and 2 coordinate-change samples
+PASS executed one-operand coordinate-swap mutant rejected
+PASS omitted-case receipt mutant rejected
+685f950ec9a2f7ca82024c41557f375f1c33aaf8141a1dcdc264c2efdd06af58  control.tsv
+86420c1063f627b3b1ebe3f4410d1d22b321e271c61f7d065107d96eeb83e489  swapped.tsv
+78df2e5822001cc741f518b8502c9bbc63ab4ade3aac94a99e751d1c35ff3b82  omitted.tsv

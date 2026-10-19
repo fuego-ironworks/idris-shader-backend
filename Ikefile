@@ -1,3 +1,23 @@
+check depends on
+    make check
+
+numeric-compiler depends on numeric-formats.ipkg src/Backend/Numeric/Formats.idr src/Test/Numeric/Formats.idr
+    grease _/recipes/compile-numeric.grease
+
+numeric depends on numeric-compiler
+    grease _/recipes/numeric.grease
+
+ptx-compiler depends on ptx-backend.ipkg src/Backend/NVIDIA/PTX.idr src/Backend/NVIDIA/Codegen.idr src/Backend/NVIDIA/Main.idr
+    grease _/recipes/compile-ptx.grease
+
+qualify-nvidia depends on ptx-compiler src/Example/GivensPTX.idr src/Example/PixelPTX.idr
+    grease _/recipes/nvidia.grease
+
+amd-compiler depends on amd-backend.ipkg src/Backend/AMD/LLVM.idr src/Backend/AMD/Codegen.idr src/Backend/AMD/Main.idr
+    grease _/recipes/compile-amd.grease
+
+qualify-amd depends on amd-compiler src/Example/PixelAMD.idr
+    grease _/recipes/amd.grease
 coordinate-pairing depends on checked-backend coordinate-source-types
 	$[ENV.GREASE] $[ENV.FP_RUNTIME] $[ENV.BACKEND_ROOT] ./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated src/Example/CoordinatePairing4Grayscale.idr -o coordinate-pairing4-grayscale
 	$[ENV.GREASE] $[ENV.FP_RUNTIME] $[ENV.BACKEND_ROOT] ./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated src/Example/CoordinatePairing32Grayscale.idr -o coordinate-pairing32-grayscale

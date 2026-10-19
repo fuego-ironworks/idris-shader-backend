@@ -1,0 +1,37 @@
+grease _/recipes/compile-ptx.grease
+ 5/11: Building Backend.GLSLES.Bounded (src/Backend/GLSLES/Bounded.idr)
+Warning: No incremental compile data for Compiler.ANF
+
+Now compiling the executable: idris2-ptx
+grease _/recipes/nvidia.grease
+/workspace/scratch/169ff1ff37de/vendor/cuda/nvidia/cuda_nvcc/bin/ptxas: OK
+ptxas: NVIDIA (R) Ptx optimizing assembler
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Tue_May_27_02:18:05_PDT_2025
+Cuda compilation tools, release 12.9, V12.9.86
+Build cuda_12.9.r12.9/compiler.36037853_0
+c8562ea5a5cbdfacc6dd5a124a202b913b6ade54da580c64311b71768894ceed  build/gpu-follower/nvidia/Givens-sm_80.ptx
+8a5145e980560a9ae77c9c13b0178e1ec2ad977e629b1923b10781c168dd3a3f  build/gpu-follower/nvidia/Givens-sm_80.ir
+74a3f62013b17b772b3d8ce457ded03abe34d9e6a721525fc3befc91409cf685  build/gpu-follower/nvidia/Givens-sm_80.cubin
+cd33f2c401ddbc75fb7ca8dd1a8b8bd235ea00f10523d409adf161566fa43e9b  build/gpu-follower/nvidia/Pixel-sm_80.ptx
+b137971685edf5efe65032316cbced62f9d087e29481dd7780854961f90c8384  build/gpu-follower/nvidia/Pixel-sm_80.ir
+34cfc3957f03bd2e0f2e41ccf068898624cee26928a5503f8c11368d45cd50c2  build/gpu-follower/nvidia/Pixel-sm_80.cubin
+ee097f61d86c44a0d30c6d473c66b52365cc676592e220dce2053bed02c51075  build/gpu-follower/nvidia/Givens-sm_90.ptx
+8a5145e980560a9ae77c9c13b0178e1ec2ad977e629b1923b10781c168dd3a3f  build/gpu-follower/nvidia/Givens-sm_90.ir
+e50ca08d17518a0716d272b961c440bd6bc2627d65258a63c2ab446414bddaa5  build/gpu-follower/nvidia/Givens-sm_90.cubin
+d9242fffdff7bc4b67e06ead5b2880177146cb0b44c60e7ed577673f0f2aefe0  build/gpu-follower/nvidia/Pixel-sm_90.ptx
+b137971685edf5efe65032316cbced62f9d087e29481dd7780854961f90c8384  build/gpu-follower/nvidia/Pixel-sm_90.ir
+edd542f028fcdea0c334b0aa8c896407488a778521eaa8ab9493e0704c9f92bb  build/gpu-follower/nvidia/Pixel-sm_90.cubin
+80b929d1e6d1d7c20ca9b79be1c89904f94ddeb6f68eefb4133e077d7774160f  build/gpu-follower/nvidia/Givens-sm_100.ptx
+8a5145e980560a9ae77c9c13b0178e1ec2ad977e629b1923b10781c168dd3a3f  build/gpu-follower/nvidia/Givens-sm_100.ir
+45bf1d9ebc89f96fe6b9ae678fc17dd90821126d810a15361d16c0476d4eed84  build/gpu-follower/nvidia/Givens-sm_100.cubin
+54e84cf54062d29e608645ecefb8b6aed7a53f2976dfd1c1e34b089bdcbdf05e  build/gpu-follower/nvidia/Pixel-sm_100.ptx
+b137971685edf5efe65032316cbced62f9d087e29481dd7780854961f90c8384  build/gpu-follower/nvidia/Pixel-sm_100.ir
+9bf4591c0a9d47263f8912dbf5ca5b38c8411738c07c5b09d6c0481887a45649  build/gpu-follower/nvidia/Pixel-sm_100.cubin
+2ae4e179cfb38ead4a9977d3874bcb4d437d12ba2c21f5b6dd8a78c1dd821f29  build/gpu-follower/nvidia/Givens-sm_103.ptx
+8a5145e980560a9ae77c9c13b0178e1ec2ad977e629b1923b10781c168dd3a3f  build/gpu-follower/nvidia/Givens-sm_103.ir
+2f59a4ee993119edc85c15565476a5ec2281fab6d4ca42a24949684014f11576  build/gpu-follower/nvidia/Givens-sm_103.cubin
+a8af29e8411d3ab49320d93a558a5b9cff9ffafe152c05a9c139a6a1e7ccd651  build/gpu-follower/nvidia/Pixel-sm_103.ptx
+b137971685edf5efe65032316cbced62f9d087e29481dd7780854961f90c8384  build/gpu-follower/nvidia/Pixel-sm_103.ir
+878d8015b7a74e96e32623f2f5653aeb58a197f76b094956a02282b863af147a  build/gpu-follower/nvidia/Pixel-sm_103.cubin
+[32mPASS real PTX emission and pinned vendor assembly; physical execution UNVERIFIED[0m

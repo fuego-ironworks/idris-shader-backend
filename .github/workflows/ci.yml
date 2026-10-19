@@ -75,6 +75,9 @@ jobs:
       - name: Verify the C runner stages
         run: make -f ci/Makefile verify ICK="${{ steps.ick.outputs.compiler }}"
 
+      - name: Typecheck NVIDIA target specifications and proofs
+        run: ${{ env.IDRIS2 }} --build nvidia-target-specifications.ipkg
+
       - name: Check out the accepted Ithon host frontend
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with:
@@ -83,8 +86,52 @@ jobs:
           path: .ithon
           persist-credentials: false
 
+      - name: Check out pinned Ike
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dilapidated-shed/ike
+          ref: 71178c348dd4621bd999ebdb6b0b60bac03fc85d
+          path: .ike-host
+          persist-credentials: false
+
+      - name: Compile pinned Ike with the qualified C frontend
+        run: |
+          "${{ steps.ick.outputs.compiler }}" -fno-link-libatomic \
+            -std=c11 -Wall -Wextra -Wpedantic -Werror -O2 \
+            .ike-host/ike.c -o "$RUNNER_TEMP/ike"
+
       - name: Run complete backend checks
-        run: make check ITHON="$PWD/.ithon/ithon"
+        # Ike owns the required outer graph; retained Make is its legacy leaf.
+        env:
+          ITHON: ${{ github.workspace }}/.ithon/ithon
+        run: |
+          IKE_RECEIPT="$RUNNER_TEMP/primary.ike.tsv" \
+          IKE_IKEFILE_IDENTITY="sha256:$(sha256sum Ikefile | cut -d ' ' -f 1)" \
+            "$RUNNER_TEMP/ike" check
+
+      - name: Check out the independent Ike gate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: isomorphisms/ai-ci
+          ref: fada3841bc119c9b64e4076a56b2dffedf0a9d8b
+          path: .aici-gpu
+          sparse-checkout: gpu-follower
+          persist-credentials: false
+
+      - name: Independently verify primary Ike execution
+        run: |
+          ITHON_PYTHON=python3 .ithon/ithon \
+            .aici-gpu/gpu-follower/verify_ike.pi \
+            "$RUNNER_TEMP/primary.ike.tsv" Ikefile check \
+            'POSIX-system()' ci/gpu-plans/primary.tsv
+          sha256sum "$RUNNER_TEMP/ike" "$RUNNER_TEMP/primary.ike.tsv"
+
+      - name: Retain the primary execution receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: primary-ike-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/primary.ike.tsv
+          if-no-files-found: error
 
       - name: Execute Android GLES framebuffer probes under Mesa
         run: |
