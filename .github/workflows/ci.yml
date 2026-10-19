@@ -75,8 +75,16 @@ jobs:
       - name: Verify the C runner stages
         run: make -f ci/Makefile verify ICK="${{ steps.ick.outputs.compiler }}"
 
+      - name: Check out the accepted Ithon host frontend
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          repository: dilapidated-shed/ithon
+          ref: 9d530f4ad51f5b0a09c3e74dbe45cac5bb6d52d3
+          path: .ithon
+          persist-credentials: false
+
       - name: Run complete backend checks
-        run: make check
+        run: make check ITHON="$PWD/.ithon/ithon"
 
       - name: Execute Android GLES framebuffer probes under Mesa
         run: |
