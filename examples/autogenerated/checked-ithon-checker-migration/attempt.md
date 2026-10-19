@@ -51,11 +51,36 @@ admission and the missing-producer refusal, not shader emission. The hosted
 workflow pins the accepted Ithon frontend and executes the replacement against
 the actual built backend through the existing complete check target.
 
-Five other expanded checker/mock files remain migration debt. In particular,
+At the first accepted slice, five other expanded checker/mock files remained migration debt. In particular,
 the mock interpreter needs a checked replacement for decorated dataclass and
 Any-shaped instruction payloads. No foreign import of a first-party Python
 checker is used to pretend this work is complete.
 
-This attempt is not a migrated production checker, a passing shader test, or
-Ithon acceptance of PR #68. The production Python programs remain named debt
-until checked replacements pass the original backend and negative controls.
+The next slice replaces analytic continuation and the shared factor portrait
+with checked modules. All original interface, capacity, runtime bound,
+phase/log placement, lowp/highp IR identity, palette, operand-only select,
+continuation count, GLSL validation and vertex-link assertions remain. A
+separate checked library exports loop_blocks without running the command on
+import. Standard-library subprocess, pathlib, tempfile, shutil and regex are
+explicit foreign boundaries; result fields are typed before checked use.
+
+The real accepted Ithon frontend refused the retained attempts in this order:
+analytic-original.pi uses Python colon annotations; analytic-augassign.pi
+uses unsupported AugAssign; analytic-method-results.pi uses untyped foreign
+count results; analytic-unpacking.pi uses unsupported tuple assignment;
+analytic-regex-result.pi compares an untyped foreign regex result. Explicit
+assignments, typed results, indexed tuple projections and Boolean regex
+presence preserve the original operations. Both complete replacement modules
+then passed mandatory frontend checking and refused the absent local backend.
+That is frontend admission, not successful shader emission. Hosted make check
+must execute these replacements against the exact built backend before merge.
+
+mock-original.pi retains the expanded production interpreter verbatim and
+fails on Python annotations. mock-dataclass.pi retains its actual Program
+shape with membership annotations (object payload remains explicitly
+unfinished) and the real frontend refuses typed class decorators. No Python
+import fallback or object-shaped fake checked interpreter replaces it.
+
+check_backend.py, check_fragment_mocks.py and fragment_mock_vm.py remain named
+migration debt. This does not establish Ithon acceptance of the whole of PR
+#68. Physical GPUs and live renderer integration remain separate obligations.
