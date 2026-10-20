@@ -12,7 +12,7 @@ The merged runner/structured-IR repair also expanded first-party Python
 backend-analysis tools and the fragment mock interpreter. Those changes are
 checked-Ithon migration debt; the earlier claim that these tools
 were unchanged was incorrect. The Surfer, analytic-continuation and shared
-factor portrait replacements now use checked Ithon. check_backend.py,
+factor portrait and backend-oracle replacements now use checked Ithon.
 check_fragment_mocks.py and fragment_mock_vm.py remain unresolved. The real
 Ithon attempts and their compiler
 refusal are retained in

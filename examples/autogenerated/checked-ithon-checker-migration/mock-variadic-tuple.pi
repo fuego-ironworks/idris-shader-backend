@@ -1,0 +1,8 @@
+"""Actual Program construction shape after removing the dataclass decorator."""
+class Program:
+    def __init__(self ∈ Program, interfaces ∈ tuple[str, ...],
+                 bindings ∈ tuple[tuple[str, str, tuple[object, ...]], ...],
+                 result ∈ str) → None:
+        self.interfaces = interfaces
+        self.bindings = bindings
+        self.result = result

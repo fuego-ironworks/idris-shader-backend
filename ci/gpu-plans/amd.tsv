@@ -1,0 +1,2 @@
+amd-compiler	grease _/recipes/compile-amd.grease
+qualify-amd	grease _/recipes/amd.grease

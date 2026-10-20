@@ -1,0 +1,168 @@
+make check
+/workspace/scratch/169ff1ff37de/Idris2/build/exec/idris2 --build generate.ipkg
+Now compiling the executable: idris-glsl-es-generate
+./build/exec/idris-glsl-es-generate
+wrote generated/fullscreen.vert and generated/sphere.frag
+/workspace/scratch/169ff1ff37de/Idris2/build/exec/idris2 --build tests.ipkg
+Now compiling the executable: idris-glsl-es-tests
+./build/exec/idris-glsl-es-tests
+PASS  sphere vanishes at (1,0,0)
+PASS  sphere is -1 at the origin
+PASS  symbolic gradient at (1,0,0)
+PASS  symbolic gradient at (1,2,3)
+PASS  GLSL keyword rejected as variable name
+PASS  duplicate interface name rejected
+PASS  negative disc radius removes the mask
+PASS  disc interior is transparent
+PASS  disc fade stays inside the radius
+PASS  disc boundary is fully obscured
+PASS  disc exterior is fully obscured
+PASS  dark mask stays within its gray range
+PASS  F16 and F32 are distinct semantic widths
+PASS  F32 selects explicit highp scalar semantics
+PASS  F16 selects mediump scalar lowering
+PASS  F16 and F32 scalar lowerings remain distinct
+PASS  F32 vec2 lowering preserves width
+PASS  F32 vec3 lowering preserves width
+PASS  F32 vec4 lowering preserves width
+PASS  F16 vec2 lowering preserves width
+PASS  F16 vec3 lowering preserves width
+PASS  F16 vec4 lowering preserves width
+PASS  unsupported F16 vector width is rejected
+PASS  unsupported F32 vector width is rejected
+PASS  legacy production default remains explicit F32
+PASS  portable GLES does not claim exact binary16
+PASS  generic GLES profile does not claim native mediump F16
+PASS  generic GLES profile does not claim vector F16
+PASS  PowerVR profile is named explicitly
+PASS  PowerVR profile records native mediump F16
+PASS  PowerVR profile records vector F16
+PASS  PowerVR F16 policy selects mediump without changing F32
+PASS  GLSL ES version directive
+PASS  typed fragment input declaration
+PASS  typed uniform declaration
+PASS  scalar temporary lowering
+PASS  production float declaration is explicit F32/highp
+PASS  F16 policy does not silently demote existing F32 shader
+PASS  integer powers are expanded
+PASS  fragment result is assigned
+PASS  emitter matches checked-in fragment golden
+41 tests passed
+/workspace/scratch/169ff1ff37de/Idris2/build/exec/idris2 --build backend.ipkg
+ 7/11: Building Backend.GLSLES.Bounded (src/Backend/GLSLES/Bounded.idr)
+Warning: No incremental compile data for Compiler.ANF
+
+Now compiling the executable: idris2-glsles
+python3 tools/probe_bounded_loop_anf.py
+bounded loop direct-lowering check passed
+python3 tools/check_backend.py
+backend checks passed: source lowering, expected outputs, explicit precision, structured expensive branches, phase portrait math, fixed uniform arrays, four rejections, dimension proof
+python3 tools/check_f16.py
+F16/F32 backend check passed: width intent, default lowering, precision overrides, invalid-width rejection
+python3 tools/check_shared_factor_portrait.py
+shared factor portrait passed: 64 zeros, 64 poles, HCL color, valid GLSL
+python3 tools/check_analytic_continuation.py
+analytic continuation passed: two bounded factor loops, precision-stable linked GLSL
+python3 tools/check_surfer_root_search.py
+Surfer root search passed: degree 7, 16 brackets, 20 bisections, valid GLSL
+python3 tools/check_powervr_primitives.py
+compile set-pixel-3-rgb-52-39-182 ...
+compiled set-pixel-3-rgb-52-39-182 in 0.469s
+compile set-block-32x32-rgb-52-39-182 ...
+compiled set-block-32x32-rgb-52-39-182 in 0.443s
+compile dot-vector4-covector4 ...
+compiled dot-vector4-covector4 in 0.435s
+compile dot-vector32-covector32 ...
+compiled dot-vector32-covector32 in 0.441s
+compile subtract-vector8-norm ...
+compiled subtract-vector8-norm in 0.550s
+compile rotate-difference8-to-e1 ...
+compiled rotate-difference8-to-e1 in 0.605s
+PowerVR primitive checks passed: pixel, block, dot4, dot32, subtract8, rotate8
+sh -n tools/accept_powervr_phone.sh
+sh -n tools/accept_powervr_android.sh
+sh tools/test_accept_powervr_android.sh
+Android GLES renderer target gates: PASS
+/workspace/scratch/169ff1ff37de/Idris2/build/exec/idris2 --build mali-mock.ipkg
+3/8: Building Backend.GLSLES.Bounded (src/Backend/GLSLES/Bounded.idr)
+Warning: No incremental compile data for Compiler.ANF
+
+Now compiling the executable: idris2-mali-mock
+./build/exec/idris2-mali-mock --cg mali-mock \
+	--source-dir src --output-dir /tmp \
+	src/Example/MaliMockSmoke.idr -o mali-mock-smoke
+python3 tools/check_mali_mock.py /tmp/mali-mock-smoke.mali.mock
+Mali mock smoke OK: /tmp/mali-mock-smoke.mali.mock
+/workspace/scratch/169ff1ff37de/Idris2/build/exec/idris2 --build fragment-mocks.ipkg
+5/9: Building Backend.GLSLES.Bounded (src/Backend/GLSLES/Bounded.idr)
+Warning: No incremental compile data for Compiler.ANF
+
+Now compiling the executable: idris2-fragment-mocks
+rm -rf /tmp/idris-fragment-mocks
+mkdir -p /tmp/idris-fragment-mocks
+Wegert mock -> powervr-ge8322-mock
+Givens mock -> powervr-ge8322-mock
+Wegert mock -> mali-g57-valhall-mock
+Givens mock -> mali-g57-valhall-mock
+Wegert mock -> switch-maxwell-sm53-mock
+Givens mock -> switch-maxwell-sm53-mock
+Wegert mock -> steam-rdna2-vulkan-mock
+Givens mock -> steam-rdna2-vulkan-mock
+Wegert mock -> webgpu-wgsl-mock
+Givens mock -> webgpu-wgsl-mock
+Wegert mock -> apple-metal-mock
+Givens mock -> apple-metal-mock
+Wegert mock -> nvidia-hopper-sm90-mock
+Givens mock -> nvidia-hopper-sm90-mock
+Wegert mock -> nvidia-blackwell-sm100-mock
+Givens mock -> nvidia-blackwell-sm100-mock
+Wegert mock -> adreno-tile-mock
+Givens mock -> adreno-tile-mock
+./build/exec/idris2-fragment-mocks --cg mali-g57-valhall-mock \
+	--source-dir src --output-dir /tmp/idris-fragment-mocks \
+	src/Example/BoundedLoopProbe.idr -o bounded-loop
+python3 tools/check_fragment_mocks.py /tmp/idris-fragment-mocks
+fragment mock execution OK: 9 targets, 5 Wegert samples and 4 genuine Givens cases each, six bounded-loop edge cases
+./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated \
+	src/Example/SetPixel3RGB5239182.idr -o set-pixel-3-rgb-52-39-182
+./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated \
+	src/Example/SetBlock32x32RGB5239182.idr -o set-block-32x32-rgb-52-39-182
+./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated \
+	src/Example/DotVector4Covector4.idr -o dot-vector4-covector4
+./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated \
+	src/Example/DotVector32Covector32.idr -o dot-vector32-covector32
+./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated \
+	src/Example/SubtractVector8Norm.idr -o subtract-vector8-norm
+./build/exec/idris2-glsles --cg glsles --source-dir src --output-dir generated \
+	src/Example/RotateDifference8ToE1.idr -o rotate-difference8-to-e1
+python3 tools/check_glsl.py generated/fullscreen.vert generated/sphere.frag \
+	generated/compiler-sphere.frag generated/disc-reveal.frag
+/workspace/scratch/169ff1ff37de/shader/fixtures/wegert-fullscreen.vert
+generated/disc-reveal.frag
+PASS  shader paths supplied
+PASS  fullscreen.vert targets GLSL ES 3.00
+PASS  fullscreen.vert has balanced parentheses
+PASS  fullscreen.vert has balanced braces
+PASS  fullscreen.vert has no non-finite literals
+PASS  sphere.frag targets GLSL ES 3.00
+PASS  sphere.frag has balanced parentheses
+PASS  sphere.frag has balanced braces
+PASS  sphere.frag has no non-finite literals
+PASS  compiler-sphere.frag targets GLSL ES 3.00
+PASS  compiler-sphere.frag has balanced parentheses
+PASS  compiler-sphere.frag has balanced braces
+PASS  compiler-sphere.frag has no non-finite literals
+PASS  disc-reveal.frag targets GLSL ES 3.00
+PASS  disc-reveal.frag has balanced parentheses
+PASS  disc-reveal.frag has balanced braces
+PASS  disc-reveal.frag has no non-finite literals
+PASS  independent polynomial oracle
+PASS  independent gradient oracle
+PASS  one disc reveal fragment supplied
+PASS  Wegert vertex and disc reveal varying match
+PASS  glslangValidator fullscreen.vert
+PASS  glslangValidator sphere.frag
+PASS  glslangValidator compiler-sphere.frag
+PASS  glslangValidator disc-reveal.frag
+PASS  glslangValidator wegert-fullscreen.vert
+PASS  glslangValidator linked wegert-fullscreen.vert + disc-reveal.frag

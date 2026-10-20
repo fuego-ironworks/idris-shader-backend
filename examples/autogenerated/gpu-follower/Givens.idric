@@ -1,0 +1,18 @@
+module Givens
+
+import Shader.Source
+
+%export "ptx:fragment|ab=in"
+rotate : SVec 2 → SVec 4
+rotate ab =
+  let first : Float32 = x ab
+      second : Float32 = y ab
+      radius = sqrtF (first × first + second × second)
+      safe_radius = maxF radius 0.000000000001
+      cosine = first ÷ safe_radius
+      sine = second ÷ safe_radius
+   in vec4 (cosine × first + sine × second)
+           ((−sine) × first + cosine × second) radius radius
+
+main : IO ()
+main = pure ()

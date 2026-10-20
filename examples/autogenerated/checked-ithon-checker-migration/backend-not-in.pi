@@ -1,0 +1,194 @@
+"""End-to-end checks for the registered Idriç to GLSL ES code generator."""
+import difflib
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from builtins import AssertionError, SystemExit
+
+ROOT ∈ object ← Path(__file__).resolve().parent.parent
+BACKEND ∈ object ← ROOT.joinpath("build", "exec", "idris2-glsles")
+
+def require(condition ∈ bool, message ∈ str) → None:
+    if not condition:
+        raise AssertionError(message)
+
+def status(result ∈ object) → int:
+    code ∈ int ← result.returncode
+    return code
+
+def output(result ∈ object) → str:
+    text ∈ str ← result.stdout
+    return text
+
+def compile_source(source ∈ str, output_dir ∈ object, output_name ∈ str,
+                   directives ∈ list[str]) → object:
+    arguments ∈ list[str] ← [str(BACKEND), "--cg", "glsles", "--source-dir", "src",
+                            "--output-dir", str(output_dir)]
+    arguments.extend(directives)
+    arguments.extend([source, "-o", output_name])
+    result ∈ object ← subprocess.run(arguments, cwd=ROOT, text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+    return result
+
+def validate_fragment(path ∈ object) → None:
+    validator ∈ str | None ← shutil.which("glslangValidator")
+    if validator:
+        result ∈ object ← subprocess.run([validator, "-S", "frag", str(path)],
+            cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+        require(status(result) == 0, "GLSL validator rejected " + str(path) + ":\n" + output(result))
+
+def main() → int:
+    require(BACKEND.is_file(), "backend executable is missing; run make backend")
+    expected_shader ∈ object ← ROOT.joinpath("generated", "compiler-sphere.frag")
+    expected_ir_path ∈ object ← ROOT.joinpath("generated", "compiler-sphere.ir")
+    reveal_expected_shader ∈ object ← ROOT.joinpath("generated", "disc-reveal.frag")
+    reveal_expected_ir_path ∈ object ← ROOT.joinpath("generated", "disc-reveal.ir")
+    with tempfile.TemporaryDirectory(prefix="idris-glsles-") as directory:
+        temporary ∈ object ← Path(directory)
+        ir_dump ∈ object ← temporary.joinpath("compiler-sphere.ir")
+        good ∈ object ← compile_source("src/Example/CompilerSphere.idr", temporary,
+                                      "compiler-sphere", ["--directive", "dump-ir=" + str(ir_dump)])
+        require(status(good) == 0, "ordinary Idris shader failed:\n" + output(good))
+        actual_path ∈ object ← temporary.joinpath("compiler-sphere.frag")
+        require(actual_path.is_file(), "backend did not write compiler-sphere.frag")
+        actual ∈ str ← actual_path.read_text()
+        expected ∈ str ← expected_shader.read_text()
+        require(ir_dump.is_file(), "dump-ir directive did not write the typed IR")
+        dumped ∈ str ← ir_dump.read_text()
+        expected_ir ∈ str ← expected_ir_path.read_text()
+        require(dumped.startswith("fragment(v_uv : in F32x2, u_time : uniform F32) -> F32x4"),
+                "typed IR dump lost explicit F32 interface widths")
+        require(" : F32" in dumped and "F32x" in dumped, "IR dump lost requested F32 labels")
+        require(" : float" not in dumped and " : vec" not in dumped,
+                "typed IR dump regressed to width-erasing GLSL type names")
+        require("_idris_t" in dumped and "return " in dumped, "typed IR dump is incomplete")
+        require(dumped == expected_ir, "typed IR dump differs from expected output")
+        sine_count ∈ int ← actual.count("sin(u_time)")
+        require(sine_count == 1, "ANF CSE did not merge repeated sin(u_time)")
+        require(" ? " in actual, "cheap Idris conditional stopped lowering to a GLSL select")
+        require("dot(" in actual, "dimension-polymorphic dot product was not lowered")
+        require("square" not in actual and "safeNormalize" not in actual,
+                "first-order helpers were not specialized into the fragment body")
+        if actual != expected:
+            difference ∈ str ← "".join(difflib.unified_diff(expected.splitlines(True),
+                actual.splitlines(True), fromfile=str(expected_shader), tofile=str(actual_path)))
+            raise AssertionError("compiler shader differs from expected output:\n" + difference)
+        low ∈ object ← compile_source("src/Example/CompilerSphere.idr", temporary,
+                                     "compiler-sphere-low", ["--directive", "float-precision=lowp"])
+        require(status(low) == 0, "lowp shader failed:\n" + output(low))
+        low_path ∈ object ← temporary.joinpath("compiler-sphere-low.frag")
+        require(low_path.is_file(), "lowp backend did not write a fragment shader")
+        low_source ∈ str ← low_path.read_text()
+        require("precision lowp float;" in low_source, "lowp directive did not reach emitted GLSL")
+        validate_fragment(low_path)
+        medium ∈ object ← compile_source("src/Example/CompilerSphere.idr", temporary,
+                                        "compiler-sphere-medium", ["--directive", "float-precision=mediump"])
+        require(status(medium) == 0, "mediump shader failed:\n" + output(medium))
+        medium_path ∈ object ← temporary.joinpath("compiler-sphere-medium.frag")
+        require(medium_path.is_file(), "mediump backend did not write a fragment shader")
+        medium_source ∈ str ← medium_path.read_text()
+        require("precision mediump float;" in medium_source,
+                "mediump directive did not reach emitted GLSL")
+        validate_fragment(medium_path)
+        bad_precision ∈ object ← compile_source("src/Example/CompilerSphere.idr", temporary,
+                                               "compiler-sphere-bad-precision", ["--directive", "float-precision=half"])
+        require("float-precision must be lowp, mediump, or highp" in output(bad_precision),
+                "invalid precision directive was not rejected:\n" + output(bad_precision))
+        require(not temporary.joinpath("compiler-sphere-bad-precision.frag").exists(),
+                "invalid precision directive still wrote a shader")
+        structured ∈ object ← compile_source("src/Example/StructuredBranch.idr", temporary,
+                                            "structured-branch", [])
+        require(status(structured) == 0, "structured branch shader failed:\n" + output(structured))
+        structured_path ∈ object ← temporary.joinpath("structured-branch.frag")
+        require(structured_path.is_file(), "structured branch shader was not written")
+        structured_source ∈ str ← structured_path.read_text()
+        branch_position ∈ int ← structured_source.find("  if (")
+        sqrt_position ∈ int ← structured_source.find("sqrt(")
+        sin_position ∈ int ← structured_source.find("sin(")
+        require(branch_position >= 0, "expensive conditional was not emitted as structured control flow")
+        require("  } else {" in structured_source, "structured conditional lost its else branch")
+        require(sqrt_position > branch_position and sin_position > branch_position,
+                "expensive branch work was still evaluated before the GLSL if")
+        require(" ? " not in structured_source, "expensive conditional remained an eager ternary select")
+        validate_fragment(structured_path)
+        reveal_ir_dump ∈ object ← temporary.joinpath("disc-reveal.ir")
+        reveal ∈ object ← compile_source("src/Example/DiscReveal.idr", temporary,
+                                        "disc-reveal", ["--directive", "dump-ir=" + str(reveal_ir_dump)])
+        require(status(reveal) == 0, "disc reveal shader failed:\n" + output(reveal))
+        reveal_path ∈ object ← temporary.joinpath("disc-reveal.frag")
+        require(reveal_path.is_file(), "backend did not write disc-reveal.frag")
+        require(reveal_ir_dump.is_file(), "backend did not dump disc-reveal.ir")
+        reveal_source ∈ str ← reveal_path.read_text()
+        expected_reveal ∈ str ← reveal_expected_shader.read_text()
+        reveal_ir ∈ str ← reveal_ir_dump.read_text()
+        expected_reveal_ir ∈ str ← reveal_expected_ir_path.read_text()
+        for declaration in ["in vec2 v_ndc;", "uniform vec2 u_center;", "uniform float u_half_height;",
+                            "uniform float u_aspect;", "uniform vec2 u_disc_center;",
+                            "uniform float u_disc_radius;", "uniform vec2 u_resolution;"]:
+            require(declaration in reveal_source, "disc reveal interface lost " + declaration)
+        require("sin(" in reveal_source, "dark-gray reveal texture was not emitted")
+        sentinel_condition ∈ str ← ""
+        reveal_lines ∈ list[str] ← reveal_source.splitlines()
+        for line in reveal_lines:
+            if sentinel_condition == "" and " = (u_disc_radius < 0.0);" in line:
+                words ∈ list[str] ← line.split()
+                sentinel_condition = words[1]
+        sentinel_if ∈ int ← reveal_source.find("  if (" + sentinel_condition + ") {")
+        safe_radius ∈ int ← reveal_source.find(" = (1e-5 > u_disc_radius);")
+        require(sentinel_if >= 0, "negative-radius no-mask sentinel did not become real control flow")
+        require(safe_radius > sentinel_if,
+                "negative-radius sentinel still evaluated the guarded radius work eagerly")
+        require(reveal_source == expected_reveal, "disc reveal shader differs from expected output")
+        require(reveal_ir == expected_reveal_ir, "disc reveal IR differs from expected output")
+        phase_math ∈ object ← compile_source("src/Example/PhasePortraitMath.idr", temporary,
+                                            "phase-portrait-math", [])
+        require(status(phase_math) == 0, "shared phase portrait math failed:\n" + output(phase_math))
+        phase_path ∈ object ← temporary.joinpath("phase-portrait-math.frag")
+        require(phase_path.is_file(), "backend did not write phase-portrait-math.frag")
+        phase_source ∈ str ← phase_path.read_text()
+        for operation in ["floor(", "fract(", "log(", "atan(", "pow(", "smoothstep("]:
+            require(operation in phase_source, "phase portrait shader lost " + operation)
+        arrays ∈ object ← compile_source("src/Example/FixedUniformArrays.idr", temporary,
+                                        "fixed-uniform-arrays", [])
+        require(status(arrays) == 0, "fixed uniform array shader failed:\n" + output(arrays))
+        arrays_path ∈ object ← temporary.joinpath("fixed-uniform-arrays.frag")
+        require(arrays_path.is_file(), "backend did not write fixed-uniform-arrays.frag")
+        arrays_source ∈ str ← arrays_path.read_text()
+        for declaration in ["uniform int u_count;", "uniform vec2 u_points[4];", "uniform float u_weights[4];"]:
+            require(declaration in arrays_source, "fixed array interface lost " + declaration)
+        require("float(u_count)" in arrays_source, "integer uniform was not converted for arithmetic")
+        require("u_points[int(" in arrays_source, "vector uniform array was not indexed")
+        require("u_weights[int(" in arrays_source, "scalar uniform array was not indexed")
+        validate_fragment(arrays_path)
+        failures ∈ list[tuple[str, str, str]] ← [
+            ("src/Test/Backend/BadResult.idr", "bad-result", "fragment entry must return ShaderFloatTuple 4"),
+            ("src/Test/Backend/BadRecursion.idr", "bad-recursion", "recursive shader call is not supported"),
+            ("src/Test/Backend/BadHeap.idr", "bad-heap", "heap-shaped constructor values are not supported"),
+            ("src/Test/Backend/BadDescriptor.idr", "bad-descriptor", "annotation describes 1 arguments")]
+        for failure in failures:
+            source ∈ str ← failure[0]
+            output_name ∈ str ← failure[1]
+            phrase ∈ str ← failure[2]
+            result ∈ object ← compile_source(source, temporary, output_name, [])
+            require(status(result) != 0, source + " returned success despite rejection")
+            require("Error:" in output(result), source + " unexpectedly compiled")
+            require(not temporary.joinpath(output_name + ".frag").exists(),
+                    source + " wrote a shader despite rejection")
+            require(phrase in output(result), source + " had the wrong diagnostic:\n" + output(result))
+        dimensions ∈ object ← compile_source("src/Test/Backend/BadDimensions.idr", temporary, "bad-dimensions", [])
+        require(status(dimensions) != 0, "tuple-width mismatch returned success despite rejection")
+        require("Error:" in output(dimensions), "mismatched tuple component counts unexpectedly typechecked")
+        require("ShaderFloatTuple 2" in output(dimensions) and "ShaderFloatTuple 3" in output(dimensions),
+                "tuple mismatch did not report both component counts:\n" + output(dimensions))
+    print("backend checks passed: source lowering, golden outputs, precision directives and labels, " +
+          "structured branch emission, phase-portrait emission, fixed uniform-array emission, " +
+          "four backend refusals, tuple-width source refusal")
+    return 0
+
+try:
+    raise SystemExit(main())
+except AssertionError as error:
+    print("backend check failed: " + str(error), file=sys.stderr)
+    raise SystemExit(1)

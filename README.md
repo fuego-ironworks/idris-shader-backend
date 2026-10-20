@@ -29,6 +29,13 @@ administrative-normal-form definitions. Ordinary `.idr` shader compatibility
 source remains supported. Explicit source-width preservation is a separate
 unfinished boundary; see [the checked coordinate contract](docs/coordinate-semantic-contract.md).
 
+The required outer build graph is the pinned root `Ikefile`. Its primary
+`check` target retains the existing Make leaf. Optional `qualify-nvidia` and
+`qualify-amd` targets emit real PTX and AMDGPU LLVM output and validate it with
+pinned vendor programs. Neither target is an Android/ARM32 dependency. Read
+[qualification](docs/gpu-follower-qualification.md) and the
+[hardware matrix](docs/gpu-hardware-matrix.md) for exact slices and gaps.
+
 ## What already works
 
 The backend reads shader argument and result types from the checked Idris
@@ -247,6 +254,29 @@ The checks cover:
 - `src/Example/SurferRootSearch.idr` — bounded Surfer root-search example
 - `fixtures/wegert-fullscreen.vert` — matching Wegert fullscreen vertex stage
 - `src/Test/Backend/` — accepted and rejected compiler fixtures
+
+## NVIDIA architecture catalogue and optional host compilers
+
+The [NVIDIA Hopper, Blackwell and Blackwell Ultra specifications](docs/nvidia-hopper-blackwell-specifications.md)
+record hardware resource and numerical features for H100, H200, B200, GB200
+and GB300, including PTX target suffix guards and product-specific limits.
+
+The typed data model is `src/Backend/NVIDIA/Specs.idr`, with definitional
+proofs in `src/Test/NVIDIA/Specs.idr`. Typecheck the self-contained catalogue:
+
+```sh
+idris2 --build nvidia-target-specifications.ipkg
+```
+
+The catalogue remains separate from numerical instruction lowering. The new
+optional PTX compiler exercises a bounded F32 Givens/pixel subset; vendor output
+and physical gaps are recorded in the qualification.
+The pre-existing NVIDIA fragment mocks remain unchanged; their older
+pseudo-assembly implementation has unqualified compatibility with the current
+structured shader IR. The optional PTX and AMDGPU compilers have now been built
+against the owned Idriç compiler/API, and their emitted artifacts passed the
+pinned vendor assemblers. Physical execution and the canonical source Float32
+handoff remain unverified; see the dated qualification record.
 
 ## Current boundary
 

@@ -81,6 +81,30 @@ shape with membership annotations (object payload remains explicitly
 unfinished) and the real frontend refuses typed class decorators. No Python
 import fallback or object-shaped fake checked interpreter replaces it.
 
-check_backend.py, check_fragment_mocks.py and fragment_mock_vm.py remain named
-migration debt. This does not establish Ithon acceptance of the whole of PR
+The third slice replaces check_backend.py with check_backend.pi. Every golden
+shader/typed IR comparison, CSE and interface-width assertion, precision
+directive case, structured branch and guarded sentinel check, fixed-array
+emission check, four backend refusals and tuple-width refusal remains. The
+private compile helper takes an explicit typed list of directive arguments;
+the actual producer argv bytes and order are unchanged for all 13 calls.
+
+Actual frontend failures are retained as backend-optional-argument.pi
+(truthiness did not narrow optional text), backend-none-comparison.pi (optional
+text versus None comparison is unsupported) and backend-not-in.pi (NotIn is
+unsupported). Explicit directive lists and Boolean negation of membership
+preserve the existing operations. The complete replacement then passed the
+real mandatory frontend and refused the absent local backend; hosted actual
+backend execution remains required before integration.
+
+mock-variadic-tuple.pi records the actual Program constructor's unsupported
+variadic tuple annotations. mock-instance-state.pi minimizes those payload
+annotations explicitly to unfinished objects and proves the next actual gap:
+self.interfaces assignment is rejected because static assignment currently
+requires a simple name target. This is a compiler blocker, not an accepted
+mock replacement. The mock Program, nested binding types and interpreter must
+receive a checked design; there is no first-party Python import escape.
+
+check_fragment_mocks.py and fragment_mock_vm.py remain the two expanded files
+with unresolved migration debt. Other unchanged legacy Python tools remain
+separate debt. This does not establish Ithon acceptance of the whole of PR
 #68. Physical GPUs and live renderer integration remain separate obligations.

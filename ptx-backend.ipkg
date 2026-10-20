@@ -1,0 +1,8 @@
+package idris-ptx-follower
+version = 0.1.0
+sourcedir = "src"
+depends = idris2, network
+opts = "--inc chez"
+modules = Backend.NVIDIA.PTX, Backend.NVIDIA.Codegen, Backend.NVIDIA.Main
+main = Backend.NVIDIA.Main
+executable = idris2-ptx

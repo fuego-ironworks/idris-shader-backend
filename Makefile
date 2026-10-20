@@ -80,9 +80,9 @@ test:
 
 backend-test: backend
 	python3 tools/probe_bounded_loop_anf.py
-	python3 tools/check_backend.py
-	python3 tools/check_f16.py
 	test -x "$(ITHON)"
+	"$(ITHON)" tools/check_backend.pi
+	python3 tools/check_f16.py
 	"$(ITHON)" tools/check_shared_factor_portrait.pi
 	"$(ITHON)" tools/check_analytic_continuation.pi
 	"$(ITHON)" tools/check_surfer_root_search.pi

@@ -1,0 +1,14 @@
+repository	revision	role
+fuego-ironworks/idris-shader-backend	f39d82594692c8d7d37f0c19e1e3dc3fa3615666	preserved original feature parent
+fuego-ironworks/idris-shader-backend	e7556cdb948f8ed039d612e703ce1b0c6030ee68	preserved inherited-repair parent
+idris-lang/Idris2	15a3e4e70843f7a34100f6470c04b791330788df	compatibility compiler and API
+isomorphisms/Idric	2734ac5a86610eddfab73b1644d72b4ac85a65ee	inspected canonical source; integration UNVERIFIED
+dilapidated-shed/ick	c61e448251744a2f40ad743ebef1a027bdcd2f9d	qualified C frontend for Ike and existing native runner
+dilapidated-shed/ike	71178c348dd4621bd999ebdb6b0b60bac03fc85d	actual outer orchestration producer
+fuego-ironworks/idric-arm-thumb	044877107e179df2ab3c8420867d71faff254f9f	inspected DEX main; historical ARM separate
+fuego-ironworks/idric-x86-aggressive-backend	00716e7f07176438960cca6b2b1ec692249ebb17	inspected x86 and inherited Python/compact-scalar debt
+isomorphisms/flexible-pipes	def2a66fe61a2b23440f98031f1defa738a0d1ee	control plane issue 68; no FP runtime execution claimed
+isomorphisms/ai-ci	ab5786fcab8cd179342ac9f8f2858083d0373b04	independent deterministic gates
+isomorphisms/catfood	395cdb37a542e653b77d606879bcb78362f2485e	inspected device/delivery authority
+dilapidated-shed/ithon	396d8b7af1417a0a61245db940fdb22ef9fbac51	actual checked oracle frontend
+dilapidated-shed/oils	5651cf97a1b5042f24f14112a7ade9a1518eb0bc	actual Grease implementation

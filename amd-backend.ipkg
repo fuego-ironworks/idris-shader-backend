@@ -1,0 +1,8 @@
+package idris-amdgpu-follower
+version = 0.1.0
+sourcedir = "src"
+depends = idris2, network
+opts = "--inc chez"
+modules = Backend.AMD.LLVM, Backend.AMD.Codegen, Backend.AMD.Main
+main = Backend.AMD.Main
+executable = idris2-amdgpu
