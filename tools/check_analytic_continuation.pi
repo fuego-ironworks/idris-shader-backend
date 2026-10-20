@@ -1,0 +1,10 @@
+"""Run the checked analytic-continuation backend contract."""
+import sys
+from builtins import AssertionError, SystemExit
+from analytic_continuation_checks import main
+
+try:
+    raise SystemExit(main())
+except AssertionError as error:
+    print("analytic continuation check failed: " + str(error), file=sys.stderr)
+    raise SystemExit(1)

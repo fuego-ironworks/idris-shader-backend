@@ -51,11 +51,113 @@ admission and the missing-producer refusal, not shader emission. The hosted
 workflow pins the accepted Ithon frontend and executes the replacement against
 the actual built backend through the existing complete check target.
 
-Five other expanded checker/mock files remain migration debt. In particular,
+At the first accepted slice, five other expanded checker/mock files remained migration debt. In particular,
 the mock interpreter needs a checked replacement for decorated dataclass and
 Any-shaped instruction payloads. No foreign import of a first-party Python
 checker is used to pretend this work is complete.
 
-This attempt is not a migrated production checker, a passing shader test, or
-Ithon acceptance of PR #68. The production Python programs remain named debt
-until checked replacements pass the original backend and negative controls.
+The next slice replaces analytic continuation and the shared factor portrait
+with checked modules. All original interface, capacity, runtime bound,
+phase/log placement, lowp/highp IR identity, palette, operand-only select,
+continuation count, GLSL validation and vertex-link assertions remain. A
+separate checked library exports loop_blocks without running the command on
+import. Standard-library subprocess, pathlib, tempfile, shutil and regex are
+explicit foreign boundaries; result fields are typed before checked use.
+
+The real accepted Ithon frontend refused the retained attempts in this order:
+analytic-original.pi uses Python colon annotations; analytic-augassign.pi
+uses unsupported AugAssign; analytic-method-results.pi uses untyped foreign
+count results; analytic-unpacking.pi uses unsupported tuple assignment;
+analytic-regex-result.pi compares an untyped foreign regex result. Explicit
+assignments, typed results, indexed tuple projections and Boolean regex
+presence preserve the original operations. Both complete replacement modules
+then passed mandatory frontend checking and refused the absent local backend.
+That is frontend admission, not successful shader emission. Hosted make check
+must execute these replacements against the exact built backend before merge.
+
+mock-original.pi retains the expanded production interpreter verbatim and
+fails on Python annotations. mock-dataclass.pi retains its actual Program
+shape with membership annotations (object payload remains explicitly
+unfinished) and the real frontend refuses typed class decorators. No Python
+import fallback or object-shaped fake checked interpreter replaces it.
+
+The third slice replaces check_backend.py with check_backend.pi. Every golden
+shader/typed IR comparison, CSE and interface-width assertion, precision
+directive case, structured branch and guarded sentinel check, fixed-array
+emission check, four backend refusals and tuple-width refusal remains. The
+private compile helper takes an explicit typed list of directive arguments;
+the actual producer argv bytes and order are unchanged for all 13 calls.
+
+Actual frontend failures are retained as backend-optional-argument.pi
+(truthiness did not narrow optional text), backend-none-comparison.pi (optional
+text versus None comparison is unsupported) and backend-not-in.pi (NotIn is
+unsupported). Explicit directive lists and Boolean negation of membership
+preserve the existing operations. The complete replacement then passed the
+real mandatory frontend and refused the absent local backend; hosted actual
+backend execution remains required before integration.
+
+mock-variadic-tuple.pi records the actual Program constructor's unsupported
+variadic tuple annotations. mock-instance-state.pi minimizes those payload
+annotations explicitly to unfinished objects and proves the next actual gap:
+self.interfaces assignment is rejected because static assignment currently
+requires a simple name target. This is a compiler blocker, not an accepted
+mock replacement. The mock Program, nested binding types and interpreter must
+receive a checked design; there is no first-party Python import escape.
+
+check_fragment_mocks.py and fragment_mock_vm.py remain the two expanded files
+with unresolved migration debt. Other unchanged legacy Python tools remain
+separate debt. This does not establish Ithon acceptance of the whole of PR
+#68. Physical GPUs and live renderer integration remain separate obligations.
+
+## October 20 current-source replay and adverse checker inputs
+
+The current main GPU follower source was incorporated normally. Its complete
+Idriç backend source/package closure is unchanged by this checker migration,
+so its exact previously qualified compiler artifact can be reused to execute
+the current checked ordinary source. Both new Ithon entrypoints now execute
+that actual backend successfully with the accepted frontend and installed
+GLSL validator. This replaces the earlier missing-backend observation for
+this bounded source replay; it does not manufacture physical GPU evidence.
+
+The added analytic-mutants program is an Ithon test of the actual checked
+Ithon library, rather than an alternate Idriç shader producer. Its input is
+the real emitted shader text from compile_variant; the pure shape checker
+maps that text and a precision policy to success or a specific assertion.
+Each damaged text must raise the intended diagnostic. Cases remove a
+uniform, alter the compile-time capacity, remove log work, alter precision,
+insert computed select work and omit the continuation centers. A reduced
+actual loop with its closing brace removed must also be refused. These are
+post-emission checker adversaries, not evidence that the named backend emits
+the damaged programs. The positive still starts at ordinary checked source
+and uses the actual registered backend.
+
+The first adverse-checker attempt is preserved as
+analytic-mutants-untyped-results.pi. The actual frontend refused a foreign
+str.replace result nested directly in a tuple: expected tuple[str, str], got
+tuple[unknown, str]. Explicit locally typed text results clear that concrete
+boundary; the test does not bypass the mandatory frontend.
+
+A separate runtime-bound control asks whether the emitted loop still honors
+the active uniform count when its fixed capacity is retained. It compiles the
+real ordinary source, changes the actual second loop condition to true, and
+requires a runtime-active-bound diagnostic. This exercises the claimed bound
+separately from merely counting the compile-time capacity and typed IR markers.
+
+That actual control exposed a false acceptance in the proposed checker: the
+damaged emitted shader retained two fixed-capacity markers and the original
+typed IR, so it passed despite losing its active uniform bound. The control
+exited 1 with `checker accepted an emitted loop without its runtime active
+bound`. The checker now binds each actual array-reading loop to the conversion
+of its corresponding zero/pole active uniform and requires that converted
+name in that loop's condition. It also refuses a loop that reads both arrays
+or neither. The original capacity, shape, precision, palette, placement and
+link checks remain. This repairs an actual checker gap, not a shader producer
+or GPU execution claim. The complete primary graph is replayed after this
+repair rather than relabeling its earlier seven-control result.
+Concurrent accepted main ce4bc6101155bc1850bcf5d68207eac584f42718 adds
+optional GPU followers and a required pinned-Ike outer build graph with an
+independent AICI receipt gate. All that unique work is retained by normal
+merge ancestry. The two-checker d85a77b run passed actual backend, GLSL/link,
+41 backend tests, nine mock targets and Mesa checks on its older graph; it is
+historical for the new graph. The combined three-checker follow-up must run
+through the maintained pinned Ike and independent gate on its current head.

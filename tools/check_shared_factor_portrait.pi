@@ -1,0 +1,80 @@
+"""Compile and validate the shared Wegert/continuation factor portrait."""
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from builtins import AssertionError, SystemExit
+from analytic_continuation_checks import loop_blocks
+
+ROOT ∈ object ← Path(__file__).resolve().parent.parent
+BACKEND ∈ object ← ROOT.joinpath("build", "exec", "idris2-glsles")
+
+def require(condition ∈ bool, message ∈ str) → None:
+    if not condition:
+        raise AssertionError(message)
+
+def main() → int:
+    require(BACKEND.is_file(), "backend executable is missing; run make backend")
+    with tempfile.TemporaryDirectory(prefix="shared-factor-portrait-") as directory:
+        output_dir ∈ object ← Path(directory)
+        result ∈ object ← subprocess.run(
+            [str(BACKEND), "--cg", "glsles", "--source-dir", "src", "--output-dir",
+             str(output_dir), "src/Example/SharedFactorPortrait.idr", "-o", "shared-factor-portrait"],
+            cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+        result_status ∈ int ← result.returncode
+        result_output ∈ str ← result.stdout
+        require(result_status == 0, "shared factor portrait failed:\n" + result_output)
+        shader_path ∈ object ← output_dir.joinpath("shared-factor-portrait.frag")
+        require(shader_path.is_file(), "backend did not write shared-factor-portrait.frag")
+        shader ∈ str ← shader_path.read_text()
+        for declaration in ["uniform int u_zero_count;", "uniform int u_pole_count;",
+                            "uniform vec2 u_zeros[64];", "uniform vec2 u_poles[64];"]:
+            require(declaration in shader, "shared portrait interface lost " + declaration)
+        for operation in ["atan(", "log(", "floor(", "pow(", "sin(", "cos("]:
+            require(operation in shader, "shared portrait lost " + operation)
+        loops ∈ list[str] ← loop_blocks(shader)
+        require(len(loops) == 2, "portrait must emit exactly two bounded factor loops")
+        arrays ∈ list[str] ← ["u_zeros", "u_poles"]
+        actives ∈ list[str] ← ["u_zero_count", "u_pole_count"]
+        shader_lines ∈ list[str] ← shader.splitlines()
+        for array_index in range(2):
+            array ∈ str ← arrays[array_index]
+            active ∈ str ← actives[array_index]
+            matching ∈ list[str] ← []
+            for candidate_block in loops:
+                if array + "[int(" in candidate_block:
+                    matching.append(candidate_block)
+            require(len(matching) == 1, array + " must be read by exactly one bounded loop")
+            block ∈ str ← matching[0]
+            active_name ∈ str ← ""
+            for line in shader_lines:
+                if active_name == "" and " = float(" + active + ");" in line:
+                    words ∈ list[str] ← line.split()
+                    active_name = words[1]
+            require(active_name != "", active + " was not converted for the runtime bound")
+            require(" < 64 && " in block, array + " lost its compile-time 64-element maximum")
+            require(" < " + active_name + ";" in block, array + " lost its runtime active bound")
+            require("atan(" in block and "log(" in block, array + " lost phase or modulus work")
+        phase_count ∈ int ← shader.count("atan(")
+        modulus_count ∈ int ← shader.count("log(")
+        require(phase_count == 2, "factor phase work escaped the two bounded loops")
+        require(modulus_count == 2, "factor modulus work escaped the two bounded loops")
+        require("66.0" in shader and "45.0" in shader, "Wegert HCL constants were lost")
+        validator ∈ str | None ← shutil.which("glslangValidator")
+        if validator:
+            validated ∈ object ← subprocess.run(
+                [validator, "-S", "frag", str(shader_path)], cwd=ROOT, text=True,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+            validation_status ∈ int ← validated.returncode
+            validation_output ∈ str ← validated.stdout
+            require(validation_status == 0,
+                    "GLSL validator rejected shared factor portrait:\n" + validation_output)
+    print("shared factor portrait passed: 64 zeros, 64 poles, HCL color, valid GLSL")
+    return 0
+
+try:
+    raise SystemExit(main())
+except AssertionError as error:
+    print("shared factor portrait check failed: " + str(error), file=sys.stderr)
+    raise SystemExit(1)

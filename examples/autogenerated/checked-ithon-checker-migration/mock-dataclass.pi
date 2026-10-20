@@ -1,0 +1,8 @@
+"""Actual mock Program shape, with payloads still awaiting a typed replacement."""
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Program:
+    interfaces ∈ tuple[str, ...]
+    bindings ∈ tuple[tuple[str, str, tuple[object, ...]], ...]
+    result ∈ str
