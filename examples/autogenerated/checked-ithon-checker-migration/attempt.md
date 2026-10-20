@@ -108,3 +108,11 @@ check_fragment_mocks.py and fragment_mock_vm.py remain the two expanded files
 with unresolved migration debt. Other unchanged legacy Python tools remain
 separate debt. This does not establish Ithon acceptance of the whole of PR
 #68. Physical GPUs and live renderer integration remain separate obligations.
+
+Concurrent accepted main ce4bc6101155bc1850bcf5d68207eac584f42718 adds
+optional GPU followers and a required pinned-Ike outer build graph with an
+independent AICI receipt gate. All that unique work is retained by normal
+merge ancestry. The two-checker d85a77b run passed actual backend, GLSL/link,
+41 backend tests, nine mock targets and Mesa checks on its older graph; it is
+historical for the new graph. The combined three-checker follow-up must run
+through the maintained pinned Ike and independent gate on its current head.
