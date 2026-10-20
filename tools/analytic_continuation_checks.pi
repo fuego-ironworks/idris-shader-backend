@@ -94,11 +94,25 @@ def check_shader_shape(shader ∈ str, precision ∈ str) → None:
             "factor loops lost their compile-time 64-element maximum")
     zero_readers ∈ int ← 0
     pole_readers ∈ int ← 0
+    shader_lines ∈ list[str] ← shader.splitlines()
     for block in loops:
+        active_uniform ∈ str ← ""
         if "u_zeros[int(" in block:
             zero_readers = zero_readers + 1
+            active_uniform = "u_zero_count"
         if "u_poles[int(" in block:
             pole_readers = pole_readers + 1
+            require(active_uniform == "", "one factor loop reads both arrays")
+            active_uniform = "u_pole_count"
+        require(active_uniform != "", "factor loop has no active array")
+        active_name ∈ str ← ""
+        for declaration_line in shader_lines:
+            if active_name == "" and " = float(" + active_uniform + ");" in declaration_line:
+                declaration_words ∈ list[str] ← declaration_line.split()
+                active_name = declaration_words[1]
+        require(active_name != "", active_uniform + " runtime active bound has no conversion")
+        require(" < " + active_name + ";" in block,
+                active_uniform + " runtime active bound was lost")
     require(zero_readers == 1, "zero array must be read by exactly one bounded loop")
     require(pole_readers == 1, "pole array must be read by exactly one bounded loop")
     labels ∈ list[str] ← ["first", "second"]
@@ -113,7 +127,6 @@ def check_shader_shape(shader ∈ str, precision ∈ str) → None:
     require(modulus_count == 2, "factor log-modulus computation was copied outside the two loops")
     # Operand-only selects remain distinct from branch-local computations.
     operand ∈ str ← r"(?:[A-Za-z_][A-Za-z_0-9]*|-?(?:[0-9]+(?:\.[0-9]*)?)(?:e[+-]?[0-9]+)?)"
-    shader_lines ∈ list[str] ← shader.splitlines()
     for line in shader_lines:
         if " ? " in line:
             selected_operands ∈ object ← re.search(r"= \(" + operand + r" \? " + operand + r" : " + operand + r"\);$", line)

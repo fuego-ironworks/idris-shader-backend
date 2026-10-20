@@ -1,0 +1,29 @@
+"""Require the shader checker to reject removal of a real runtime bound."""
+import re
+import tempfile
+from pathlib import Path
+from builtins import AssertionError, SystemExit
+from analytic_continuation_checks import compile_variant, check_shader_shape, require
+
+def main() → int:
+    with tempfile.TemporaryDirectory(prefix="checked-active-bound-") as directory:
+        output_directory ∈ object ← Path(directory)
+        variant ∈ tuple[str, str, object] ← compile_variant(output_directory, "lowp")
+        reference_shader ∈ str ← variant[1]
+        check_shader_shape(reference_shader, "lowp")
+        damaged_shader ∈ str ← re.sub(r" < 64 && [^;]+;", " < 64 && true;", reference_shader, count=1)
+        require(damaged_shader != reference_shader, "runtime-bound mutation did not change the actual shader")
+        observed_refusal ∈ bool ← False
+        try:
+            check_shader_shape(damaged_shader, "lowp")
+        except AssertionError as error:
+            observed_refusal = "runtime active bound" in str(error)
+        require(observed_refusal, "checker accepted an emitted loop without its runtime active bound")
+    print("PASS actual emitted runtime-bound mutation rejected")
+    return 0
+
+try:
+    raise SystemExit(main())
+except AssertionError as error:
+    print("FAIL checked runtime-bound control: " + str(error))
+    raise SystemExit(1)

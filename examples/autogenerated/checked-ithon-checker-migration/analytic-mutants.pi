@@ -1,0 +1,50 @@
+"""Refuse damaged actual emitted shader text through the checked library."""
+import tempfile
+from pathlib import Path
+from builtins import AssertionError, SystemExit
+from analytic_continuation_checks import compile_variant, check_shader_shape, loop_blocks, require
+
+def require_rejection(candidate_shader ∈ str, diagnostic ∈ str) → None:
+    observed_refusal ∈ bool ← False
+    try:
+        check_shader_shape(candidate_shader, "lowp")
+    except AssertionError as error:
+        observed_refusal = diagnostic in str(error)
+    require(observed_refusal, "damaged shader escaped its intended assertion: " + diagnostic)
+
+def main() → int:
+    with tempfile.TemporaryDirectory(prefix="checked-analytic-mutants-") as directory:
+        output_directory ∈ object ← Path(directory)
+        variant ∈ tuple[str, str, object] ← compile_variant(output_directory, "lowp")
+        reference_shader ∈ str ← variant[1]
+        check_shader_shape(reference_shader, "lowp")
+        damaged_uniform ∈ str ← reference_shader.replace("uniform vec2 u_zeros[64];", "uniform vec2 u_zeros[63];")
+        damaged_capacity ∈ str ← reference_shader.replace(" < 64 && ", " < 65 && ", 1)
+        damaged_logarithm ∈ str ← reference_shader.replace("log(", "exp(", 1)
+        damaged_precision ∈ str ← reference_shader.replace("precision lowp float;", "precision mediump float;")
+        damaged_select ∈ str ← reference_shader + "\nfloat deliberately_bad = (true ? floor(1.0) : 0.0);\n"
+        damaged_centers ∈ str ← reference_shader.replace("u_continuation_centers[int(", "u_damaged_centers[int(")
+        mutants ∈ list[tuple[str, str]] ← [
+            (damaged_uniform, "interface lost"),
+            (damaged_capacity, "64-element maximum"),
+            (damaged_logarithm, "log-modulus evaluation"),
+            (damaged_precision, "did not request lowp"),
+            (damaged_select, "branch work in a GLSL select"),
+            (damaged_centers, "24 bounded continuation centers")]
+        for mutant in mutants:
+            require_rejection(mutant[0], mutant[1])
+        actual_blocks ∈ list[str] ← loop_blocks(reference_shader)
+        observed_unbalanced_refusal ∈ bool ← False
+        try:
+            loop_blocks(actual_blocks[0][:-1])
+        except AssertionError as error:
+            observed_unbalanced_refusal = "body is unbalanced" in str(error)
+        require(observed_unbalanced_refusal, "unbalanced actual loop was accepted")
+    print("PASS checked analytic library: actual backend positive and seven intended refusals")
+    return 0
+
+try:
+    raise SystemExit(main())
+except AssertionError as error:
+    print("FAIL checked analytic mutation control: " + str(error))
+    raise SystemExit(1)

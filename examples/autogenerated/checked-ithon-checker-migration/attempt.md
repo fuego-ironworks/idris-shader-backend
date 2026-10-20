@@ -109,6 +109,51 @@ with unresolved migration debt. Other unchanged legacy Python tools remain
 separate debt. This does not establish Ithon acceptance of the whole of PR
 #68. Physical GPUs and live renderer integration remain separate obligations.
 
+## October 20 current-source replay and adverse checker inputs
+
+The current main GPU follower source was incorporated normally. Its complete
+Idriç backend source/package closure is unchanged by this checker migration,
+so its exact previously qualified compiler artifact can be reused to execute
+the current checked ordinary source. Both new Ithon entrypoints now execute
+that actual backend successfully with the accepted frontend and installed
+GLSL validator. This replaces the earlier missing-backend observation for
+this bounded source replay; it does not manufacture physical GPU evidence.
+
+The added analytic-mutants program is an Ithon test of the actual checked
+Ithon library, rather than an alternate Idriç shader producer. Its input is
+the real emitted shader text from compile_variant; the pure shape checker
+maps that text and a precision policy to success or a specific assertion.
+Each damaged text must raise the intended diagnostic. Cases remove a
+uniform, alter the compile-time capacity, remove log work, alter precision,
+insert computed select work and omit the continuation centers. A reduced
+actual loop with its closing brace removed must also be refused. These are
+post-emission checker adversaries, not evidence that the named backend emits
+the damaged programs. The positive still starts at ordinary checked source
+and uses the actual registered backend.
+
+The first adverse-checker attempt is preserved as
+analytic-mutants-untyped-results.pi. The actual frontend refused a foreign
+str.replace result nested directly in a tuple: expected tuple[str, str], got
+tuple[unknown, str]. Explicit locally typed text results clear that concrete
+boundary; the test does not bypass the mandatory frontend.
+
+A separate runtime-bound control asks whether the emitted loop still honors
+the active uniform count when its fixed capacity is retained. It compiles the
+real ordinary source, changes the actual second loop condition to true, and
+requires a runtime-active-bound diagnostic. This exercises the claimed bound
+separately from merely counting the compile-time capacity and typed IR markers.
+
+That actual control exposed a false acceptance in the proposed checker: the
+damaged emitted shader retained two fixed-capacity markers and the original
+typed IR, so it passed despite losing its active uniform bound. The control
+exited 1 with `checker accepted an emitted loop without its runtime active
+bound`. The checker now binds each actual array-reading loop to the conversion
+of its corresponding zero/pole active uniform and requires that converted
+name in that loop's condition. It also refuses a loop that reads both arrays
+or neither. The original capacity, shape, precision, palette, placement and
+link checks remain. This repairs an actual checker gap, not a shader producer
+or GPU execution claim. The complete primary graph is replayed after this
+repair rather than relabeling its earlier seven-control result.
 Concurrent accepted main ce4bc6101155bc1850bcf5d68207eac584f42718 adds
 optional GPU followers and a required pinned-Ike outer build graph with an
 independent AICI receipt gate. All that unique work is retained by normal
