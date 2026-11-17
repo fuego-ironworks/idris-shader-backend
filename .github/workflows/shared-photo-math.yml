@@ -1,0 +1,46 @@
+name: Shared photo mathematics source generation
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      IDRIS2: ${{ github.workspace }}/.idric-compiler-api/_/build/exec/idris2
+      IDRIS2_PREFIX: ${{ github.workspace }}/.idric-compiler-api/_/bootstrap-build
+      CHEZ: ${{ github.workspace }}/.idric-compiler-api/_/.tools/bin/scheme
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Prepare owned ICK
+        id: ick
+        uses: isomorphisms/ai-ci/ick-host@618223d47315a180851c1539197cdcdb761a4b0d
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: isomorphisms/Idric
+          ref: 2734ac5a86610eddfab73b1644d72b4ac85a65ee
+          path: .idric-compiler-api
+          persist-credentials: false
+      - name: Install compiler and shader validation dependencies
+        run: sudo apt-get update && sudo apt-get install -y chezscheme glslang-tools libgmp-dev
+      - name: Bootstrap pinned Idric with owned ICK support
+        working-directory: .idric-compiler-api
+        env:
+          CC: ${{ steps.ick.outputs.compiler }}
+          CFLAGS: -fno-link-libatomic -static-libgcc
+        run: ./edric bootstrap
+      - name: Install compiler API
+        working-directory: .idric-compiler-api/_
+        run: ${{ env.IDRIS2 }} --install idris2api.ipkg
+      - name: Generate and validate callable operations
+        run: make -f tools/photo-math.mk generate
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: shared-photo-math-${{ github.event.pull_request.head.sha || github.sha }}
+          path: build/photo-math
+          if-no-files-found: error
